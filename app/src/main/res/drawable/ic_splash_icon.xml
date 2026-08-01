@@ -4,8 +4,7 @@
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
-    android:viewportHeight="108"
-    android:tint="?attr/colorControlNormal">
+    android:viewportHeight="108">
     <path
         android:pathData="M54,18 C54,18 32,46 32,66 a22,22 0 0 0 44,0 C76,46 54,18 54,18 z"
         android:fillColor="#5ac8fa" />

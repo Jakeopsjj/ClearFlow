@@ -2,6 +2,7 @@ package com.cleardu.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,11 +26,13 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  *
  * @param modifier outer layout modifier
  * @param background substrate color (defaults to dark-first #000000)
+ * @param content foreground content drawn on top of the mesh
  */
 @Composable
 fun MeshGradientBackground(
     modifier: Modifier = Modifier,
     background: Color = LiquidGlassColors.Background,
+    content: @Composable BoxScope.() -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -37,7 +40,8 @@ fun MeshGradientBackground(
             .background(background)
             .drawBehind {
                 drawMeshGradient(size.width, size.height)
-            }
+            },
+        content = content
     )
 }
 

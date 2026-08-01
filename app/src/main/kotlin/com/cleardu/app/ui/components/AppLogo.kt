@@ -41,15 +41,13 @@ fun AppLogo(
     val glowAlpha by transition.animateFloat(
         initialValue = 0.20f,
         targetValue = 0.35f,
-        animationSpec = tween(
-            durationMillis = ClearDuMotion.LogoPulseDurationMs,
-            easing = EaseInOutSine
-        ).let {
-            infiniteRepeatable(
-                animation = it,
-                repeatMode = RepeatMode.Reverse
-            )
-        },
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = ClearDuMotion.LogoPulseDurationMs,
+                easing = EaseInOutSine
+            ),
+            repeatMode = RepeatMode.Reverse
+        ),
         label = "logoGlow"
     )
 

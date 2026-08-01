@@ -151,7 +151,7 @@ fun PermissionCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             PermissionIcon(item.icon, item.tone)
             Spacer(Modifier.width(ClearDuDimens.PermissionCardGap))
-            PermissionText(item)
+            PermissionText(item, Modifier.weight(1f))
             Spacer(Modifier.width(ClearDuDimens.PermissionCardGap))
             PermissionToggleButton(
                 granted = granted,
@@ -191,8 +191,8 @@ private fun PermissionIcon(icon: ImageVector, tone: PermissionTone) {
 }
 
 @Composable
-private fun PermissionText(item: PermissionItem) {
-    Column(modifier = Modifier.weight(1f)) {
+private fun PermissionText(item: PermissionItem, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         Text(
             text = stringResource(item.nameRes),
             style = ClearDuTypography.PermissionName,
