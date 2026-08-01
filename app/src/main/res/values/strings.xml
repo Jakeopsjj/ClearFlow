@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">清渡</string>
+    <string name="app_name_latin">ClearDu</string>
+
+    <!-- Onboarding welcome -->
+    <string name="onboarding_title">清渡</string>
+    <string name="onboarding_subtitle">您的专属透析健康伴侣</string>
+    <string name="onboarding_desc">科学记录超滤量、血压、心率、用药等数据，守护您的每一天</string>
+
+    <!-- Permission cards -->
+    <string name="perm_location_name">位置与导航</string>
+    <string name="perm_location_desc">导航到透析中心、附近医院定位</string>
+
+    <string name="perm_alarm_name">闹钟与提醒</string>
+    <string name="perm_alarm_desc">服药提醒、透析时间闹钟</string>
+
+    <string name="perm_storage_name">存储权限</string>
+    <string name="perm_storage_desc">保存健康数据、导出报告</string>
+
+    <string name="perm_phone_name">电话权限</string>
+    <string name="perm_phone_desc">一键拨打主治医生/紧急联系人</string>
+
+    <string name="perm_apps_name">应用列表读取</string>
+    <string name="perm_apps_desc">健康数据导入、与其他健康App联动</string>
+
+    <string name="perm_alert_name">后台强提醒</string>
+    <string name="perm_alert_desc">锁屏/后台状态下全屏提醒服药和透析</string>
+
+    <string name="perm_critical_badge">关键权限</string>
+    <string name="perm_action_allow">允许</string>
+    <string name="perm_action_granted">已允许</string>
+
+    <!-- Bottom section -->
+    <string name="agreement_prefix">点击即表示您同意</string>
+    <string name="agreement_user">《用户协议》</string>
+    <string name="agreement_and">和</string>
+    <string name="agreement_privacy">《隐私政策》</string>
+    <string name="action_start">开始使用</string>
+
+    <!-- MainActivity placeholder -->
+    <string name="main_placeholder">清渡 · 主页</string>
+    <string name="main_placeholder_hint">引导页已完成，主功能待接入</string>
+</resources>

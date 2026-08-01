@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Disable auto backup for the prototype build; not storing any user data yet. -->
+</full-backup-content>
