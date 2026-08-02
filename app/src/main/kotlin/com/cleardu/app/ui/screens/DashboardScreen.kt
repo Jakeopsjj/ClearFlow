@@ -135,12 +135,12 @@ fun DashboardScreen(
             )
 
             // === Floating Navigation Bar ===
+            // Note: Do NOT update selectedNavIndex here — the parent Activity
+            // handles navigation. Updating local state before the transition
+            // causes the nav bar to briefly show the wrong selection.
             FloatingNavigationBar(
                 selectedIndex = selectedNavIndex,
-                onItemSelected = { index ->
-                    selectedNavIndex = index
-                    onNavItemSelected(index)
-                },
+                onItemSelected = onNavItemSelected,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset)

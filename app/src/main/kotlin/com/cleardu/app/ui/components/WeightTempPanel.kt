@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -87,29 +88,38 @@ private fun WeightTempCard(
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
-            modifier = Modifier.padding(
-                horizontal = ClearDuDimens.WtCardPaddingH,
-                vertical = ClearDuDimens.WtCardPaddingV
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ClearDuDimens.WtCardPaddingH,
+                    vertical = ClearDuDimens.WtCardPaddingV
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = label,
                 style = ClearDuTypography.BpCardLabel,
-                color = LiquidGlassColors.Text400
+                color = LiquidGlassColors.Text400,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = value,
                 style = ClearDuTypography.WtCardValue,
-                color = LiquidGlassColors.Foreground
+                color = LiquidGlassColors.Foreground,
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = unit,
                 style = ClearDuTypography.BpCardUnit,
-                color = LiquidGlassColors.Text400
+                color = LiquidGlassColors.Text400,
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(ClearDuDimens.BpAdjustTopMargin))
-            Row(horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.BpAdjustGap)) {
+            Row(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.BpAdjustGap)
+            ) {
                 AdjustButton(text = "-", onClick = onDecrease)
                 AdjustButton(text = "+", onClick = onIncrease)
             }

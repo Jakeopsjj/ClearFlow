@@ -209,30 +209,38 @@ fun SaveRecordButton(
         modifier = modifier
             .fillMaxWidth()
             .height(ClearDuDimens.SaveBtnHeight + glowPadding * 2)
+            .clip(RoundedCornerShape(ClearDuDimens.SaveBtnRadius))
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .drawBehind {
-                // Ambient cyan glow halo (0 0 30px BtnGlowCyan).
-                drawRect(
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                // Ambient cyan glow halo — draw as a circle, not a rect,
+                // so the glow is soft and circular rather than a hard rectangle.
+                drawCircle(
                     Brush.radialGradient(
                         colors = listOf(
                             cyanGlow,
                             cyanGlow.copy(alpha = cyanGlow.alpha * 0.4f),
                             Color.Transparent
                         ),
-                        center = Offset(size.width / 2f, size.height / 2f),
+                        center = Offset(centerX, centerY),
                         radius = maxOf(size.width, size.height) * 0.7f
-                    )
+                    ),
+                    radius = maxOf(size.width, size.height) * 0.7f,
+                    center = Offset(centerX, centerY)
                 )
-                // Offset blue drop shadow (0 8px 24px BtnGlowBlue).
-                drawRect(
+                // Offset blue drop shadow.
+                drawCircle(
                     Brush.radialGradient(
                         colors = listOf(blueGlow, Color.Transparent),
-                        center = Offset(size.width / 2f, size.height / 2f + 8.dp.toPx()),
+                        center = Offset(centerX, centerY + 8.dp.toPx()),
                         radius = maxOf(size.width, size.height) * 0.6f
-                    )
+                    ),
+                    radius = maxOf(size.width, size.height) * 0.6f,
+                    center = Offset(centerX, centerY + 8.dp.toPx())
                 )
             },
         contentAlignment = Alignment.Center
