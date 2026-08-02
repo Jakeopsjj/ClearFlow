@@ -94,12 +94,7 @@ fun MedicationReminderCard(
                         .drawBehindFill(LiquidGlassColors.TintOrangeBg),
                     contentAlignment = Alignment.Center
                 ) {
-                    androidx.compose.foundation.Canvas(modifier = Modifier.size(20.dp)) {
-                        drawCircle(
-                            color = LiquidGlassColors.MedicalOrange,
-                            radius = 8.dp.toPx()
-                        )
-                    }
+                    MedicationPillIcon()
                 }
 
                 // Text

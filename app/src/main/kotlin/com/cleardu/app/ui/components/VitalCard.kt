@@ -3,9 +3,11 @@ package com.cleardu.app.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -52,6 +54,7 @@ fun VitalCard(
     GlassCard(
         modifier = modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .graphicsLayer {
                 scaleX = if (pressed) ClearDuMotion.CardPressScale else 1f
                 scaleY = if (pressed) ClearDuMotion.CardPressScale else 1f
@@ -79,7 +82,7 @@ fun VitalCard(
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                VitalIcon(accentColor = item.accentColor)
+                VitalIcon(vitalId = item.id)
                 if (item.status == VitalStatus.Normal) {
                     VitalStatusTag(text = "正常")
                 }
@@ -105,31 +108,32 @@ fun VitalCard(
                 }
             }
 
-            // Sub value
-            item.subValue?.let { sub ->
-                Spacer(Modifier.height(ClearDuDimens.VitalSubTopMargin))
-                Text(
-                    text = sub,
-                    style = ClearDuTypography.VitalSub,
-                    color = LiquidGlassColors.Text400
-                )
-            }
+            // Sub value — always reserve space for consistent card height
+            Spacer(Modifier.height(ClearDuDimens.VitalSubTopMargin))
+            Text(
+                text = item.subValue ?: "",
+                style = ClearDuTypography.VitalSub,
+                color = if (item.subValue != null) LiquidGlassColors.Text400 else Color.Transparent
+            )
         }
     }
 }
 
 @Composable
-private fun VitalIcon(accentColor: Color) {
-    androidx.compose.foundation.layout.Box(
+private fun VitalIcon(vitalId: String) {
+    Box(
         modifier = Modifier
             .size(ClearDuDimens.VitalIconSize)
             .clip(RoundedCornerShape(ClearDuDimens.VitalIconRadius))
             .drawBehindFill(LiquidGlassColors.GlassBgLight),
         contentAlignment = Alignment.Center
     ) {
-        // Simple circle dot as icon placeholder
-        androidx.compose.foundation.Canvas(modifier = Modifier.size(16.dp)) {
-            drawCircle(color = accentColor, radius = 6.dp.toPx())
+        when (vitalId) {
+            "bp" -> BloodPressureIcon()
+            "hr" -> HeartRateIcon()
+            "weight" -> WeightIcon()
+            "temp" -> TemperatureIcon()
+            else -> BloodPressureIcon()
         }
     }
 }

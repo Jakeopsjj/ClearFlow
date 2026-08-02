@@ -88,6 +88,7 @@ fun FloatingNavigationBar(
         ) {
             labels.forEachIndexed { index, label ->
                 NavItem(
+                    index = index,
                     label = label,
                     isActive = index == selectedIndex,
                     onClick = { onItemSelected(index) }
@@ -99,6 +100,7 @@ fun FloatingNavigationBar(
 
 @Composable
 private fun NavItem(
+    index: Int,
     label: String,
     isActive: Boolean,
     onClick: () -> Unit
@@ -121,17 +123,18 @@ private fun NavItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Icon placeholder (dot)
+        // Icon
         Box(
             modifier = Modifier.size(ClearDuDimens.NavIconSize),
             contentAlignment = Alignment.Center
         ) {
-            androidx.compose.foundation.Canvas(modifier = Modifier.size(12.dp)) {
-                drawCircle(
-                    color = if (isActive) LiquidGlassColors.NavIconActive
-                    else LiquidGlassColors.NavIconInactive,
-                    radius = 6.dp.toPx()
-                )
+            val iconTint = if (isActive) LiquidGlassColors.NavIconActive else LiquidGlassColors.NavIconInactive
+            when (index) {
+                0 -> NavHomeIcon(tint = iconTint)
+                1 -> NavRecordIcon(tint = iconTint)
+                2 -> NavDataIcon(tint = iconTint)
+                3 -> NavMedicationIcon(tint = iconTint)
+                4 -> NavRemindersIcon(tint = iconTint)
             }
         }
 

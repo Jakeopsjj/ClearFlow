@@ -96,12 +96,12 @@ private fun QuickActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                // Accent dot as icon placeholder
-                androidx.compose.foundation.Canvas(modifier = Modifier.size(22.dp)) {
-                    drawCircle(
-                        color = action.accentColor,
-                        radius = 10.dp.toPx()
-                    )
+                when (action.id) {
+                    "uf" -> RecordUltrafiltrationIcon()
+                    "bp" -> MeasureBpIcon()
+                    "med" -> RecordMedicationIcon()
+                    "water" -> DrinkWaterIcon()
+                    else -> RecordUltrafiltrationIcon()
                 }
             }
         }
