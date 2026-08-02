@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -103,18 +105,21 @@ private fun BpCard(
     modifier: Modifier = Modifier
 ) {
     GlassCard(
-        modifier = modifier,
+        modifier = modifier.heightIn(min = ClearDuDimens.BpCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.BpCardRadius),
         background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
-            modifier = Modifier.padding(
-                horizontal = ClearDuDimens.BpCardPaddingH,
-                vertical = ClearDuDimens.BpCardPaddingV
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = ClearDuDimens.BpCardPaddingH,
+                    vertical = ClearDuDimens.BpCardPaddingV
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,

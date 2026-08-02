@@ -162,6 +162,7 @@ object ClearDuDimens {
     val BpCardRadius = 18.dp
     val BpCardPaddingH = 12.dp
     val BpCardPaddingV = 16.dp
+    val BpCardMinHeight = 160.dp
     val BpCardBottomMargin = 12.dp
     val BpAdjustBtnSize = 32.dp
     val BpAdjustGap = 6.dp
@@ -186,6 +187,7 @@ object ClearDuDimens {
     val ElementCardRadius = 18.dp
     val ElementCardPaddingH = 12.dp
     val ElementCardPaddingV = 14.dp
+    val ElementCardMinHeight = 140.dp
     val ElementRangeRadius = 6.dp
     val ElementRangePaddingH = 6.dp
     val ElementRangePaddingV = 2.dp

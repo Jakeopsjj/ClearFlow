@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -80,7 +82,9 @@ private data class ElementItem(
 @Composable
 private fun ElementCard(item: ElementItem, modifier: Modifier = Modifier) {
     GlassCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ClearDuDimens.ElementCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.ElementCardRadius),
         background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorder,
@@ -88,12 +92,13 @@ private fun ElementCard(item: ElementItem, modifier: Modifier = Modifier) {
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(
                     horizontal = ClearDuDimens.ElementCardPaddingH,
                     vertical = ClearDuDimens.ElementCardPaddingV
                 ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = item.symbol,
