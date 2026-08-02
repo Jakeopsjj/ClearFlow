@@ -1,5 +1,6 @@
 package com.cleardu.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,14 +34,35 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
-                DashboardRoot()
+                DashboardRoot(
+                    onNavItemSelected = ::handleNavSelection,
+                    onQuickAction = ::handleQuickAction
+                )
+            }
+        }
+    }
+
+    private fun handleNavSelection(index: Int) {
+        when (index) {
+            1 -> startActivity(Intent(this, DataRecordActivity::class.java))
+            // 0 = 首页 (current), others: future implementation
+        }
+    }
+
+    private fun handleQuickAction(action: QuickAction) {
+        when (action.id) {
+            "uf", "bp", "med" -> {
+                startActivity(Intent(this, DataRecordActivity::class.java))
             }
         }
     }
 }
 
 @Composable
-private fun DashboardRoot() {
+private fun DashboardRoot(
+    onNavItemSelected: (Int) -> Unit = {},
+    onQuickAction: (QuickAction) -> Unit = {}
+) {
     val dashboardData = remember {
         DashboardData(
             greeting = "早上好，张先生",
@@ -115,6 +137,8 @@ private fun DashboardRoot() {
 
     DashboardScreen(
         data = dashboardData,
+        onQuickAction = onQuickAction,
+        onNavItemSelected = onNavItemSelected,
         modifier = Modifier.fillMaxSize()
     )
 }

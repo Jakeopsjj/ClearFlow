@@ -55,6 +55,13 @@
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.ClearDu" />
+
+        <activity
+            android:name=".DataRecordActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClearDu"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
