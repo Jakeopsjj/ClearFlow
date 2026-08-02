@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,7 +64,7 @@ fun FloatingNavigationBar(
         // a Gaussian blur so content scrolling behind the nav bar is softened.
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .blur(20.dp)
                 .background(LiquidGlassColors.NavBg)
         )
@@ -72,14 +72,14 @@ fun FloatingNavigationBar(
         // === Subtle top/bottom border ===
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .border(BorderStroke(0.5.dp, LiquidGlassColors.NavBorder), shape)
         )
 
         // === Top specular highlight (glass reflection) ===
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .drawBehind {
                     val brush = Brush.verticalGradient(
                         colors = listOf(
