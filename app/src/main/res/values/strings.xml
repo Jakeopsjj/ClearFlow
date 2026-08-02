@@ -41,4 +41,24 @@
     <!-- MainActivity placeholder -->
     <string name="main_placeholder">清渡 · 主页</string>
     <string name="main_placeholder_hint">引导页已完成，主功能待接入</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">早上好，张先生</string>
+    <string name="dashboard_greeting_sub">今天是您透析后的第 2 天</string>
+    <string name="dashboard_fluid_target">今日目标 2,500ml</string>
+    <string name="dashboard_fluid_good">体液平衡良好</string>
+    <string name="dashboard_vital_normal">正常</string>
+    <string name="dashboard_med_title">下次用药：降压药</string>
+    <string name="dashboard_med_detail">14:00 - 还有 4 小时</string>
+    <string name="dashboard_remind_btn">提醒我</string>
+    <string name="dashboard_quick_uf">记录超滤</string>
+    <string name="dashboard_quick_bp">测血压</string>
+    <string name="dashboard_quick_med">记用药</string>
+    <string name="dashboard_quick_water">喝了水</string>
+    <string name="dashboard_weight_change">较昨日 </string>
+    <string name="dashboard_nav_home">首页</string>
+    <string name="dashboard_nav_record">记录</string>
+    <string name="dashboard_nav_data">数据</string>
+    <string name="dashboard_nav_meds">用药</string>
+    <string name="dashboard_nav_reminders">提醒</string>
 </resources>

@@ -4,26 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import com.cleardu.app.data.DashboardData
+import com.cleardu.app.data.MedicationReminder
+import com.cleardu.app.data.QuickAction
+import com.cleardu.app.data.VitalItem
+import com.cleardu.app.data.VitalStatus
+import com.cleardu.app.ui.screens.DashboardScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
-import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
 
 /**
- * Placeholder main Activity reached after onboarding.
+ * Main dashboard Activity — the primary entry point after onboarding.
  *
- * Real ClearDu modules (dashboard, health-data, reminders, medications, etc.)
- * will hang off this entry point. For the onboarding prototype it shows a
- * confirmation surface so the navigation handoff is verifiable end-to-end.
+ * Displays the dashboard home screen with:
+ *  - Fluid balance ring
+ *  - Vital signs 2x2 grid
+ *  - Medication reminder
+ *  - Quick action buttons
+ *  - Floating navigation bar
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,39 +33,88 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
-                MainPlaceholder()
+                DashboardRoot()
             }
         }
     }
 }
 
 @Composable
-private fun MainPlaceholder() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.foundation.layout.Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.main_placeholder),
-                    style = ClearDuTypography.WelcomeTitle,
-                    color = LiquidGlassColors.Foreground,
-                    textAlign = TextAlign.Center
+private fun DashboardRoot() {
+    val dashboardData = remember {
+        DashboardData(
+            greeting = "早上好，张先生",
+            greetingSub = "今天是您透析后的第 2 天",
+            fluidIntake = 1850,
+            fluidTarget = 2500,
+            fluidStatus = "体液平衡良好",
+            vitals = listOf(
+                VitalItem(
+                    id = "bp",
+                    label = "血压",
+                    value = "128/82",
+                    unit = "mmHg",
+                    status = VitalStatus.Normal,
+                    accentColor = LiquidGlassColors.MedicalRed
+                ),
+                VitalItem(
+                    id = "hr",
+                    label = "心率",
+                    value = "72",
+                    unit = "bpm",
+                    status = VitalStatus.Normal,
+                    accentColor = LiquidGlassColors.MedicalRed
+                ),
+                VitalItem(
+                    id = "weight",
+                    label = "体重",
+                    value = "65.2",
+                    unit = "kg",
+                    status = VitalStatus.Normal,
+                    subValue = "较昨日 -0.3kg",
+                    accentColor = LiquidGlassColors.MedicalCyan
+                ),
+                VitalItem(
+                    id = "temp",
+                    label = "体温",
+                    value = "36.5",
+                    unit = "°C",
+                    status = VitalStatus.Normal,
+                    accentColor = LiquidGlassColors.MedicalOrange
                 )
-                androidx.compose.foundation.layout.Spacer(Modifier.fillMaxSize(0.02f))
-                Text(
-                    text = stringResource(R.string.main_placeholder_hint),
-                    style = ClearDuTypography.WelcomeDesc,
-                    color = LiquidGlassColors.Text400,
-                    textAlign = TextAlign.Center
+            ),
+            medication = MedicationReminder(
+                title = "下次用药：降压药",
+                detail = "14:00 - 还有 4 小时",
+                actionLabel = "提醒我"
+            ),
+            quickActions = listOf(
+                QuickAction(
+                    id = "uf",
+                    label = "记录超滤",
+                    accentColor = LiquidGlassColors.MedicalCyan
+                ),
+                QuickAction(
+                    id = "bp",
+                    label = "测血压",
+                    accentColor = LiquidGlassColors.MedicalRed
+                ),
+                QuickAction(
+                    id = "med",
+                    label = "记用药",
+                    accentColor = LiquidGlassColors.MedicalPurple
+                ),
+                QuickAction(
+                    id = "water",
+                    label = "喝了水",
+                    accentColor = LiquidGlassColors.MedicalCyan
                 )
-            }
-        }
+            )
+        )
     }
+
+    DashboardScreen(
+        data = dashboardData,
+        modifier = Modifier.fillMaxSize()
+    )
 }

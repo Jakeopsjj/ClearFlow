@@ -80,6 +80,105 @@ object ClearDuTypography {
         fontSize = 10.sp,
         letterSpacing = (-0.01).sp
     )
+
+    // ===== Dashboard: greeting =====
+    val GreetingTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.03).sp
+    )
+
+    val GreetingSubtitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    // ===== Dashboard: ring =====
+    val RingValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 42.sp,
+        letterSpacing = (-0.04).sp,
+        lineHeight = 42.sp
+    )
+
+    val RingValueUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 18.sp
+    )
+
+    val RingLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val RingStatus = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp
+    )
+
+    // ===== Dashboard: vital cards =====
+    val VitalValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 26.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 29.sp
+    )
+
+    val VitalUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 12.sp
+    )
+
+    val VitalStatusTag = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 11.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val VitalSub = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    // ===== Dashboard: medication reminder =====
+    val MedTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp
+    )
+
+    val MedDetail = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val RemindButton = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp
+    )
+
+    // ===== Dashboard: quick actions =====
+    val QuickActionLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 11.sp,
+        letterSpacing = (-0.01).sp
+    )
 }
 
 /** Material3 typography holder. Screen-level composables use [ClearDuTypography]

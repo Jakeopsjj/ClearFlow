@@ -99,6 +99,78 @@ object LiquidGlassColors {
     val Background = Color(0xFF000000)
     val BackgroundAlternative = Color(0xFF1A1A1A)
 
+    // ===== Dashboard-specific tinted backgrounds =====
+    val TintCyanLight = Color(0x1A5AC8FA)      // rgba(90,200,250,0.1)
+    val TintCyanMd = Color(0x335AC8FA)         // rgba(90,200,250,0.2)
+    val TintCyanStrong = Color(0x405AC8FA)     // rgba(90,200,250,0.25)
+    val TintCyanActive = Color(0x595AC8FA)     // rgba(90,200,250,0.35)
+    val TintCyanGlow = Color(0x665AC8FA)       // rgba(90,200,250,0.4)
+    val TintCyanGlowStrong = Color(0x805AC8FA) // rgba(90,200,250,0.5)
+    val TintCyanBar = Color(0x995AC8FA)        // rgba(90,200,250,0.6)
+
+    val TintBlueBg = Color(0x1F007AFF)         // rgba(0,122,255,0.12)
+    val TintBlueGlow = Color(0x4D007AFF)       // rgba(0,122,255,0.3)
+    val TintBlueGlowStrong = Color(0x80007AFF) // rgba(0,122,255,0.5)
+    val TintBlueShadow = Color(0x4D007AFF)     // rgba(0,122,255,0.3)
+
+    val TintRedStrong = Color(0x2EFF3B30)      // rgba(255,59,48,0.18)
+    val TintRedGlow = Color(0x4DFF3B30)        // rgba(255,59,48,0.3)
+    val TintRedGlowStrong = Color(0x66FF3B30)  // rgba(255,59,48,0.4)
+    val TintRedShadow = Color(0x33FF3B30)      // rgba(255,59,48,0.2)
+    val TintRedLight = Color(0xFFFF6B60)       // #ff6b60
+
+    val TintGreenGlow = Color(0x6634C759)      // rgba(52,199,89,0.4)
+    val TintGreenGlowStrong = Color(0x8034C759) // rgba(52,199,89,0.5)
+    val TintGreenBarStart = Color(0x4D34C759)  // rgba(52,199,89,0.3)
+    val TintGreenBarEnd = Color(0x9934C759)    // rgba(52,199,89,0.6)
+
+    val TintOrangeStrong = Color(0x26FF9500)   // rgba(255,149,0,0.15)
+    val TintOrangeActive = Color(0x66FF9500)   // rgba(255,149,0,0.4)
+    val TintOrangeGlow = Color(0x26FF9500)     // rgba(255,149,0,0.15)
+    val TintOrangeGlowDot = Color(0x80FF9500)  // rgba(255,149,0,0.5)
+    val TintOrangeBarStart = Color(0x4DFF9500) // rgba(255,149,0,0.3)
+    val TintOrangeText = Color(0xB3FF9500)     // rgba(255,149,0,0.7)
+
+    // ===== Vital-specific colors =====
+    val BpNormal = Color(0xFF34C759)
+    val BpElevated = Color(0xFFFFCC00)
+    val BpHigh = Color(0xFFFF9500)
+    val BpCrisis = Color(0xFFFF3B30)
+    val HrNormal = Color(0xFF30D158)
+    val HrElevated = Color(0xFFFF9F0A)
+    val HrDanger = Color(0xFFFF453A)
+    val FluidGood = Color(0xFF5AC8FA)
+    val FluidWarning = Color(0xFFFF9F0A)
+    val FluidDanger = Color(0xFFFF453A)
+
+    // ===== Chart / graph colors =====
+    val ChartGrid = Color(0x14FFFFFF)          // rgba(255,255,255,0.08)
+    val ChartTargetLine = Color(0x99FF9500)    // rgba(255,149,0,0.6)
+    val ChartFillStart = Color(0x4D5AC8FA)     // rgba(90,200,250,0.3)
+    val ChartFillEnd = Color(0x005AC8FA)       // rgba(90,200,250,0)
+
+    // ===== Navigation bar colors =====
+    val NavBg = Color(0x14FFFFFF)              // rgba(255,255,255,0.08)
+    val NavBorder = Color(0x33FFFFFF)          // rgba(255,255,255,0.2)
+    val NavShadow = Color(0x33000000)          // rgba(0,0,0,0.2)
+    val NavSpecular = Color(0x4DFFFFFF)        // rgba(255,255,255,0.3)
+    val NavBlurFadeStart = Color(0x26000000)   // rgba(0,0,0,0.15)
+    val NavBlurFadeMid = Color(0x0D000000)     // rgba(0,0,0,0.05)
+    val NavIndicator = MedicalCyan
+    val NavIconInactive = Text400
+    val NavIconActive = MedicalCyan
+
+    // ===== Card active state =====
+    val CardActiveBg = Color(0x29FFFFFF)       // rgba(255,255,255,0.16)
+
+    // ===== Divider =====
+    val DividerSubtle = Color(0x0FFFFFFF)      // rgba(255,255,255,0.06)
+    val DividerLight = Color(0x14FFFFFF)       // rgba(255,255,255,0.08)
+    val DividerMedium = Color(0x1AFFFFFF)      // rgba(255,255,255,0.1)
+
+    // ===== Track / progress =====
+    val TrackBg = Color(0x1AFFFFFF)            // rgba(255,255,255,0.1)
+
     val Black = Color(0xFF000000)
     val White = Color(0xFFFFFFFF)
 }
