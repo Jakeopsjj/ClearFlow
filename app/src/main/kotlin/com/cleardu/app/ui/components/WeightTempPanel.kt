@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.text.style.TextAlign
@@ -81,7 +83,7 @@ private fun WeightTempCard(
     modifier: Modifier = Modifier
 ) {
     GlassCard(
-        modifier = modifier,
+        modifier = modifier.heightIn(min = ClearDuDimens.WtCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.WtCardRadius),
         background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorder,
@@ -89,12 +91,13 @@ private fun WeightTempCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(
                     horizontal = ClearDuDimens.WtCardPaddingH,
                     vertical = ClearDuDimens.WtCardPaddingV
                 ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,

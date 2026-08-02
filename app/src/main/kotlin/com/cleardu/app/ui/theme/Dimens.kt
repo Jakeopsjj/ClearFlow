@@ -179,6 +179,7 @@ object ClearDuDimens {
     val WtCardRadius = 18.dp
     val WtCardPaddingH = 12.dp
     val WtCardPaddingV = 16.dp
+    val WtCardMinHeight = 160.dp
 
     // ===== Data record: elements panel =====
     val ElementsGridGap = 10.dp
