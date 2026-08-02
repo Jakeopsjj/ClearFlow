@@ -150,12 +150,12 @@ object LiquidGlassColors {
     val ChartFillEnd = Color(0x005AC8FA)       // rgba(90,200,250,0)
 
     // ===== Navigation bar colors =====
-    val NavBg = Color(0x14FFFFFF)              // rgba(255,255,255,0.08)
-    val NavBorder = Color(0x33FFFFFF)          // rgba(255,255,255,0.2)
-    val NavShadow = Color(0x33000000)          // rgba(0,0,0,0.2)
-    val NavSpecular = Color(0x4DFFFFFF)        // rgba(255,255,255,0.3)
-    val NavBlurFadeStart = Color(0x26000000)   // rgba(0,0,0,0.15)
-    val NavBlurFadeMid = Color(0x0D000000)     // rgba(0,0,0,0.05)
+    val NavBg = Color(0xE61A1A1A)              // rgba(26,26,26,0.9) — opaque frosted
+    val NavBorder = Color(0x4DFFFFFF)           // rgba(255,255,255,0.3)
+    val NavShadow = Color(0x66000000)           // rgba(0,0,0,0.4)
+    val NavSpecular = Color(0x33FFFFFF)         // rgba(255,255,255,0.2)
+    val NavBlurFadeStart = Color(0x80000000)    // rgba(0,0,0,0.5)
+    val NavBlurFadeMid = Color(0x33000000)      // rgba(0,0,0,0.2)
     val NavIndicator = MedicalCyan
     val NavIconInactive = Text400
     val NavIconActive = MedicalCyan
