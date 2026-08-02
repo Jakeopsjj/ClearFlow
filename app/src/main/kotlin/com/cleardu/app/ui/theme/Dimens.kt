@@ -121,6 +121,107 @@ object ClearDuDimens {
     val DashboardContentHorizontal = 20.dp
     val DashboardContentBottom = 72.dp
 
+    // ===== Data record: page layout =====
+    val RecordContentTop = 44.dp
+    val RecordContentHorizontal = 20.dp
+    val RecordContentBottom = 72.dp
+    val RecordHeaderBottomMargin = 20.dp
+    val RecordSegmentBottomMargin = 20.dp
+    val RecordPanelBottomMargin = 16.dp
+
+    // ===== Data record: segmented control =====
+    val SegControlRadius = 14.dp
+    val SegControlPadding = 3.dp
+    val SegIndicatorRadius = 11.dp
+    val SegItemPaddingV = 8.dp
+    val SegItemPaddingH = 4.dp
+
+    // ===== Data record: ultrafiltration panel =====
+    val InputRingSize = 180.dp
+    val InputRingStrokeWidth = 10.dp
+    val InputRingRadius = 75f
+    val InputRingLabelTopMargin = 8.dp
+    val InputRingBottomMargin = 16.dp
+    val QuickAdjustGap = 8.dp
+    val QuickAdjustBtnPaddingH = 14.dp
+    val QuickAdjustBtnPaddingV = 8.dp
+    val QuickAdjustBottomMargin = 16.dp
+    val KeypadGap = 8.dp
+    val KeypadKeyHeight = 48.dp
+    val KeypadKeyRadius = 16.dp
+    val KeypadBottomMargin = 16.dp
+    val GoalProgressRadius = 16.dp
+    val GoalProgressPaddingH = 14.dp
+    val GoalProgressPaddingV = 12.dp
+    val GoalProgressBottomMargin = 16.dp
+    val GoalBarTrackHeight = 6.dp
+    val GoalBarRadius = 3.dp
+
+    // ===== Data record: BP/HR panel =====
+    val BpGridGap = 10.dp
+    val BpCardRadius = 18.dp
+    val BpCardPaddingH = 12.dp
+    val BpCardPaddingV = 16.dp
+    val BpCardBottomMargin = 12.dp
+    val BpAdjustBtnSize = 32.dp
+    val BpAdjustGap = 6.dp
+    val BpAdjustTopMargin = 10.dp
+    val HrCardRadius = 18.dp
+    val HrCardPaddingH = 16.dp
+    val HrCardPaddingV = 14.dp
+    val HrIconSize = 36.dp
+    val HrIconRadius = 10.dp
+    val HrInfoGap = 12.dp
+    val HrAdjustGap = 6.dp
+
+    // ===== Data record: weight/temp panel =====
+    val WtGridGap = 10.dp
+    val WtCardRadius = 18.dp
+    val WtCardPaddingH = 12.dp
+    val WtCardPaddingV = 16.dp
+
+    // ===== Data record: elements panel =====
+    val ElementsGridGap = 10.dp
+    val ElementCardRadius = 18.dp
+    val ElementCardPaddingH = 12.dp
+    val ElementCardPaddingV = 14.dp
+    val ElementRangeRadius = 6.dp
+    val ElementRangePaddingH = 6.dp
+    val ElementRangePaddingV = 2.dp
+    val ElementRangeTopMargin = 6.dp
+
+    // ===== Data record: medication panel =====
+    val MedSearchRadius = 14.dp
+    val MedSearchPaddingH = 14.dp
+    val MedSearchPaddingV = 10.dp
+    val MedSearchGap = 8.dp
+    val MedSearchBottomMargin = 12.dp
+    val MedItemRadius = 14.dp
+    val MedItemPaddingH = 14.dp
+    val MedItemPaddingV = 12.dp
+    val MedItemGap = 8.dp
+    val MedItemIconSize = 32.dp
+    val MedItemIconRadius = 9.dp
+    val MedItemInfoGap = 10.dp
+    val MedDoseBtnPaddingH = 10.dp
+    val MedDoseBtnPaddingV = 4.dp
+    val MedDoseBtnRadius = 8.dp
+    val MedDoseBtnGap = 6.dp
+
+    // ===== Data record: shared components =====
+    val ChipsLabelBottomMargin = 8.dp
+    val ChipsSectionBottomMargin = 14.dp
+    val ChipGap = 8.dp
+    val ChipPaddingH = 14.dp
+    val ChipPaddingV = 7.dp
+    val NoteAreaRadius = 16.dp
+    val NoteAreaPaddingH = 14.dp
+    val NoteAreaPaddingV = 12.dp
+    val NoteAreaMinHeight = 72.dp
+    val NoteAreaBottomMargin = 16.dp
+    val SaveBtnHeight = 52.dp
+    val SaveBtnRadius = 26.dp
+
     // ===== Mesh background glow radii (px-equivalent at design scale) =====
     object Mesh {
         val PurpleRadiusX = 320.dp

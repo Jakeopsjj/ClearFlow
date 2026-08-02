@@ -179,6 +179,200 @@ object ClearDuTypography {
         fontSize = 11.sp,
         letterSpacing = (-0.01).sp
     )
+
+    // ===== Data record: page header =====
+    val RecordPageTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.03).sp
+    )
+
+    val RecordPageSubtitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    // ===== Data record: segmented control =====
+    val SegItem = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 12.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    // ===== Data record: ultrafiltration panel =====
+    val InputDisplay = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 48.sp,
+        letterSpacing = (-0.04).sp,
+        lineHeight = 48.sp
+    )
+
+    val InputUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 18.sp
+    )
+
+    val InputLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val KeyText = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W500,
+        fontSize = 22.sp
+    )
+
+    val KeyActionText = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W500,
+        fontSize = 16.sp
+    )
+
+    val QuickAdjustText = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp,
+        letterSpacing = (-0.02).sp
+    )
+
+    val GoalLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val GoalValues = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    // ===== Data record: BP/HR panel =====
+    val BpCardLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val BpCardValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 36.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 36.sp
+    )
+
+    val BpCardUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val HrInfoValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 30.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 33.sp
+    )
+
+    // ===== Data record: weight/temp panel =====
+    val WtCardValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 34.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 34.sp
+    )
+
+    // ===== Data record: elements panel =====
+    val ElementSymbol = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 20.sp
+    )
+
+    val ElementName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val ElementValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        letterSpacing = (-0.02).sp,
+        lineHeight = 28.sp
+    )
+
+    val ElementUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val ElementRange = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 10.sp
+    )
+
+    // ===== Data record: medication panel =====
+    val MedSearchPlaceholder = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp
+    )
+
+    val MedListTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val MedItemName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp
+    )
+
+    val MedDoseBtn = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W600,
+        fontSize = 12.sp
+    )
+
+    // ===== Data record: shared components =====
+    val ChipText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 13.sp
+    )
+
+    val NoteText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp,
+        lineHeight = 21.sp
+    )
+
+    val SaveBtnText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 17.sp,
+        letterSpacing = (-0.01).sp
+    )
 }
 
 /** Material3 typography holder. Screen-level composables use [ClearDuTypography]

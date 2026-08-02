@@ -171,6 +171,34 @@ object LiquidGlassColors {
     // ===== Track / progress =====
     val TrackBg = Color(0x1AFFFFFF)            // rgba(255,255,255,0.1)
 
+    // ===== Data record: segmented control =====
+    val SegIndicatorStart = Color(0x595AC8FA)    // rgba(90,200,250,0.35)
+    val SegIndicatorEnd = Color(0x4D007AFF)       // rgba(0,122,255,0.3)
+    val SegIndicatorBorder = Color(0x665AC8FA)     // rgba(90,200,250,0.4)
+    val SegIndicatorShadow = Color(0x335AC8FA)     // rgba(90,200,250,0.2)
+    val SegInactiveText = Text600                 // rgba(255,255,255,0.7)
+
+    // ===== Data record: keypad =====
+    val KeyBg = GlassBgLight                       // rgba(255,255,255,0.08)
+    val KeyActiveBg = Color(0x38FFFFFF)            // rgba(255,255,255,0.22)
+    val KeyText = Foreground                        // #f5f5f7
+    val KeyActionColor = MedicalCyan                // #5ac8fa
+
+    // ===== Data record: placeholders =====
+    val PlaceholderText = Color(0x59F5F5F7)        // rgba(245,245,247,0.35)
+    val PlaceholderInput = Color(0x998E8E93)       // rgba(142,142,147,0.6)
+    val PlaceholderInputStrong = Color(0xB38E8E93) // rgba(142,142,147,0.7)
+
+    // ===== Data record: save button glow =====
+    val BtnGlowCyan = Color(0x595AC8FA)            // rgba(90,200,250,0.35)
+    val BtnGlowBlue = Color(0x4D007AFF)            // rgba(0,122,255,0.3)
+    val BtnGlowCyanActive = Color(0x405AC8FA)      // rgba(90,200,250,0.25)
+    val BtnGlowBlueActive = Color(0x33007AFF)      // rgba(0,122,255,0.2)
+
+    // ===== Data record: input ring pulse =====
+    val GlowCyanSoft = Color(0x335AC8FA)           // rgba(90,200,250,0.2)
+    val GlowCyanStrong = Color(0x665AC8FA)         // rgba(90,200,250,0.4)
+
     val Black = Color(0xFF000000)
     val White = Color(0xFFFFFFFF)
 }
