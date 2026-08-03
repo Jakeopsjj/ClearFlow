@@ -95,7 +95,8 @@ private fun ElementCard(item: ElementItem, modifier: Modifier = Modifier) {
                     horizontal = ClearDuDimens.ElementCardPaddingH,
                     vertical = ClearDuDimens.ElementCardPaddingV
                 ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = item.symbol,

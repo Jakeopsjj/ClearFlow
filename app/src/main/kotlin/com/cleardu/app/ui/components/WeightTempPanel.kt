@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -50,7 +51,9 @@ fun WeightTempPanel(modifier: Modifier = Modifier) {
     var temp by remember { mutableStateOf(36.5) }
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
         horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.WtGridGap)
     ) {
         WeightTempCard(
@@ -94,7 +97,8 @@ private fun WeightTempCard(
                     horizontal = ClearDuDimens.WtCardPaddingH,
                     vertical = ClearDuDimens.WtCardPaddingV
                 ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,

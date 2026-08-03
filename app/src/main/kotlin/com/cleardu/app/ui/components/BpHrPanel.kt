@@ -116,7 +116,8 @@ private fun BpCard(
                     horizontal = ClearDuDimens.BpCardPaddingH,
                     vertical = ClearDuDimens.BpCardPaddingV
                 ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,
