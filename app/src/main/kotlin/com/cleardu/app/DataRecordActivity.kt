@@ -36,6 +36,7 @@ class DataRecordActivity : ComponentActivity() {
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()
+                            2 -> startHealthDataActivity()
                             // 1 = 记录 (current page, no-op)
                             // Other tabs: future implementation
                         }
@@ -48,6 +49,14 @@ class DataRecordActivity : ComponentActivity() {
 
     private fun startMainActivity() {
         val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startHealthDataActivity() {
+        val intent = Intent(this, HealthDataActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

@@ -1,6 +1,7 @@
 package com.cleardu.app.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -185,13 +186,12 @@ private fun ExportButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // 图标占位 — 青色圆点
+            // 图标 — 青色圆形背景
             Box(
                 modifier = Modifier
                     .size(ClearDuDimens.HealthExportIconSize)
-                    .drawBehind {
-                        drawCircle(LiquidGlassColors.MedicalCyan.copy(alpha = 0.3f))
-                    },
+                    .clip(CircleShape)
+                    .background(LiquidGlassColors.MedicalCyan.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
