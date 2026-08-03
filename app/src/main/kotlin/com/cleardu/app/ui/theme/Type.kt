@@ -373,6 +373,175 @@ object ClearDuTypography {
         fontSize = 17.sp,
         letterSpacing = (-0.01).sp
     )
+
+    // ===== Health data: page =====
+    val HealthPageTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.03).sp
+    )
+
+    val HealthCardTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 16.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthCardSubtitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthAvgValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 20.sp,
+        letterSpacing = (-0.02).sp
+    )
+
+    val HealthAvgLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val HealthComplianceText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 13.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthVitalLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthBpValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 26.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 29.sp
+    )
+
+    val HealthHrValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 26.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 29.sp
+    )
+
+    val HealthVitalUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val HealthStatusTag = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 11.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthEleSymbol = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 18.sp
+    )
+
+    val HealthEleName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val HealthEleValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 24.sp,
+        letterSpacing = (-0.02).sp,
+        lineHeight = 26.sp
+    )
+
+    val HealthEleUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val HealthEleRange = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 10.sp
+    )
+
+    val HealthWeightValue = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 32.sp,
+        letterSpacing = (-0.03).sp,
+        lineHeight = 34.sp
+    )
+
+    val HealthWeightLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val HealthWeightScale = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 10.sp
+    )
+
+    val HealthWarningText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 13.sp,
+        lineHeight = 19.sp
+    )
+
+    val HealthWarningBold = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 13.sp
+    )
+
+    val HealthWarningBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 12.sp
+    )
+
+    val HealthExportBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val HealthChartAxis = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 10.sp
+    )
+
+    val HealthChartTarget = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 10.sp
+    )
 }
 
 /** Material3 typography holder. Screen-level composables use [ClearDuTypography]

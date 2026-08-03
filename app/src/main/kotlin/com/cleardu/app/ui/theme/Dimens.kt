@@ -225,6 +225,65 @@ object ClearDuDimens {
     val SaveBtnHeight = 52.dp
     val SaveBtnRadius = 26.dp
 
+    // ===== Health data: page layout =====
+    val HealthContentTop = 44.dp
+    val HealthContentHorizontal = 20.dp
+    val HealthContentBottom = 72.dp
+    val HealthTitleBottomMargin = 16.dp
+    val HealthFilterBottomMargin = 20.dp
+    val HealthCardBottomMargin = 14.dp
+
+    // ===== Health data: chart card =====
+    val HealthChartCardRadius = 22.dp
+    val HealthChartCardPaddingH = 18.dp
+    val HealthChartCardPaddingV = 18.dp
+    val HealthChartHeight = 180.dp
+    val HealthChartComplianceTopMargin = 10.dp
+    val HealthChartAvgValueSize = 20.dp
+
+    // ===== Health data: BP/HR card =====
+    val HealthBpHrRadius = 22.dp
+    val HealthBpHrPaddingH = 16.dp
+    val HealthBpHrPaddingV = 16.dp
+    val HealthBpHrGap = 10.dp
+    val HealthBpValueSize = 26.dp
+    val HealthHrValueSize = 26.dp
+    val HealthMiniBarHeight = 40.dp
+    val HealthMiniLineHeight = 36.dp
+
+    // ===== Health data: electrolyte grid =====
+    val HealthEleGridGap = 10.dp
+    val HealthEleCardRadius = 20.dp
+    val HealthEleCardPaddingH = 14.dp
+    val HealthEleCardPaddingV = 14.dp
+    val HealthEleValueSize = 24.dp
+    val HealthEleRangeBarHeight = 4.dp
+    val HealthEleIndicatorSize = 10.dp
+
+    // ===== Health data: weight card =====
+    val HealthWeightRadius = 22.dp
+    val HealthWeightPaddingH = 18.dp
+    val HealthWeightPaddingV = 18.dp
+    val HealthWeightValueSize = 32.dp
+    val HealthWeightBarHeight = 6.dp
+    val HealthWeightBarRadius = 3.dp
+    val HealthMiniWeightHeight = 40.dp
+
+    // ===== Health data: warning banner =====
+    val HealthWarningRadius = 18.dp
+    val HealthWarningPaddingH = 16.dp
+    val HealthWarningPaddingV = 14.dp
+    val HealthWarningBtnPaddingH = 14.dp
+    val HealthWarningBtnPaddingV = 6.dp
+    val HealthWarningBtnRadius = 9999.dp
+
+    // ===== Health data: export buttons =====
+    val HealthExportRadius = 16.dp
+    val HealthExportPaddingH = 12.dp
+    val HealthExportPaddingV = 12.dp
+    val HealthExportGap = 10.dp
+    val HealthExportIconSize = 18.dp
+
     // ===== Mesh background glow radii (px-equivalent at design scale) =====
     object Mesh {
         val PurpleRadiusX = 320.dp

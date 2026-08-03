@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
     private fun handleNavSelection(index: Int) {
         when (index) {
             1 -> startActivity(Intent(this, DataRecordActivity::class.java))
+            2 -> startActivity(Intent(this, HealthDataActivity::class.java))
             // 0 = 首页 (current), others: future implementation
         }
     }
