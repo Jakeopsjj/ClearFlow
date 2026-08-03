@@ -4,6 +4,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 /**
@@ -529,6 +530,14 @@ object ClearDuTypography {
         fontWeight = FontWeight.W600,
         fontSize = 14.sp,
         letterSpacing = (-0.01).sp
+    )
+
+    val HealthExportIcon = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp,
+        textAlign = TextAlign.Center,
+        lineHeight = 12.sp
     )
 
     val HealthChartAxis = TextStyle(

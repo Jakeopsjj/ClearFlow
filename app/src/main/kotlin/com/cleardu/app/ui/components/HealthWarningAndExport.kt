@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -196,8 +197,10 @@ private fun ExportButton(
             ) {
                 Text(
                     text = if (text == "导出报告") "↑" else "↗",
+                    modifier = Modifier.offset(y = 1.dp),
                     color = LiquidGlassColors.MedicalCyan,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    style = ClearDuTypography.HealthExportIcon
                 )
             }
             Text(
