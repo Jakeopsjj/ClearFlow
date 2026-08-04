@@ -1,5 +1,7 @@
 package com.cleardu.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,11 +29,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.ui.components.ContactPickerDialog
 import com.cleardu.app.ui.components.EmergencyCallCard
 import com.cleardu.app.ui.components.FloatingNavigationBar
+import com.cleardu.app.ui.components.HospitalPickerDialog
 import com.cleardu.app.ui.components.ReminderCountdownCard
 import com.cleardu.app.ui.components.ReminderSettingsCard
 import com.cleardu.app.ui.components.ReminderTodayList
@@ -37,6 +45,7 @@ import com.cleardu.app.ui.components.TodayReminder
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * 提醒中心页面 — "提醒" tab。
@@ -61,10 +70,17 @@ fun ReminderScreen(
     onFamilyContact: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var selectedNavIndex by remember { mutableIntStateOf(4) } // 提醒 tab active
 
     // === Observe real-time data from shared data manager ===
     val latestRecord by healthDataManager.latestRecord.collectAsState(initial = null)
+    val appSettings by healthDataManager.settings.collectAsState(initial = AppSettings())
+
+    // Dialog state
+    var showHospitalPicker by remember { mutableStateOf(false) }
+    var showContactPicker by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     // Derive today reminders from the latest record's medications
     val todayReminders = remember(latestRecord) {
@@ -94,7 +110,18 @@ fun ReminderScreen(
 
                 // 2. 倒计时英雄卡片
                 ReminderCountdownCard(
-                    onNavigate = onNavigate,
+                    hospitalName = appSettings.hospitalName,
+                    hospitalAddress = appSettings.hospitalAddress,
+                    onHospitalClick = { showHospitalPicker = true },
+                    onNavigate = {
+                        // Try to open navigation with the hospital address
+                        if (appSettings.hospitalAddress.isNotBlank()) {
+                            val uri = Uri.parse("geo:0,0?q=${Uri.encode(appSettings.hospitalAddress)}")
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            context.startActivity(intent)
+                        }
+                        onNavigate()
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderCountdownCardBottomMargin))
@@ -122,7 +149,18 @@ fun ReminderScreen(
 
                 // 7. 紧急呼叫卡片
                 EmergencyCallCard(
-                    onCall = onCall,
+                    contactName = appSettings.emergencyContactName,
+                    contactPhone = appSettings.emergencyContactPhone,
+                    onContactClick = { showContactPicker = true },
+                    onCall = {
+                        if (appSettings.emergencyContactPhone.isNotBlank()) {
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:${appSettings.emergencyContactPhone}")
+                            }
+                            context.startActivity(intent)
+                        }
+                        onCall()
+                    },
                     onFamilyContact = onFamilyContact,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -171,6 +209,33 @@ fun ReminderScreen(
                 lightMode = true
             )
         }
+    }
+
+    // === Dialogs ===
+    if (showHospitalPicker) {
+        HospitalPickerDialog(
+            currentSettings = appSettings,
+            onSave = { newSettings ->
+                scope.launch {
+                    healthDataManager.saveSettings(newSettings)
+                }
+                showHospitalPicker = false
+            },
+            onDismiss = { showHospitalPicker = false }
+        )
+    }
+
+    if (showContactPicker) {
+        ContactPickerDialog(
+            currentSettings = appSettings,
+            onSave = { newSettings ->
+                scope.launch {
+                    healthDataManager.saveSettings(newSettings)
+                }
+                showContactPicker = false
+            },
+            onDismiss = { showContactPicker = false }
+        )
     }
 }
 

@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,18 +29,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.ui.components.AddMedicationDialog
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.MedicationFab
 import com.cleardu.app.ui.components.MedicationProgressCard
+import com.cleardu.app.ui.components.MedicationSettingsDialog
 import com.cleardu.app.ui.components.MedicationSettingsEntry
 import com.cleardu.app.ui.components.MedicationTimeline
 import com.cleardu.app.ui.components.MedicationWarningBanner
 import com.cleardu.app.ui.components.MedDoseStatus
+import com.cleardu.app.ui.components.RefillRequestDialog
 import com.cleardu.app.ui.components.MedicationDose as TimelineMedDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * 用药管理页面 — "用药" tab。
@@ -67,15 +74,21 @@ fun MedicationScreen(
 
     // === Observe real-time data from shared data manager ===
     val latestRecord by healthDataManager.latestRecord.collectAsState(initial = null)
+    val appSettings by healthDataManager.settings.collectAsState(initial = AppSettings())
     val vitals by healthDataManager.latestVitals.collectAsState(
         initial = com.cleardu.app.data.DashboardVitals()
     )
+
+    // Dialog state
+    var showAddMedDialog by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
+    var showRefillDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     // Derive medication list from latest record
     val storedMeds = latestRecord?.selectedMedications ?: emptyList()
     val totalCount = storedMeds.size
     val takenCount = remember(storedMeds) {
-        // Simulate: medications with doseMultiplier >= 1.0 are considered "taken" today
         storedMeds.count { it.doseMultiplier >= 1.0 }
     }
 
@@ -123,7 +136,7 @@ fun MedicationScreen(
                 Spacer(Modifier.height(ClearDuDimens.MedProgressTitleBottomMargin))
 
                 // === 警告横幅 ===
-                MedicationWarningBanner(onRefillClick = onRefill)
+                MedicationWarningBanner(onRefillClick = { showRefillDialog = true })
                 Spacer(Modifier.height(ClearDuDimens.MedWarningBottomMargin))
 
                 // === 区块标题 ===
@@ -145,7 +158,7 @@ fun MedicationScreen(
                 Spacer(Modifier.height(ClearDuDimens.MedTimelineBottomMargin))
 
                 // === 设置入口 ===
-                MedicationSettingsEntry(onClick = onSettings)
+                MedicationSettingsEntry(onClick = { showSettingsDialog = true })
 
                 // 底部留白（给导航栏 + FAB 留出空间）
                 Spacer(
@@ -157,7 +170,7 @@ fun MedicationScreen(
 
             // === FAB 悬浮按钮 ===
             MedicationFab(
-                onClick = onFab,
+                onClick = { showAddMedDialog = true },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(
@@ -183,6 +196,49 @@ fun MedicationScreen(
                 lightMode = true
             )
         }
+    }
+
+    // === Dialogs ===
+    if (showAddMedDialog) {
+        AddMedicationDialog(
+            onSave = { customMed ->
+                scope.launch {
+                    healthDataManager.updateSettings { settings ->
+                        settings.copy(
+                            customMedications = settings.customMedications + customMed
+                        )
+                    }
+                }
+                showAddMedDialog = false
+            },
+            onDismiss = { showAddMedDialog = false }
+        )
+    }
+
+    if (showSettingsDialog) {
+        MedicationSettingsDialog(
+            currentSettings = appSettings,
+            onSave = { newSettings ->
+                scope.launch {
+                    healthDataManager.saveSettings(newSettings)
+                }
+                showSettingsDialog = false
+            },
+            onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    if (showRefillDialog) {
+        RefillRequestDialog(
+            currentSettings = appSettings,
+            onSave = { newSettings ->
+                scope.launch {
+                    healthDataManager.saveSettings(newSettings)
+                }
+                showRefillDialog = false
+            },
+            onDismiss = { showRefillDialog = false }
+        )
     }
 }
 

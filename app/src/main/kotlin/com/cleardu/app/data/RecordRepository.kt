@@ -7,18 +7,21 @@ import com.cleardu.app.dataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
+import org.json.JSONObject
 
 /**
- * Persistence layer for data records.
+ * Persistence layer for data records and app settings.
  *
- * Uses DataStore to store records as a JSON-encoded list. Each record is
- * serialized/deserialized via [RecordData.toJson] / [RecordData.fromJson].
+ * Uses DataStore to store records and settings as JSON-encoded lists.
  */
 class RecordRepository(private val context: Context) {
 
     companion object {
         private val KEY_RECORDS = stringPreferencesKey("records_json")
+        private val KEY_SETTINGS = stringPreferencesKey("app_settings_json")
     }
+
+    // ---- Records ----
 
     /** Observe all saved records as a [Flow]. */
     val recordsFlow: Flow<List<RecordData>> = context.dataStore.data.map { prefs ->
@@ -40,6 +43,25 @@ class RecordRepository(private val context: Context) {
     suspend fun clearAll() {
         context.dataStore.edit { prefs ->
             prefs[KEY_RECORDS] = "[]"
+        }
+    }
+
+    // ---- App Settings ----
+
+    /** Observe app settings as a [Flow]. */
+    val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { prefs ->
+        val json = prefs[KEY_SETTINGS] ?: "{}"
+        try {
+            AppSettings.fromJson(JSONObject(json))
+        } catch (_: Exception) {
+            AppSettings()
+        }
+    }
+
+    /** Save app settings. */
+    suspend fun saveSettings(settings: AppSettings) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SETTINGS] = settings.toJson().toString()
         }
     }
 

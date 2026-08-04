@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Shared state holder that wraps [RecordRepository] and exposes
- * derived data flows for the dashboard and health data screens.
+ * derived data flows for the dashboard, health data, reminder,
+ * and medication screens.
  *
  * All screens observe the same [RecordRepository] instance, so a
  * record saved on the DataRecord page immediately propagates to
@@ -21,6 +22,19 @@ class HealthDataManager(private val repository: RecordRepository) {
     // ---- Latest record ----
 
     val latestRecord: Flow<RecordData?> = records.map { it.firstOrNull() }
+
+    // ---- App Settings ----
+
+    val settings: Flow<AppSettings> = repository.settingsFlow
+
+    suspend fun saveSettings(settings: AppSettings) {
+        repository.saveSettings(settings)
+    }
+
+    suspend fun updateSettings(update: (AppSettings) -> AppSettings) {
+        val current = settings.first()
+        repository.saveSettings(update(current))
+    }
 
     // ---- Dashboard vitals ----
 

@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -25,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,19 +42,22 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.DrugDatabase
+import com.cleardu.app.data.DrugInfo
+import com.cleardu.app.data.DrugNetworkSearch
 import com.cleardu.app.data.MedicationDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * "用药" tab content for the data-record page.
  *
- * A glass search bar, a "已选药品" section header, and a vertical list of
- * medication items. Each item pairs a tinted capsule icon + name/dose with a
- * row of dose-multiplier buttons; the active button is filled with
- * [LiquidGlassColors.TintCyanMd] and tinted [LiquidGlassColors.MedicalCyan].
+ * A glass search bar with real drug search (local + network), a "已选药品"
+ * section header, and a vertical list of medication items.
  *
  * @param medications list of currently selected medications
  * @param onMedicationsChange callback when the medication list changes
@@ -66,10 +73,76 @@ fun MedicationPanel(
     onMedicationsChange: (List<MedicationDose>) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<DrugInfo>>(emptyList()) }
+    var showResults by remember { mutableStateOf(false) }
+    var selectedDrug by remember { mutableStateOf<DrugInfo?>(null) }
+    var isSearching by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Column(modifier = modifier.fillMaxWidth()) {
-        MedicationSearchBar()
+        // Search bar
+        MedicationSearchBar(
+            query = searchQuery,
+            onQueryChange = { query ->
+                searchQuery = query
+                if (query.isNotBlank()) {
+                    // Search local database immediately
+                    val localResults = DrugDatabase.search(query)
+                    searchResults = localResults
+                    showResults = true
+
+                    // If no local results, try network search
+                    if (localResults.isEmpty()) {
+                        isSearching = true
+                        scope.launch {
+                            val networkResults = DrugNetworkSearch.search(query)
+                            searchResults = networkResults
+                            showResults = networkResults.isNotEmpty()
+                            isSearching = false
+                        }
+                    }
+                } else {
+                    searchResults = emptyList()
+                    showResults = false
+                }
+            }
+        )
         Spacer(Modifier.height(ClearDuDimens.MedSearchBottomMargin))
 
+        // Search results dropdown
+        if (showResults && searchResults.isNotEmpty()) {
+            Text(
+                text = "搜索结果",
+                style = ClearDuTypography.MedListTitle,
+                color = LiquidGlassColors.Text400,
+                modifier = Modifier.padding(start = 2.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
+                verticalArrangement = Arrangement.spacedBy(ClearDuDimens.MedItemGap)
+            ) {
+                items(searchResults) { drug ->
+                    DrugSearchResultItem(
+                        drug = drug,
+                        onClick = { selectedDrug = drug }
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+        } else if (isSearching) {
+            Text(
+                text = "联网搜索中...",
+                style = ClearDuTypography.MedDetail,
+                color = LiquidGlassColors.Text400,
+                modifier = Modifier.padding(start = 2.dp)
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+
+        // Selected medications list
         Text(
             text = "已选药品",
             style = ClearDuTypography.MedListTitle,
@@ -102,12 +175,27 @@ fun MedicationPanel(
             }
         }
     }
+
+    // Drug detail dialog
+    if (selectedDrug != null) {
+        DrugDetailDialog(
+            drug = selectedDrug!!,
+            onAdd = { medDose ->
+                val updated = medications.toMutableList().apply { add(medDose) }
+                onMedicationsChange(updated)
+                selectedDrug = null
+            },
+            onDismiss = { selectedDrug = null }
+        )
+    }
 }
 
 @Composable
-private fun MedicationSearchBar(modifier: Modifier = Modifier) {
-    var query by remember { mutableStateOf("") }
-
+private fun MedicationSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.MedSearchRadius),
@@ -133,7 +221,7 @@ private fun MedicationSearchBar(modifier: Modifier = Modifier) {
             Spacer(Modifier.width(ClearDuDimens.MedSearchGap))
             BasicTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = onQueryChange,
                 modifier = Modifier.weight(1f),
                 textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
                     color = LiquidGlassColors.Foreground
@@ -158,6 +246,89 @@ private fun MedicationSearchBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun DrugSearchResultItem(
+    drug: DrugInfo,
+    onClick: () -> Unit
+) {
+    GlassCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(ClearDuDimens.MedItemRadius),
+        background = LiquidGlassColors.GlassBg,
+        border = LiquidGlassColors.GlassBorder,
+        specularTop = LiquidGlassColors.GlassSpecularTop
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = ClearDuDimens.MedItemPaddingH,
+                    vertical = ClearDuDimens.MedItemPaddingV
+                ),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(ClearDuDimens.MedItemIconSize)
+                    .clip(RoundedCornerShape(ClearDuDimens.MedItemIconRadius))
+                    .drawBehindFill(LiquidGlassColors.TintCyanMd),
+                contentAlignment = Alignment.Center
+            ) {
+                CapsuleIcon(tintColor = LiquidGlassColors.MedicalCyan)
+            }
+            Spacer(Modifier.width(ClearDuDimens.MedItemInfoGap))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = drug.name,
+                        style = ClearDuTypography.MedItemName,
+                        color = LiquidGlassColors.Foreground,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (drug.isFromNetwork) {
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "网络",
+                            style = ClearDuTypography.MedCardMeta,
+                            color = LiquidGlassColors.MedicalOrange
+                        )
+                    }
+                }
+                if (drug.genericName.isNotEmpty()) {
+                    Text(
+                        text = drug.genericName,
+                        style = ClearDuTypography.MedDetail,
+                        color = LiquidGlassColors.Text400
+                    )
+                }
+                if (drug.category.isNotEmpty()) {
+                    Text(
+                        text = drug.category,
+                        style = ClearDuTypography.MedCardMeta,
+                        color = LiquidGlassColors.Text400
+                    )
+                }
+                if (drug.description.isNotEmpty()) {
+                    Text(
+                        text = drug.description.take(80),
+                        style = ClearDuTypography.MedCardMeta,
+                        color = LiquidGlassColors.Text400.copy(alpha = 0.7f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+            MedChevronRightIcon(
+                tint = LiquidGlassColors.Text400,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
 private fun MedicationItem(
     name: String,
     dose: String,
@@ -170,7 +341,6 @@ private fun MedicationItem(
 ) {
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
 
-    // Sync selectedIndex when initialSelectedIndex changes from parent
     LaunchedEffect(initialSelectedIndex) {
         if (selectedIndex != initialSelectedIndex) {
             selectedIndex = initialSelectedIndex
@@ -274,8 +444,7 @@ private fun DoseButton(
 }
 
 /**
- * A 16dp capsule (pill) icon: a rounded rectangle rotated 45° with a
- * perpendicular split line through its middle, stroked with [tintColor].
+ * A 16dp capsule (pill) icon.
  */
 @Composable
 private fun CapsuleIcon(
@@ -317,10 +486,6 @@ private fun Modifier.drawBehindFill(color: Color): Modifier =
         }
     )
 
-/**
- * Returns a (background, tint) color pair for medication items,
- * cycling through preset colors based on index.
- */
 private fun medicationIconColors(index: Int): Pair<Color, Color> {
     val pairs = listOf(
         LiquidGlassColors.TintPurpleBg to LiquidGlassColors.MedicalPurple,

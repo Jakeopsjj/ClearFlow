@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -36,32 +40,39 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 /**
  * 紧急呼叫卡片。
  *
- * 自定义红色玻璃容器（非 GlassCard），顶部高光 + 红色 tint 背景 + 红色边框，
- * 外层附加 2.5s 呼吸红色辉光（alpha 0.08 ↔ 0.20）。内含「紧急呼叫」标题、
- * 主治医生姓名与电话、「立即拨打」渐变按钮（MedicalRed → DestructiveLight），
+ * 自定义红色玻璃容器，内含「紧急呼叫」标题、联系人姓名与电话、
+ * 「立即拨打」渐变按钮（MedicalRed → DestructiveLight），
  * 以及底部居中的「家人联系」入口。
  *
- * 卡片底部 16dp 间距由父布局负责，本组件不额外添加。
+ * Contact info is now configurable — tapping the contact area opens the
+ * contact picker dialog.
  *
+ * @param contactName 联系人姓名
+ * @param contactPhone 联系人电话
+ * @param onContactClick 点击联系人区域回调（打开联系人选择器）
  * @param onCall 点击「立即拨打」回调
  * @param onFamilyContact 点击「家人联系」回调
  */
 @Composable
 fun EmergencyCallCard(
+    contactName: String = "",
+    contactPhone: String = "",
+    onContactClick: () -> Unit = {},
     onCall: () -> Unit = {},
     onFamilyContact: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val cardShape = RoundedCornerShape(ClearDuDimens.ReminderEmergencyCardRadius)
 
+    val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
+    val displayPhone = contactPhone.ifBlank { "" }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(cardShape)
             .drawBehind {
-                // 红色 tint 背景
                 drawRect(LiquidGlassColors.LightTintRedBg)
-                // 顶部高光（上 50% 渐变）
                 val specBrush = Brush.verticalGradient(
                     colors = listOf(
                         LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.65f),
@@ -76,61 +87,87 @@ fun EmergencyCallCard(
             .border(1.dp, LiquidGlassColors.LightTintRedBorder, cardShape)
             .padding(ClearDuDimens.ReminderEmergencyCardPadding)
     ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // 1. 标题行
-                Row(
-                    modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyTitleBottomMargin),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // 1. 标题行
+            Row(
+                modifier = Modifier.padding(
+                    bottom = if (contactName.isNotBlank()) ClearDuDimens.ReminderEmergencyTitleBottomMargin
+                    else 8.dp
+                ),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ReminderPhoneIcon(
+                    tint = LiquidGlassColors.MedicalRed,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "紧急呼叫",
+                    style = ClearDuTypography.ReminderEmergencyTitle,
+                    color = LiquidGlassColors.MedicalRed
+                )
+            }
+
+            // 2. 联系人（可点击编辑）
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable(onClick = onContactClick)
+                    .padding(vertical = 2.dp, horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f, fill = false)) {
+                    Text(
+                        text = displayContact,
+                        style = ClearDuTypography.ReminderEmergencyContact,
+                        color = if (contactName.isNotBlank()) LiquidGlassColors.LightForeground else LiquidGlassColors.MedicalRed,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(bottom = if (contactName.isNotBlank()) ClearDuDimens.ReminderEmergencyContactBottomMargin else 0.dp)
+                    )
+                    if (displayPhone.isNotEmpty()) {
+                        Text(
+                            text = displayPhone,
+                            style = ClearDuTypography.ReminderEmergencyPhone,
+                            color = LiquidGlassColors.LightForeground,
+                            modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyPhoneBottomMargin)
+                        )
+                    }
+                }
+                if (contactName.isBlank()) {
                     ReminderPhoneIcon(
                         tint = LiquidGlassColors.MedicalRed,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = "紧急呼叫",
-                        style = ClearDuTypography.ReminderEmergencyTitle,
-                        color = LiquidGlassColors.MedicalRed
+                        modifier = Modifier.size(12.dp)
                     )
                 }
-
-                // 2. 联系人
-                Text(
-                    text = "主治医生",
-                    style = ClearDuTypography.ReminderEmergencyContact,
-                    color = LiquidGlassColors.LightForeground,
-                    modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyContactBottomMargin)
-                )
-
-                // 3. 电话号码
-                Text(
-                    text = "138-xxxx-xxxx",
-                    style = ClearDuTypography.ReminderEmergencyPhone,
-                    color = LiquidGlassColors.LightForeground,
-                    modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyPhoneBottomMargin)
-                )
-
-                // 4. 立即拨打按钮
-                EmergencyCallButton(onClick = onCall)
-
-                // 5. 家人联系
-                FamilyContactLink(onClick = onFamilyContact)
             }
+
+            if (contactName.isBlank()) {
+                Spacer(Modifier.height(ClearDuDimens.ReminderEmergencyPhoneBottomMargin))
+            }
+
+            // 4. 立即拨打按钮
+            EmergencyCallButton(
+                onClick = onCall,
+                enabled = contactPhone.isNotBlank()
+            )
+
+            // 5. 家人联系
+            FamilyContactLink(onClick = onFamilyContact)
         }
+    }
 }
 
 /**
  * 「立即拨打」全宽渐变按钮。
- *
- * 圆角 16dp，背景为 MedicalRed → DestructiveLight 线性渐变，按压缩放 0.97，
- * 附带红色投影。内容居中：电话图标 + 「立即拨打」白字。
  */
 @Composable
-private fun EmergencyCallButton(onClick: () -> Unit) {
+private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
+        targetValue = if (isPressed && enabled) 0.97f else 1f,
         animationSpec = tween(
             durationMillis = 200,
             easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)
@@ -148,9 +185,12 @@ private fun EmergencyCallButton(onClick: () -> Unit) {
             .drawBehind {
                 drawRect(
                     brush = Brush.linearGradient(
-                        colors = listOf(
+                        colors = if (enabled) listOf(
                             LiquidGlassColors.MedicalRed,
                             LiquidGlassColors.DestructiveLight
+                        ) else listOf(
+                            LiquidGlassColors.Text400.copy(alpha = 0.3f),
+                            LiquidGlassColors.Text400.copy(alpha = 0.3f)
                         )
                     )
                 )
@@ -158,6 +198,7 @@ private fun EmergencyCallButton(onClick: () -> Unit) {
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
+                enabled = enabled,
                 onClick = onClick
             )
             .padding(ClearDuDimens.ReminderEmergencyCallBtnPadding),
@@ -168,13 +209,13 @@ private fun EmergencyCallButton(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             ReminderPhoneIcon(
-                tint = LiquidGlassColors.White,
+                tint = if (enabled) LiquidGlassColors.White else LiquidGlassColors.Text400,
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                text = "立即拨打",
+                text = if (enabled) "立即拨打" else "请先设置联系人",
                 style = ClearDuTypography.ReminderEmergencyCallBtn,
-                color = LiquidGlassColors.White
+                color = if (enabled) LiquidGlassColors.White else LiquidGlassColors.Text400
             )
         }
     }
@@ -182,8 +223,6 @@ private fun EmergencyCallButton(onClick: () -> Unit) {
 
 /**
  * 「家人联系」居中入口。
- *
- * 默认 LightText600 灰色，按压时颜色过渡至 LightForeground，无 ripple。
  */
 @Composable
 private fun FamilyContactLink(onClick: () -> Unit) {
