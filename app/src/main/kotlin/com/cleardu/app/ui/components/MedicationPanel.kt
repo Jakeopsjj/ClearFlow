@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.MedicationDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -50,10 +51,20 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * row of dose-multiplier buttons; the active button is filled with
  * [LiquidGlassColors.TintCyanMd] and tinted [LiquidGlassColors.MedicalCyan].
  *
+ * @param medications list of currently selected medications
+ * @param onMedicationsChange callback when the medication list changes
  * @param modifier outer modifier
  */
 @Composable
-fun MedicationPanel(modifier: Modifier = Modifier) {
+fun MedicationPanel(
+    medications: List<MedicationDose> = listOf(
+        MedicationDose(name = "降压药", detail = "缬沙坦 80mg", doseMultiplier = 1.0),
+        MedicationDose(name = "磷结合剂", detail = "碳酸钙 500mg", doseMultiplier = 1.0),
+        MedicationDose(name = "促红细胞生成素", detail = "3000 IU", doseMultiplier = 1.0)
+    ),
+    onMedicationsChange: (List<MedicationDose>) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier.fillMaxWidth()) {
         MedicationSearchBar()
         Spacer(Modifier.height(ClearDuDimens.MedSearchBottomMargin))
@@ -67,30 +78,27 @@ fun MedicationPanel(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(ClearDuDimens.MedItemGap)) {
-            MedicationItem(
-                name = "降压药",
-                dose = "缬沙坦 80mg",
-                doseOptions = listOf("0.5", "1", "2"),
-                initialSelectedIndex = 1,
-                iconBg = LiquidGlassColors.TintPurpleBg,
-                iconTint = LiquidGlassColors.MedicalPurple
-            )
-            MedicationItem(
-                name = "磷结合剂",
-                dose = "碳酸钙 500mg",
-                doseOptions = listOf("1", "2", "3"),
-                initialSelectedIndex = 0,
-                iconBg = LiquidGlassColors.TintOrangeBg,
-                iconTint = LiquidGlassColors.MedicalOrange
-            )
-            MedicationItem(
-                name = "促红细胞生成素",
-                dose = "3000 IU",
-                doseOptions = listOf("1"),
-                initialSelectedIndex = 0,
-                iconBg = LiquidGlassColors.TintGreenBg,
-                iconTint = LiquidGlassColors.MedicalGreen
-            )
+            medications.forEachIndexed { index, med ->
+                val iconColors = medicationIconColors(index)
+                MedicationItem(
+                    name = med.name,
+                    dose = med.detail,
+                    doseOptions = listOf("0.5", "1", "2"),
+                    initialSelectedIndex = when {
+                        med.doseMultiplier == 0.5 -> 0
+                        med.doseMultiplier == 2.0 -> 2
+                        else -> 1
+                    },
+                    iconBg = iconColors.first,
+                    iconTint = iconColors.second,
+                    onDoseChanged = { newMultiplier ->
+                        val updated = medications.toMutableList().apply {
+                            set(index, med.copy(doseMultiplier = newMultiplier))
+                        }
+                        onMedicationsChange(updated)
+                    }
+                )
+            }
         }
     }
 }
@@ -156,6 +164,7 @@ private fun MedicationItem(
     initialSelectedIndex: Int,
     iconBg: Color,
     iconTint: Color,
+    onDoseChanged: (Double) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
@@ -212,7 +221,10 @@ private fun MedicationItem(
                     DoseButton(
                         label = label,
                         isActive = index == selectedIndex,
-                        onClick = { selectedIndex = index }
+                        onClick = {
+                            selectedIndex = index
+                            onDoseChanged(label.toDouble())
+                        }
                     )
                 }
             }
@@ -296,3 +308,18 @@ private fun Modifier.drawBehindFill(color: Color): Modifier =
             drawRect(color = color)
         }
     )
+
+/**
+ * Returns a (background, tint) color pair for medication items,
+ * cycling through preset colors based on index.
+ */
+private fun medicationIconColors(index: Int): Pair<Color, Color> {
+    val pairs = listOf(
+        LiquidGlassColors.TintPurpleBg to LiquidGlassColors.MedicalPurple,
+        LiquidGlassColors.TintOrangeBg to LiquidGlassColors.MedicalOrange,
+        LiquidGlassColors.TintGreenBg to LiquidGlassColors.MedicalGreen,
+        LiquidGlassColors.TintRedBg to LiquidGlassColors.MedicalRed,
+        LiquidGlassColors.TintCyanMd to LiquidGlassColors.MedicalCyan
+    )
+    return pairs[index % pairs.size]
+}

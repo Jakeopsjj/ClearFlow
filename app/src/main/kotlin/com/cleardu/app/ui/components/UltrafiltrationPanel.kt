@@ -48,17 +48,27 @@ import java.util.Locale
  * 3. Number Keypad — 3×4 grid (1-9, ".", 0, delete)
  * 4. Goal Progress — daily goal bar ("今日已记录 1,200 / 目标 2,500ml")
  *
+ * @param inputValue current ultrafiltration value in ml
+ * @param goalTarget daily goal target in ml
+ * @param todayRecorded today's already recorded amount in ml
+ * @param onValueChange callback when the input value changes
  * @param modifier outer modifier
  */
 @Composable
-fun UltrafiltrationPanel(modifier: Modifier = Modifier) {
-    var inputValue by remember { mutableStateOf("") }
-    val displayValue = if (inputValue.isEmpty()) "___" else inputValue
-    val numericValue = inputValue.toDoubleOrNull() ?: 0.0
-    val goalTarget = 2500.0
-    val goalCurrent = 1200.0
-    val progressFraction = (goalCurrent / goalTarget).toFloat().coerceIn(0f, 1f)
-    val ringFraction = (numericValue / goalTarget).toFloat().coerceIn(0f, 1f)
+fun UltrafiltrationPanel(
+    inputValue: Int = 0,
+    goalTarget: Int = 2500,
+    todayRecorded: Int = 1200,
+    onValueChange: (Int) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    var rawInput by remember { mutableStateOf(if (inputValue > 0) inputValue.toString() else "") }
+    val displayValue = if (rawInput.isEmpty()) "___" else rawInput
+    val numericValue = rawInput.toDoubleOrNull() ?: 0.0
+    val goalTargetD = goalTarget.toDouble()
+    val goalCurrentD = todayRecorded.toDouble()
+    val progressFraction = (goalCurrentD / goalTargetD).toFloat().coerceIn(0f, 1f)
+    val ringFraction = (numericValue / goalTargetD).toFloat().coerceIn(0f, 1f)
 
     Column(modifier = modifier.fillMaxWidth()) {
         // === Input Ring ===
@@ -80,9 +90,10 @@ fun UltrafiltrationPanel(modifier: Modifier = Modifier) {
                     label = label,
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val current = inputValue.toIntOrNull() ?: 0
+                        val current = rawInput.toIntOrNull() ?: 0
                         val result = (current + delta).coerceAtLeast(0)
-                        inputValue = result.toString()
+                        rawInput = result.toString()
+                        onValueChange(result)
                     }
                 )
             }
@@ -94,18 +105,20 @@ fun UltrafiltrationPanel(modifier: Modifier = Modifier) {
             onKey = { key ->
                 when (key) {
                     "del" -> {
-                        if (inputValue.isNotEmpty()) {
-                            inputValue = inputValue.dropLast(1)
+                        if (rawInput.isNotEmpty()) {
+                            rawInput = rawInput.dropLast(1)
+                            onValueChange(rawInput.toIntOrNull() ?: 0)
                         }
                     }
                     "." -> {
-                        if (!inputValue.contains(".")) {
-                            inputValue += "."
+                        if (!rawInput.contains(".")) {
+                            rawInput += "."
                         }
                     }
                     else -> {
-                        if (inputValue.length < 6) {
-                            inputValue += key
+                        if (rawInput.length < 6) {
+                            rawInput += key
+                            onValueChange(rawInput.toIntOrNull() ?: 0)
                         }
                     }
                 }
@@ -115,8 +128,8 @@ fun UltrafiltrationPanel(modifier: Modifier = Modifier) {
 
         // === Goal Progress ===
         GoalProgressBar(
-            current = goalCurrent.toInt(),
-            target = goalTarget.toInt(),
+            current = todayRecorded,
+            target = goalTarget,
             fraction = progressFraction
         )
     }

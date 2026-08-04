@@ -44,12 +44,20 @@ import java.util.Locale
  * glass adjust buttons that nudge the value by ±0.1. Buttons scale to 0.88 and
  * tint to [LiquidGlassColors.TintCyanStrong] on press.
  *
+ * @param weight current weight value in kg
+ * @param temperature current temperature value in °C
+ * @param onWeightChange callback when weight changes
+ * @param onTemperatureChange callback when temperature changes
  * @param modifier outer modifier
  */
 @Composable
-fun WeightTempPanel(modifier: Modifier = Modifier) {
-    var weight by remember { mutableStateOf(65.2) }
-    var temp by remember { mutableStateOf(36.5) }
+fun WeightTempPanel(
+    weight: Double = 65.2,
+    temperature: Double = 36.5,
+    onWeightChange: (Double) -> Unit = {},
+    onTemperatureChange: (Double) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
 
     Row(
         modifier = modifier
@@ -62,16 +70,16 @@ fun WeightTempPanel(modifier: Modifier = Modifier) {
             label = "体重",
             value = String.format(Locale.US, "%.1f", weight),
             unit = "kg",
-            onDecrease = { weight = roundTo1Decimal(weight - 0.1) },
-            onIncrease = { weight = roundTo1Decimal(weight + 0.1) }
+            onDecrease = { onWeightChange(roundTo1Decimal(weight - 0.1)) },
+            onIncrease = { onWeightChange(roundTo1Decimal(weight + 0.1)) }
         )
         WeightTempCard(
             modifier = Modifier.weight(1f),
             label = "体温",
-            value = String.format(Locale.US, "%.1f", temp),
+            value = String.format(Locale.US, "%.1f", temperature),
             unit = "°C",
-            onDecrease = { temp = roundTo1Decimal(temp - 0.1) },
-            onIncrease = { temp = roundTo1Decimal(temp + 0.1) }
+            onDecrease = { onTemperatureChange(roundTo1Decimal(temperature - 0.1)) },
+            onIncrease = { onTemperatureChange(roundTo1Decimal(temperature + 0.1)) }
         )
     }
 }

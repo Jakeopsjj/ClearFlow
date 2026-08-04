@@ -10,11 +10,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +27,13 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.MedicationDose
+import com.cleardu.app.data.RecordData
+import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.data.summary
 import com.cleardu.app.ui.components.BpHrPanel
 import com.cleardu.app.ui.components.ElementsPanel
 import com.cleardu.app.ui.components.FloatingNavigationBar
@@ -38,21 +48,19 @@ import com.cleardu.app.ui.components.WeightTempPanel
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 /**
  * Data record screen — the "记录" page of the app.
  *
- * Layout reproduces the reference HTML:
- *   Mesh gradient background → scrollable content area →
- *   page header (title + date) → segmented control → active tab panel →
- *   quick note chips → note textarea → save button →
- *   nav blur fade → floating nav bar (记录 tab active).
+ * Centralized state management: all tab inputs are held in a single [RecordData]
+ * instance so switching tabs does not lose data. The save button collects all
+ * state, persists it, shows a snackbar, and resets the form.
  *
- * No HorizontalPager — tab content is swapped via [when] on [selectedTab].
- * The entire page scrolls vertically.
- *
- * @param onSave callback when the save button is tapped
+ * @param onSave callback when the save button is tapped (after internal save)
  * @param onNavItemSelected callback when a bottom nav item is tapped
  * @param modifier outer modifier
  */
@@ -65,6 +73,18 @@ fun DataRecordScreen(
     val tabs = listOf("超滤量", "血压心率", "体重体温", "元素检测", "用药")
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedNavIndex by remember { mutableIntStateOf(1) } // 记录 tab active
+
+    // === Centralized state ===
+    var recordData by remember { mutableStateOf(RecordData()) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val repository = remember { RecordRepository(context) }
+
+    // Helper to update a single field
+    fun update(transform: RecordData.() -> RecordData) {
+        recordData = recordData.transform()
+    }
 
     MeshGradientBackground(
         modifier = modifier.fillMaxSize()
@@ -95,25 +115,102 @@ fun DataRecordScreen(
 
                 // === Active Tab Panel ===
                 when (selectedTab) {
-                    0 -> UltrafiltrationPanel()
-                    1 -> BpHrPanel()
-                    2 -> WeightTempPanel()
-                    3 -> ElementsPanel()
-                    4 -> MedicationPanel()
+                    0 -> UltrafiltrationPanel(
+                        inputValue = recordData.ultrafiltrationMl,
+                        goalTarget = recordData.ufGoalTarget,
+                        todayRecorded = recordData.ufTodayRecorded,
+                        onValueChange = { newVal ->
+                            update { copy(ultrafiltrationMl = newVal) }
+                        }
+                    )
+                    1 -> BpHrPanel(
+                        systolic = recordData.systolic,
+                        diastolic = recordData.diastolic,
+                        heartRate = recordData.heartRate,
+                        onSystolicChange = { update { copy(systolic = it) } },
+                        onDiastolicChange = { update { copy(diastolic = it) } },
+                        onHeartRateChange = { update { copy(heartRate = it) } }
+                    )
+                    2 -> WeightTempPanel(
+                        weight = recordData.weight,
+                        temperature = recordData.temperature,
+                        onWeightChange = { update { copy(weight = it) } },
+                        onTemperatureChange = { update { copy(temperature = it) } }
+                    )
+                    3 -> ElementsPanel(
+                        potassium = recordData.potassium,
+                        phosphorus = recordData.phosphorus,
+                        sodium = recordData.sodium,
+                        calcium = recordData.calcium,
+                        onPotassiumChange = { update { copy(potassium = it) } },
+                        onPhosphorusChange = { update { copy(phosphorus = it) } },
+                        onSodiumChange = { update { copy(sodium = it) } },
+                        onCalciumChange = { update { copy(calcium = it) } }
+                    )
+                    4 -> MedicationPanel(
+                        medications = recordData.selectedMedications,
+                        onMedicationsChange = { update { copy(selectedMedications = it) } }
+                    )
                 }
                 Spacer(Modifier.height(ClearDuDimens.RecordPanelBottomMargin))
 
                 // === Shared: Quick Note Chips ===
-                QuickNoteChips()
+                QuickNoteChips(
+                    selectedIndex = recordData.quickNoteIndex,
+                    onSelected = { update { copy(quickNoteIndex = it) } }
+                )
 
                 // === Shared: Note Textarea ===
-                NoteTextArea()
+                NoteTextArea(
+                    noteText = recordData.noteText,
+                    onNoteChange = { update { copy(noteText = it) } }
+                )
 
                 // === Save Button ===
-                SaveRecordButton(onClick = onSave)
+                SaveRecordButton(
+                    onClick = {
+                        scope.launch {
+                            // Persist record via DataStore
+                            val saved = withContext(Dispatchers.IO) {
+                                try {
+                                    repository.save(recordData)
+                                    true
+                                } catch (e: Exception) {
+                                    false
+                                }
+                            }
+                            val summary = recordData.summary()
+                            if (saved) {
+                                snackbarHostState.showSnackbar(
+                                    if (summary.isNotEmpty()) "已保存：$summary"
+                                    else "记录已保存"
+                                )
+                            } else {
+                                snackbarHostState.showSnackbar("保存失败，请重试")
+                            }
+                            // Reset form for next entry
+                            recordData = RecordData()
+                            onSave()
+                        }
+                    }
+                )
 
                 // Bottom spacer for nav bar clearance
                 Spacer(Modifier.height(ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 16.dp))
+            }
+
+            // === Snackbar host ===
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 24.dp)
+            ) { snackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    containerColor = LiquidGlassColors.GlassBgStrong,
+                    contentColor = LiquidGlassColors.Foreground
+                )
             }
 
             // === Navigation blur fade ===
@@ -124,9 +221,6 @@ fun DataRecordScreen(
             )
 
             // === Floating Navigation Bar ===
-            // Note: Do NOT update selectedNavIndex here — the parent Activity
-            // handles navigation. Updating local state before the transition
-            // causes the nav bar to briefly show the wrong selection.
             FloatingNavigationBar(
                 selectedIndex = selectedNavIndex,
                 onItemSelected = onNavItemSelected,

@@ -56,11 +56,18 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * The selected chip fills with [LiquidGlassColors.TintCyanMd], tints its text
  * [LiquidGlassColors.MedicalCyan], and gains a [LiquidGlassColors.TintCyanGlow]
  * border. Tapping a chip scales it to 0.95 and selects it.
+ *
+ * @param selectedIndex currently selected chip index
+ * @param onSelected callback when a chip is selected
+ * @param modifier outer modifier
  */
 @Composable
-fun QuickNoteChips(modifier: Modifier = Modifier) {
+fun QuickNoteChips(
+    selectedIndex: Int = 0,
+    onSelected: (Int) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     val chips = listOf("透析前", "透析后", "晨起", "睡前", "运动后")
-    var selectedIndex by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -80,7 +87,7 @@ fun QuickNoteChips(modifier: Modifier = Modifier) {
                 QuickNoteChip(
                     label = label,
                     isSelected = index == selectedIndex,
-                    onClick = { selectedIndex = index }
+                    onClick = { onSelected(index) }
                 )
             }
         }
@@ -135,10 +142,17 @@ private fun QuickNoteChip(
  * "添加备注..." — a translucent glass text area with a 72dp minimum height,
  * 1.5x line height, and a cyan cursor. The placeholder uses
  * [LiquidGlassColors.PlaceholderInputStrong] until the user types.
+ *
+ * @param noteText current note text
+ * @param onNoteChange callback when note text changes
+ * @param modifier outer modifier
  */
 @Composable
-fun NoteTextArea(modifier: Modifier = Modifier) {
-    var note by remember { mutableStateOf("") }
+fun NoteTextArea(
+    noteText: String = "",
+    onNoteChange: (String) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
 
     Column(modifier = modifier.fillMaxWidth()) {
         GlassCard(
@@ -151,8 +165,8 @@ fun NoteTextArea(modifier: Modifier = Modifier) {
             specularTop = LiquidGlassColors.GlassSpecularTop
         ) {
             BasicTextField(
-                value = note,
-                onValueChange = { note = it },
+                value = noteText,
+                onValueChange = onNoteChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -165,7 +179,7 @@ fun NoteTextArea(modifier: Modifier = Modifier) {
                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                 decorationBox = { inner ->
                     Box {
-                        if (note.isEmpty()) {
+                        if (noteText.isEmpty()) {
                             Text(
                                 text = "添加备注...",
                                 style = ClearDuTypography.NoteText.copy(

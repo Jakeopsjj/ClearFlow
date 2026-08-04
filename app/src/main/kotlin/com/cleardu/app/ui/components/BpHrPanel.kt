@@ -49,13 +49,24 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * 2. HR Card — full-width glass card with heart icon on the left,
  *    heart rate value in the center, and ± adjust buttons on the right
  *
+ * @param systolic current systolic blood pressure value
+ * @param diastolic current diastolic blood pressure value
+ * @param heartRate current heart rate value
+ * @param onSystolicChange callback when systolic changes
+ * @param onDiastolicChange callback when diastolic changes
+ * @param onHeartRateChange callback when heart rate changes
  * @param modifier outer modifier
  */
 @Composable
-fun BpHrPanel(modifier: Modifier = Modifier) {
-    var systolic by remember { mutableIntStateOf(120) }
-    var diastolic by remember { mutableIntStateOf(80) }
-    var heartRate by remember { mutableIntStateOf(75) }
+fun BpHrPanel(
+    systolic: Int = 120,
+    diastolic: Int = 80,
+    heartRate: Int = 75,
+    onSystolicChange: (Int) -> Unit = {},
+    onDiastolicChange: (Int) -> Unit = {},
+    onHeartRateChange: (Int) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
 
     Column(modifier = modifier.fillMaxWidth()) {
         // === BP Grid ===
@@ -69,16 +80,16 @@ fun BpHrPanel(modifier: Modifier = Modifier) {
                 label = "收缩压",
                 value = systolic.toString(),
                 unit = "mmHg",
-                onDecrease = { systolic = (systolic - 5).coerceAtLeast(0) },
-                onIncrease = { systolic = (systolic + 5) },
+                onDecrease = { onSystolicChange((systolic - 5).coerceAtLeast(0)) },
+                onIncrease = { onSystolicChange(systolic + 5) },
                 modifier = Modifier.weight(1f)
             )
             BpCard(
                 label = "舒张压",
                 value = diastolic.toString(),
                 unit = "mmHg",
-                onDecrease = { diastolic = (diastolic - 5).coerceAtLeast(0) },
-                onIncrease = { diastolic = (diastolic + 5) },
+                onDecrease = { onDiastolicChange((diastolic - 5).coerceAtLeast(0)) },
+                onIncrease = { onDiastolicChange(diastolic + 5) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -87,8 +98,8 @@ fun BpHrPanel(modifier: Modifier = Modifier) {
         // === HR Card ===
         HrCard(
             value = heartRate.toString(),
-            onDecrease = { heartRate = (heartRate - 1).coerceAtLeast(0) },
-            onIncrease = { heartRate = (heartRate + 1) }
+            onDecrease = { onHeartRateChange((heartRate - 1).coerceAtLeast(0)) },
+            onIncrease = { onHeartRateChange(heartRate + 1) }
         )
     }
 }
