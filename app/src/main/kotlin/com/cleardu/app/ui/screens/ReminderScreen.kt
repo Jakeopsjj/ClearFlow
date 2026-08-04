@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.components.EmergencyCallCard
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.ReminderCountdownCard
-import com.cleardu.app.ui.components.ReminderPermissionsCard
 import com.cleardu.app.ui.components.ReminderSettingsCard
 import com.cleardu.app.ui.components.ReminderTodayList
 import com.cleardu.app.ui.theme.ClearDuDimens
@@ -40,7 +39,7 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * 提醒中心页面 — "提醒" tab。
  *
  * 布局复刻参考 HTML（浅色模式）：
- *   浅色网格渐变背景 → 可滚动内容 → 标题 → 倒计时卡 → 权限卡 →
+ *   浅色网格渐变背景 → 可滚动内容 → 标题 → 倒计时卡 →
  *   今日提醒 → 提醒设置 → 紧急呼叫 → 底部说明 → 导航渐隐 → 悬浮导航栏。
  *
  * @param onNavItemSelected 导航栏点击回调
@@ -87,33 +86,27 @@ fun ReminderScreen(
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderCountdownCardBottomMargin))
 
-                // 3. 应用权限卡片
-                ReminderPermissionsCard(
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(ClearDuDimens.ReminderPermCardBottomMargin))
-
-                // 4. 章节标题：今日提醒
+                // 3. 章节标题：今日提醒
                 SectionLabel(text = "今日提醒")
                 Spacer(Modifier.height(ClearDuDimens.ReminderSectionLabelBottomMargin))
 
-                // 5. 今日提醒卡片
+                // 4. 今日提醒卡片
                 ReminderTodayList(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderTodayCardBottomMargin))
 
-                // 6. 章节标题：提醒设置
+                // 5. 章节标题：提醒设置
                 SectionLabel(text = "提醒设置")
                 Spacer(Modifier.height(ClearDuDimens.ReminderSectionLabelBottomMargin))
 
-                // 7. 提醒设置卡片
+                // 6. 提醒设置卡片
                 ReminderSettingsCard(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderSettingsCardBottomMargin))
 
-                // 8. 紧急呼叫卡片
+                // 7. 紧急呼叫卡片
                 EmergencyCallCard(
                     onCall = onCall,
                     onFamilyContact = onFamilyContact,
@@ -121,7 +114,7 @@ fun ReminderScreen(
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderEmergencyCardBottomMargin))
 
-                // 9. 底部说明
+                // 8. 底部说明
                 Text(
                     text = "强提醒模式：即使在锁屏状态或App在后台，也会以全屏声音+震动提醒您服药和透析时间",
                     style = ClearDuTypography.ReminderFooterNote,

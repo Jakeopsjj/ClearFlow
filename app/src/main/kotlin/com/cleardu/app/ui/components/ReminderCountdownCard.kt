@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
@@ -98,59 +97,59 @@ fun ReminderCountdownCard(
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownLabelBottomMargin)
             )
 
-            // 2. 倒计时行（呼吸光晕 + 透明度脉动）
-            Row(
+            // 2. 倒计时行（圆形呼吸光晕 + 透明度脉动）
+            Box(
                 modifier = Modifier
                     .drawBehind {
-                        drawRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    LiquidGlassColors.MedicalBlue.copy(alpha = glowAlpha),
-                                    Color.Transparent
-                                ),
-                                center = Offset(size.width / 2f, size.height / 2f),
-                                radius = size.maxDimension
-                            )
+                        val glowCenter = Offset(size.width / 2f, size.height / 2f)
+                        val glowRadius = size.minDimension * 0.7f
+                        drawCircle(
+                            color = LiquidGlassColors.MedicalBlue.copy(alpha = glowAlpha * 0.6f),
+                            radius = glowRadius,
+                            center = glowCenter
                         )
                     }
-                    .alpha(pulseAlpha),
-                verticalAlignment = Alignment.Bottom
+                    .alpha(pulseAlpha)
             ) {
-                Text(
-                    text = "2",
-                    style = ClearDuTypography.ReminderCountdownNumber,
-                    color = LiquidGlassColors.MedicalCyan,
-                    modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
-                )
-                Text(
-                    text = "天",
-                    style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
-                    modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
-                )
-                Text(
-                    text = "14",
-                    style = ClearDuTypography.ReminderCountdownNumber,
-                    color = LiquidGlassColors.MedicalCyan,
-                    modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
-                )
-                Text(
-                    text = "小时",
-                    style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
-                    modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
-                )
-                Text(
-                    text = "32",
-                    style = ClearDuTypography.ReminderCountdownNumber,
-                    color = LiquidGlassColors.MedicalCyan,
-                    modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
-                )
-                Text(
-                    text = "分",
-                    style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400
-                )
+                Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        text = "2",
+                        style = ClearDuTypography.ReminderCountdownNumber,
+                        color = LiquidGlassColors.MedicalCyan,
+                        modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
+                    )
+                    Text(
+                        text = "天",
+                        style = ClearDuTypography.ReminderCountdownUnit,
+                        color = LiquidGlassColors.Text400,
+                        modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
+                    )
+                    Text(
+                        text = "14",
+                        style = ClearDuTypography.ReminderCountdownNumber,
+                        color = LiquidGlassColors.MedicalCyan,
+                        modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
+                    )
+                    Text(
+                        text = "小时",
+                        style = ClearDuTypography.ReminderCountdownUnit,
+                        color = LiquidGlassColors.Text400,
+                        modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
+                    )
+                    Text(
+                        text = "32",
+                        style = ClearDuTypography.ReminderCountdownNumber,
+                        color = LiquidGlassColors.MedicalCyan,
+                        modifier = Modifier.padding(end = ClearDuDimens.ReminderCountdownNumberGap)
+                    )
+                    Text(
+                        text = "分",
+                        style = ClearDuTypography.ReminderCountdownUnit,
+                        color = LiquidGlassColors.Text400
+                    )
+                }
             }
 
             Spacer(Modifier.height(8.dp))

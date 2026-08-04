@@ -40,14 +40,18 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  *
  * 复刻参考 HTML 的 `.today-card`：
  * - 浅色玻璃容器，20dp 圆角，16dp 内边距
- * - 5 条提醒项：脉冲圆点 + 时间 + 标题 + 状态徽章
+ * - 提醒项：脉冲圆点 + 时间 + 标题 + 状态徽章
  * - 圆点 8×8dp MedicalBlue，2s ease-in-out 脉冲（透明度 1→0.6，缩放 1→0.85）
  * - 圆点外发光：radialGradient(LightTintBlueGlow → Transparent)
  * - 时间列固定宽 44dp，等宽字体；状态徽章 LightTintCyanBg 底色 + MedicalBlue 文字
  * - 条目之间用 1dp LightDividerSubtle 分隔线（最后一条无分隔线）
+ * - 空列表时显示提示文案，引导用户在用药/测量页面设置提醒
+ *
+ * @param reminders 今日提醒列表，由外部（如用药页面）设置后动态填充
  */
 @Composable
 fun ReminderTodayList(
+    reminders: List<TodayReminder> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     GlassCard(
@@ -57,18 +61,40 @@ fun ReminderTodayList(
         border = LiquidGlassColors.LightGlassBorder,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
-        Column(
-            modifier = Modifier.padding(ClearDuDimens.ReminderTodayCardPadding)
-        ) {
-            todayReminders.forEachIndexed { index, item ->
-                TodayReminderRow(item)
-                if (index < todayReminders.lastIndex) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(LiquidGlassColors.LightDividerSubtle)
-                    )
+        if (reminders.isEmpty()) {
+            // 空状态：引导用户设置提醒
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(ClearDuDimens.ReminderTodayCardPadding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "暂无提醒",
+                    style = ClearDuTypography.ReminderTodayText,
+                    color = LiquidGlassColors.Text400,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "请在用药、测量等页面设置提醒",
+                    style = ClearDuTypography.ReminderTodayStatus,
+                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier.padding(ClearDuDimens.ReminderTodayCardPadding)
+            ) {
+                reminders.forEachIndexed { index, item ->
+                    TodayReminderRow(item)
+                    if (index < reminders.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(LiquidGlassColors.LightDividerSubtle)
+                        )
+                    }
                 }
             }
         }
@@ -172,16 +198,8 @@ private fun TodayReminderRow(item: TodayReminder) {
     }
 }
 
-private data class TodayReminder(
+data class TodayReminder(
     val time: String,
     val title: String,
     val status: String
-)
-
-private val todayReminders = listOf(
-    TodayReminder("13:45", "服用磷结合剂", "待触发"),
-    TodayReminder("14:00", "测量血压", "待触发"),
-    TodayReminder("19:00", "服用磷结合剂", "待触发"),
-    TodayReminder("21:00", "注射促红素", "待触发"),
-    TodayReminder("22:00", "记录今日超滤量", "待触发")
 )
