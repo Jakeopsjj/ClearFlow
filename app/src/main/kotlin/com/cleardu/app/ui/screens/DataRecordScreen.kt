@@ -15,6 +15,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,8 +75,19 @@ fun DataRecordScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedNavIndex by remember { mutableIntStateOf(1) } // 记录 tab active
 
-    // === Centralized state ===
-    var recordData by remember { mutableStateOf(RecordData()) }
+    // === Observe latest record for form initialization ===
+    val latestRecord by healthDataManager.latestRecord.collectAsState(initial = null)
+
+    // === Centralized state: initialized from latest saved record ===
+    var recordData by remember { mutableStateOf(latestRecord ?: RecordData()) }
+
+    // When latestRecord changes (e.g. after save from another tab), update the form
+    LaunchedEffect(latestRecord) {
+        if (latestRecord != null) {
+            recordData = latestRecord!!
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -167,7 +180,7 @@ fun DataRecordScreen(
                 SaveRecordButton(
                     onClick = {
                         scope.launch {
-                            // Persist via shared HealthDataManager
+                            // Persist via shared HealthDataManager (merge with latest)
                             val saved = withContext(Dispatchers.IO) {
                                 try {
                                     healthDataManager.save(recordData)
@@ -185,8 +198,6 @@ fun DataRecordScreen(
                             } else {
                                 snackbarHostState.showSnackbar("保存失败，请重试")
                             }
-                            // Reset form for next entry
-                            recordData = RecordData()
                             onSave()
                         }
                     }

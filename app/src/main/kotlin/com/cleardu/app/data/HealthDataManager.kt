@@ -1,7 +1,7 @@
 package com.cleardu.app.data
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
@@ -86,9 +86,12 @@ class HealthDataManager(private val repository: RecordRepository) {
         records.firstOrNull()?.temperature ?: 0.0
     }
 
-    /** Save a new record (delegates to repository). */
+    /** Save a new record, merging with the latest existing record so that
+     * fields not touched in the current tab retain their previous values. */
     suspend fun save(record: RecordData) {
-        repository.save(record)
+        val latest = repository.recordsFlow.first().firstOrNull()
+        val merged = if (latest != null) mergeRecords(latest, record) else record
+        repository.save(merged)
     }
 
     /** Delete all records. */
@@ -121,4 +124,36 @@ data class ElectrolyteData(
     val phosphorus: Double = 0.0,
     val sodium: Double = 0.0,
     val calcium: Double = 0.0
+)
+
+// ---- Merge helpers ----
+
+/** Default values for [RecordData] — used to detect which fields were explicitly set by the user. */
+private val defaultRecord = RecordData()
+
+/**
+ * Merge [newRecord] into [oldRecord]: for each field, if the new value differs from
+ * the RecordData default, use the new value; otherwise keep the old value.
+ *
+ * This ensures that when the user saves only one tab (e.g. 超滤量), the fields from
+ * other tabs (e.g. 血压心率) retain their previously saved values instead of resetting
+ * to defaults.
+ */
+private fun mergeRecords(old: RecordData, new: RecordData): RecordData = old.copy(
+    ultrafiltrationMl = if (new.ultrafiltrationMl != defaultRecord.ultrafiltrationMl) new.ultrafiltrationMl else old.ultrafiltrationMl,
+    ufGoalTarget = if (new.ufGoalTarget != defaultRecord.ufGoalTarget) new.ufGoalTarget else old.ufGoalTarget,
+    ufTodayRecorded = if (new.ufTodayRecorded != defaultRecord.ufTodayRecorded) new.ufTodayRecorded else old.ufTodayRecorded,
+    systolic = if (new.systolic != defaultRecord.systolic) new.systolic else old.systolic,
+    diastolic = if (new.diastolic != defaultRecord.diastolic) new.diastolic else old.diastolic,
+    heartRate = if (new.heartRate != defaultRecord.heartRate) new.heartRate else old.heartRate,
+    weight = if (new.weight != defaultRecord.weight) new.weight else old.weight,
+    temperature = if (new.temperature != defaultRecord.temperature) new.temperature else old.temperature,
+    potassium = if (new.potassium != defaultRecord.potassium) new.potassium else old.potassium,
+    phosphorus = if (new.phosphorus != defaultRecord.phosphorus) new.phosphorus else old.phosphorus,
+    sodium = if (new.sodium != defaultRecord.sodium) new.sodium else old.sodium,
+    calcium = if (new.calcium != defaultRecord.calcium) new.calcium else old.calcium,
+    selectedMedications = if (new.selectedMedications != defaultRecord.selectedMedications) new.selectedMedications else old.selectedMedications,
+    quickNoteIndex = if (new.quickNoteIndex != defaultRecord.quickNoteIndex) new.quickNoteIndex else old.quickNoteIndex,
+    noteText = if (new.noteText != defaultRecord.noteText) new.noteText else old.noteText,
+    timestamp = new.timestamp
 )
