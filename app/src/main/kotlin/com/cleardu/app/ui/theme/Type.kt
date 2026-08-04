@@ -691,7 +691,8 @@ object ClearDuTypography {
     val ReminderCountdownUnit = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.W500,
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        lineHeight = 14.sp
     )
 
     val ReminderCountdownDate = TextStyle(

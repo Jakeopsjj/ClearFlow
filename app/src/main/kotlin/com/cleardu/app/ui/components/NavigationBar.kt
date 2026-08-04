@@ -57,63 +57,69 @@ fun FloatingNavigationBar(
     val navBorder = if (lightMode) LiquidGlassColors.LightNavBorder else LiquidGlassColors.NavBorder
     val navSpecular = if (lightMode) LiquidGlassColors.LightNavSpecular else LiquidGlassColors.NavSpecular
 
-    Box(
-        modifier = modifier
-            .width(ClearDuDimens.NavBarWidth)
-            .height(ClearDuDimens.NavBarHeight)
-            .clip(shape)
-    ) {
-        // === Frosted glass background with real-time blur ===
-        // Renders the nav bar background to a separate graphics layer and applies
-        // a Gaussian blur so content scrolling behind the nav bar is softened.
+    // Layered approach: blurred background + sharp content on top
+    Box(modifier = modifier) {
+        // === Layer 1: Real-time blurred glass background ===
+        // This Box blurs the page content scrolling behind the nav bar
+        // and draws a semi-transparent background on top.
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .width(ClearDuDimens.NavBarWidth)
+                .height(ClearDuDimens.NavBarHeight)
+                .clip(shape)
                 .blur(12.dp)
-                .background(navBg)
+                .background(navBg.copy(alpha = 0.85f))
         )
 
-        // === Subtle top/bottom border ===
+        // === Layer 2: Sharp content (border, specular, nav items) ===
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .border(BorderStroke(0.5.dp, navBorder), shape)
-        )
-
-        // === Top specular highlight (glass reflection) ===
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .drawBehind {
-                    val brush = Brush.verticalGradient(
-                        colors = listOf(
-                            navSpecular,
-                            Color.Transparent.copy(alpha = 0.02f),
-                            Color.Transparent
-                        ),
-                        startY = 0f,
-                        endY = size.height * 0.5f,
-                        tileMode = TileMode.Clamp
-                    )
-                    drawRect(brush = brush)
-                }
-        )
-
-        // === Navigation items (rendered sharp above the blurred background) ===
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = ClearDuDimens.NavBarPaddingH),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+                .width(ClearDuDimens.NavBarWidth)
+                .height(ClearDuDimens.NavBarHeight)
+                .clip(shape)
         ) {
-            labels.forEachIndexed { index, label ->
-                NavItem(
-                    index = index,
-                    label = label,
-                    isActive = index == selectedIndex,
-                    onClick = { onItemSelected(index) }
-                )
+            // Subtle top/bottom border
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(BorderStroke(0.5.dp, navBorder), shape)
+            )
+
+            // Top specular highlight (glass reflection)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        val brush = Brush.verticalGradient(
+                            colors = listOf(
+                                navSpecular,
+                                Color.Transparent.copy(alpha = 0.02f),
+                                Color.Transparent
+                            ),
+                            startY = 0f,
+                            endY = size.height * 0.5f,
+                            tileMode = TileMode.Clamp
+                        )
+                        drawRect(brush = brush)
+                    }
+            )
+
+            // Navigation items (rendered sharp above the blurred background)
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = ClearDuDimens.NavBarPaddingH),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                labels.forEachIndexed { index, label ->
+                    NavItem(
+                        index = index,
+                        label = label,
+                        isActive = index == selectedIndex,
+                        onClick = { onItemSelected(index) }
+                    )
+                }
             }
         }
     }
