@@ -254,4 +254,18 @@ object LiquidGlassColors {
     val LightCircleEmptyBg = Color(0x0A000000)      // rgba(0,0,0,0.04)
     val LightMuted = Color(0x08000000)              // rgba(0,0,0,0.03)
     val LightBorderMedium = Color(0x1A000000)       // rgba(0,0,0,0.1)
+
+    // ===== Light-mode tokens: reminder center page =====
+    val DestructiveLight = Color(0xFFFF6B60)          // #ff6b60
+    val ToggleOff = Color(0x52787880)                  // rgba(120,120,128,0.32)
+    val ToggleThumb = Color(0xFFFFFFFF)
+    val ToggleOn = Color(0xFF5AC8FA)                    // medical-cyan
+    val LightTintRedBorder = Color(0x40FF3B30)         // rgba(255,59,48,0.25)
+    val LightTintRedShadow = Color(0x1FFF3B30)         // rgba(255,59,48,0.12)
+    val LightTintRedGlow = Color(0x33FF3B30)            // rgba(255,59,48,0.2)
+    val LightTintRedShadowStrong = Color(0x4DFF3B30)   // rgba(255,59,48,0.3)
+    val LightDividerSubtle = Color(0x0F000000)          // rgba(0,0,0,0.06)
+    val LightText600 = Color(0x99000000)                // rgba(0,0,0,0.6)
+    val LightGlassBgLight = Color(0x80FFFFFF)           // rgba(255,255,255,0.5)
+    val LightTintBlueGlow = Color(0x33007AFF)           // rgba(0,122,255,0.2)
 }

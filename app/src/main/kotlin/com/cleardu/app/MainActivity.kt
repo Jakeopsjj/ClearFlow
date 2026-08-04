@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
             1 -> startActivity(Intent(this, DataRecordActivity::class.java))
             2 -> startActivity(Intent(this, HealthDataActivity::class.java))
             3 -> startActivity(Intent(this, MedicationActivity::class.java))
-            // 0 = 首页 (current), 4 = 提醒 (future implementation)
+            4 -> startActivity(Intent(this, ReminderActivity::class.java))
+            // 0 = 首页 (current page, no-op)
         }
     }
 

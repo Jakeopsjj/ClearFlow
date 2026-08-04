@@ -7,45 +7,46 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.cleardu.app.ui.screens.HealthDataScreen
+import com.cleardu.app.ui.screens.ReminderScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
 /**
- * 健康数据 Activity — "数据" tab 页面。
+ * 提醒中心 Activity — "提醒" tab 页面。
  *
- * 展示透析患者的健康数据汇总：
- *  - 超滤量趋势图（7 天折线 + 渐变填充）
- *  - 血压 & 心率双卡片（含迷你柱状图/折线图）
- *  - 电解质 2×2 网格（钾/磷/钠/钙，含范围条和指示器）
- *  - 体重记录卡片（当前体重、目标干体重、进度条）
- *  - 警告横幅（血磷偏高提示）
- *  - 导出报告 / 分享给医生按钮
- *  - 悬浮导航栏（数据 tab active）
+ * 展示透析患者的提醒管理信息：
+ *  - 下次透析倒计时（含呼吸光晕动画）
+ *  - 应用权限卡片（6 项权限 + Toggle）
+ *  - 今日提醒列表（5 条提醒 + 脉冲圆点）
+ *  - 提醒设置（7 项设置 + Toggle）
+ *  - 紧急呼叫卡片（红色玻璃 + 呼吸光晕 + 拨打按钮）
+ *  - 悬浮导航栏（提醒 tab active）
  *
  * 导航：
  *  - 导航栏"首页" → MainActivity
  *  - 导航栏"记录" → DataRecordActivity
+ *  - 导航栏"数据" → HealthDataActivity
+ *  - 导航栏"用药" → MedicationActivity
  */
-class HealthDataActivity : ComponentActivity() {
+class ReminderActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
-                HealthDataScreen(
+                ReminderScreen(
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()
                             1 -> startDataRecordActivity()
+                            2 -> startHealthDataActivity()
                             3 -> startMedicationActivity()
-                            4 -> startReminderActivity()
-                            // 2 = 数据 (current page, no-op)
+                            // 4 = 提醒 (current page, no-op)
                         }
                     },
-                    onExport = { /* TODO: 导出健康报告 */ },
-                    onShare = { /* TODO: 分享给医生 */ },
-                    onWarningClick = { /* TODO: 查看血磷偏高建议 */ },
+                    onNavigate = { /* TODO: 导航到医院 */ },
+                    onCall = { /* TODO: 紧急拨打 */ },
+                    onFamilyContact = { /* TODO: 家人联系 */ },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -68,16 +69,16 @@ class HealthDataActivity : ComponentActivity() {
         finish()
     }
 
-    private fun startMedicationActivity() {
-        val intent = Intent(this, MedicationActivity::class.java).apply {
+    private fun startHealthDataActivity() {
+        val intent = Intent(this, HealthDataActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
         finish()
     }
 
-    private fun startReminderActivity() {
-        val intent = Intent(this, ReminderActivity::class.java).apply {
+    private fun startMedicationActivity() {
+        val intent = Intent(this, MedicationActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

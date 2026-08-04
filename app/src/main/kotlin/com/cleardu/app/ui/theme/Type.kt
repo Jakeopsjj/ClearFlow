@@ -663,6 +663,153 @@ object ClearDuTypography {
         fontWeight = FontWeight.W500,
         fontSize = 14.sp
     )
+
+    // ===== Reminder page =====
+    val ReminderPageTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.03).sp
+    )
+
+    val ReminderCountdownLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 13.sp,
+        letterSpacing = 0.05.sp
+    )
+
+    val ReminderCountdownNumber = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 36.sp,
+        letterSpacing = (-0.04).sp,
+        lineHeight = 36.sp
+    )
+
+    val ReminderCountdownUnit = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp
+    )
+
+    val ReminderCountdownDate = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 15.sp
+    )
+
+    val ReminderCountdownHospital = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 13.sp
+    )
+
+    val ReminderNavBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 12.sp
+    )
+
+    val ReminderCardTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 16.sp,
+        letterSpacing = (-0.02).sp
+    )
+
+    val ReminderPermName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val ReminderPermDesc = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val ReminderSectionLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp,
+        letterSpacing = 0.04.sp
+    )
+
+    val ReminderTodayTime = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp
+    )
+
+    val ReminderTodayText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp
+    )
+
+    val ReminderTodayStatus = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 11.sp
+    )
+
+    val ReminderSettingName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val ReminderSettingDetail = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val ReminderEmergencyTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 16.sp,
+        letterSpacing = (-0.02).sp
+    )
+
+    val ReminderEmergencyContact = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp
+    )
+
+    val ReminderEmergencyPhone = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 22.sp,
+        letterSpacing = (-0.02).sp
+    )
+
+    val ReminderEmergencyCallBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 16.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val ReminderFamilyLink = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 13.sp
+    )
+
+    val ReminderFooterNote = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp,
+        lineHeight = 17.sp,
+        letterSpacing = (-0.01).sp
+    )
 }
 
 /** Material3 typography holder. Screen-level composables use [ClearDuTypography]

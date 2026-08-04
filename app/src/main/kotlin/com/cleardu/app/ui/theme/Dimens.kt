@@ -360,6 +360,81 @@ object ClearDuDimens {
     val MedFabEndOffset = 24.dp
     val MedFabIconSize = 26.dp
 
+    // ===== Reminder page: layout =====
+    val ReminderPageContentTop = 44.dp
+    val ReminderPageContentHorizontal = 20.dp
+    val ReminderPageTitleBottomMargin = 20.dp
+
+    // ===== Reminder page: countdown card =====
+    val ReminderCountdownCardRadius = 24.dp
+    val ReminderCountdownCardPadding = 20.dp
+    val ReminderCountdownCardBottomMargin = 16.dp
+    val ReminderCountdownLabelBottomMargin = 8.dp
+    val ReminderCountdownNumberGap = 4.dp
+    val ReminderCountdownUnitEndMargin = 6.dp
+    val ReminderCountdownDateBottomMargin = 4.dp
+    val ReminderCountdownHospitalBottomMargin = 14.dp
+    val ReminderNavBtnPaddingH = 14.dp
+    val ReminderNavBtnPaddingV = 7.dp
+    val ReminderNavBtnIconSize = 14.dp
+
+    // ===== Reminder page: permissions card =====
+    val ReminderPermCardRadius = 20.dp
+    val ReminderPermCardPadding = 16.dp
+    val ReminderPermCardBottomMargin = 16.dp
+    val ReminderPermCardTitleBottomMargin = 14.dp
+    val ReminderPermItemPaddingV = 10.dp
+    val ReminderPermIconSize = 32.dp
+    val ReminderPermIconRadius = 9.dp
+    val ReminderPermIconInnerSize = 18.dp
+    val ReminderPermItemGap = 12.dp
+
+    // ===== Reminder page: section label =====
+    val ReminderSectionLabelTopMargin = 4.dp
+    val ReminderSectionLabelBottomMargin = 10.dp
+    val ReminderSectionLabelStartPadding = 4.dp
+
+    // ===== Reminder page: today reminders =====
+    val ReminderTodayCardRadius = 20.dp
+    val ReminderTodayCardPadding = 16.dp
+    val ReminderTodayCardBottomMargin = 16.dp
+    val ReminderTodayItemPaddingV = 10.dp
+    val ReminderTodayItemGap = 12.dp
+    val ReminderTodayDotSize = 8.dp
+    val ReminderTodayTimeWidth = 44.dp
+    val ReminderTodayStatusPaddingH = 8.dp
+    val ReminderTodayStatusPaddingV = 3.dp
+
+    // ===== Reminder page: settings card =====
+    val ReminderSettingsCardRadius = 20.dp
+    val ReminderSettingsCardPadding = 16.dp
+    val ReminderSettingsCardBottomMargin = 16.dp
+    val ReminderSettingsItemPaddingV = 11.dp
+    val ReminderSettingsDetailTopGap = 2.dp
+
+    // ===== Reminder page: emergency card =====
+    val ReminderEmergencyCardRadius = 20.dp
+    val ReminderEmergencyCardPadding = 18.dp
+    val ReminderEmergencyCardBottomMargin = 16.dp
+    val ReminderEmergencyTitleBottomMargin = 10.dp
+    val ReminderEmergencyContactBottomMargin = 4.dp
+    val ReminderEmergencyPhoneBottomMargin = 14.dp
+    val ReminderEmergencyCallBtnRadius = 16.dp
+    val ReminderEmergencyCallBtnPadding = 14.dp
+    val ReminderEmergencyFamilyTopMargin = 10.dp
+
+    // ===== Reminder page: toggle =====
+    val ToggleWidth = 51.dp
+    val ToggleHeight = 31.dp
+    val ToggleThumbSize = 27.dp
+    val ToggleThumbOffset = 20.dp
+    val ToggleThumbPressScale = 1.22f
+
+    // ===== Reminder page: footer note =====
+    val ReminderFooterPaddingH = 12.dp
+    val ReminderFooterPaddingTop = 8.dp
+    val ReminderFooterPaddingBottom = 20.dp
+
     // ===== Mesh background glow radii (px-equivalent at design scale) =====
     object Mesh {
         val PurpleRadiusX = 320.dp

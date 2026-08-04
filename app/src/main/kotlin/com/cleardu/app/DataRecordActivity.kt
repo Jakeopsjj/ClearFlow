@@ -38,8 +38,8 @@ class DataRecordActivity : ComponentActivity() {
                             0 -> startMainActivity()
                             2 -> startHealthDataActivity()
                             3 -> startMedicationActivity()
+                            4 -> startReminderActivity()
                             // 1 = 记录 (current page, no-op)
-                            // 4 = 提醒 (future implementation)
                         }
                     },
                     modifier = Modifier.fillMaxSize()
@@ -66,6 +66,14 @@ class DataRecordActivity : ComponentActivity() {
 
     private fun startMedicationActivity() {
         val intent = Intent(this, MedicationActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startReminderActivity() {
+        val intent = Intent(this, ReminderActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

@@ -39,8 +39,8 @@ class MedicationActivity : ComponentActivity() {
                             0 -> startMainActivity()
                             1 -> startDataRecordActivity()
                             2 -> startHealthDataActivity()
+                            4 -> startReminderActivity()
                             // 3 = 用药 (current page, no-op)
-                            // 4 = 提醒 (future implementation)
                         }
                     },
                     onRefill = { /* TODO: 申请续药 */ },
@@ -70,6 +70,14 @@ class MedicationActivity : ComponentActivity() {
 
     private fun startHealthDataActivity() {
         val intent = Intent(this, HealthDataActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startReminderActivity() {
+        val intent = Intent(this, ReminderActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
