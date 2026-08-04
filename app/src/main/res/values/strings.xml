@@ -4,9 +4,13 @@
     <string name="app_name_latin">ClearDu</string>
 
     <!-- Onboarding welcome -->
-    <string name="onboarding_title">清渡</string>
+    <string name="onboarding_title">欢迎使用清渡</string>
     <string name="onboarding_subtitle">您的专属透析健康伴侣</string>
     <string name="onboarding_desc">科学记录超滤量、血压、心率、用药等数据，守护您的每一天</string>
+    <string name="onboarding_welcome_line1">您好，很高兴认识您</string>
+    <string name="onboarding_welcome_line2">清渡将全程陪伴您的透析旅程</string>
+    <string name="onboarding_perm_title">为了更好的体验，请授予以下权限</string>
+    <string name="onboarding_perm_subtitle">部分权限可稍后在设置中开启</string>
 
     <!-- Permission cards -->
     <string name="perm_location_name">位置与导航</string>
@@ -37,6 +41,12 @@
     <string name="agreement_and">和</string>
     <string name="agreement_privacy">《隐私政策》</string>
     <string name="action_start">开始使用</string>
+    <string name="action_grant_all">一键授予全部权限</string>
+    <string name="action_granting">正在授权中…</string>
+
+    <!-- Splash screen -->
+    <string name="splash_title">清渡</string>
+    <string name="splash_subtitle">守护您的透析生活</string>
 
     <!-- MainActivity placeholder -->
     <string name="main_placeholder">清渡 · 主页</string>
