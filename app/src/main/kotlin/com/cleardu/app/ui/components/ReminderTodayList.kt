@@ -59,6 +59,8 @@ fun ReminderTodayList(
         shape = RoundedCornerShape(ClearDuDimens.ReminderTodayCardRadius),
         background = LiquidGlassColors.LightGlassBg,
         border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         if (reminders.isEmpty()) {

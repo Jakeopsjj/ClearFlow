@@ -10,10 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.LiquidGlassColors
 
@@ -31,6 +33,8 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * @param shape corner shape (default 18dp matching `.permission-card`)
  * @param background translucent glass fill (overridable for tinted variants)
  * @param border glass border color
+ * @param shadowColor optional shadow color for depth (default transparent = no shadow)
+ * @param shadowElevation shadow elevation in dp (default 0 = no shadow)
  * @param specularTop specular highlight at the top of the card
  * @param content the card content
  */
@@ -40,12 +44,19 @@ fun GlassCard(
     shape: Shape = RoundedCornerShape(ClearDuDimens.PermissionCardRadius),
     background: Color = LiquidGlassColors.GlassBg,
     border: Color = LiquidGlassColors.GlassBorder,
+    shadowColor: Color = Color.Transparent,
+    shadowElevation: Float = 0f,
     specularTop: Color = LiquidGlassColors.GlassSpecularTop,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
         modifier = modifier
             .clip(shape)
+            .let { mod ->
+                if (shadowElevation > 0f && shadowColor != Color.Transparent) {
+                    mod.shadow(shadowElevation.dp, shape, clip = false, ambientColor = shadowColor, spotColor = shadowColor)
+                } else mod
+            }
             // Solid translucent fill — frosted look against dark mesh substrate.
             .drawBehindFill(background)
             // Specular overlay drawn on top of the content so the highlight

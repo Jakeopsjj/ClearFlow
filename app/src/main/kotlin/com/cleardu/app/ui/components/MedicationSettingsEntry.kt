@@ -56,6 +56,8 @@ fun MedicationSettingsEntry(
         shape = RoundedCornerShape(ClearDuDimens.MedSettingsRadius),
         background = LiquidGlassColors.LightGlassBg,
         border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Row(

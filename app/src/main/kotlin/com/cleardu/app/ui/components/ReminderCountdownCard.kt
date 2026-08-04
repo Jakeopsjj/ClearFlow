@@ -69,6 +69,8 @@ fun ReminderCountdownCard(
         shape = RoundedCornerShape(ClearDuDimens.ReminderCountdownCardRadius),
         background = LiquidGlassColors.LightGlassBgStrong,
         border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 8f,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Column(

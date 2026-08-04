@@ -66,6 +66,8 @@ fun MedicationProgressCard(
         shape = RoundedCornerShape(ClearDuDimens.MedProgressCardRadius),
         background = LiquidGlassColors.LightGlassBg,
         border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 6f,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Row(

@@ -205,10 +205,10 @@ object LiquidGlassColors {
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)
     val LightForeground = Color(0xFF1D1D1F)
-    val LightGlassBg = Color(0xA6FFFFFF)       // rgba(255,255,255,0.65)
-    val LightGlassBgStrong = Color(0xCCFFFFFF)  // rgba(255,255,255,0.8)
-    val LightGlassBorder = Color(0xCCFFFFFF)    // rgba(255,255,255,0.8)
-    val LightGlassShadow = Color(0x1A000000)    // rgba(0,0,0,0.1)
+    val LightGlassBg = Color(0xCCFFFFFF)       // rgba(255,255,255,0.8) — 提高不透明度，使卡片在浅色背景上呈现明显磨砂质感
+    val LightGlassBgStrong = Color(0xE6FFFFFF)  // rgba(255,255,255,0.9) — 强磨砂效果
+    val LightGlassBorder = Color(0x59D1D6DC)    // rgba(209,214,220,0.35) — 淡灰蓝边框，在白色背景上可见
+    val LightGlassShadow = Color(0x26000000)    // rgba(0,0,0,0.15) — 增强阴影深度
     val LightGlassSpecularTop = Color(0x99FFFFFF) // rgba(255,255,255,0.6)
     val LightGlassSpecularMid = Color(0x33FFFFFF)  // rgba(255,255,255,0.2)
     val LightGlassSpecularMidLow = Color(0x1AFFFFFF) // rgba(255,255,255,0.1)
@@ -241,12 +241,12 @@ object LiquidGlassColors {
     val LightFabBg = Color(0x33007AFF)             // rgba(0,122,255,0.2)
     val LightFabBorder = Color(0x4D007AFF)         // rgba(0,122,255,0.3)
 
-    // Light-mode mesh gradient stops
-    val LightMeshPurple = Color(0x335856D6)        // rgba(88,86,214,0.2)
-    val LightMeshCyan = Color(0x265AC8FA)          // rgba(90,200,250,0.15)
-    val LightMeshDeepPurple = Color(0x1FAF52DE)    // rgba(175,82,222,0.12)
-    val LightMeshBlue = Color(0x1F007AFF)          // rgba(0,122,255,0.12)
-    val LightMeshCyanExtra = Color(0x0F007AFF)     // rgba(0,122,255,0.06)
+    // Light-mode mesh gradient stops — 增强光斑强度，使浅色背景上的玻璃卡片透光效果更明显
+    val LightMeshPurple = Color(0x995856D6)        // 左下紫色光斑，alpha 60%
+    val LightMeshCyan = Color(0x805AC8FA)          // 顶部青色光斑，alpha 50%
+    val LightMeshDeepPurple = Color(0x66AF52DE)    // 右下深紫色光斑，alpha 40%
+    val LightMeshBlue = Color(0x66007AFF)          // 右上蓝色光斑，alpha 40%
+    val LightMeshCyanExtra = Color(0x40007AFF)     // 左中青色补充，alpha 25%
 
     // Light-mode dividers
     val LightDividerDot = Color(0x26000000)        // rgba(0,0,0,0.15)

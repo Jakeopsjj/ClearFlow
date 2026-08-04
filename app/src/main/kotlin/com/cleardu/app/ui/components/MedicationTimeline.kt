@@ -200,6 +200,8 @@ private fun MedicationTimelineItem(
                 shape = RoundedCornerShape(ClearDuDimens.MedCardRadius),
                 background = LiquidGlassColors.LightGlassBg,
                 border = LiquidGlassColors.LightGlassBorder,
+                shadowColor = LiquidGlassColors.LightGlassShadow,
+                shadowElevation = 4f,
                 specularTop = LiquidGlassColors.LightGlassSpecularTop
             ) {
                 Row(

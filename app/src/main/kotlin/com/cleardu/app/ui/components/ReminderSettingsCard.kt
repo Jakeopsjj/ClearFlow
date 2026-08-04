@@ -42,6 +42,8 @@ fun ReminderSettingsCard(
         shape = RoundedCornerShape(ClearDuDimens.ReminderSettingsCardRadius),
         background = LiquidGlassColors.LightGlassBg,
         border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
         specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Column(
