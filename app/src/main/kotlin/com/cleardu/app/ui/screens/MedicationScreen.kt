@@ -107,10 +107,10 @@ fun MedicationScreen(
                 // === 设置入口 ===
                 MedicationSettingsEntry(onClick = onSettings)
 
-                // 底部留白
+                // 底部留白（给导航栏 + FAB 留出空间）
                 Spacer(
                     Modifier.height(
-                        ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 16.dp
+                        ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 36.dp
                     )
                 )
             }
@@ -118,7 +118,12 @@ fun MedicationScreen(
             // === FAB 悬浮按钮 ===
             MedicationFab(
                 onClick = onFab,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        end = ClearDuDimens.MedFabEndOffset,
+                        bottom = ClearDuDimens.MedFabBottomOffset
+                    )
             )
 
             // === 导航渐隐 ===

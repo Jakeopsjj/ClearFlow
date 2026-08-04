@@ -114,7 +114,7 @@ object ClearDuDimens {
     val NavIndicatorHeight = 4.dp
     val NavIndicatorRadius = 2.dp
     val NavIndicatorBottom = 4.dp
-    val NavBlurFadeHeight = 76.dp
+    val NavBlurFadeHeight = 88.dp
 
     // ===== Dashboard: content padding =====
     val DashboardContentTop = 44.dp
@@ -288,7 +288,7 @@ object ClearDuDimens {
     val MedPageContentTop = 44.dp
     val MedPageContentHorizontal = 20.dp
     val MedPageContentBottom = 72.dp
-    val MedPageTitleBottomMargin = 18.dp
+    val MedPageTitleBottomMargin = 24.dp
 
     // ===== Medication page: progress card =====
     val MedProgressCardRadius = 24.dp
@@ -299,7 +299,7 @@ object ClearDuDimens {
     val MedProgressRingStrokeWidth = 7.dp
     val MedProgressRingRadius = 30.dp
     val MedProgressPctFontSize = 15
-    val MedProgressTitleBottomMargin = 20.dp
+    val MedProgressTitleBottomMargin = 24.dp
 
     // ===== Medication page: warning banner =====
     val MedWarningRadius = 16.dp
@@ -310,15 +310,15 @@ object ClearDuDimens {
     val MedWarningIconRadius = 8.dp
     val MedWarningBtnPaddingH = 14.dp
     val MedWarningBtnPaddingV = 6.dp
-    val MedWarningBottomMargin = 20.dp
+    val MedWarningBottomMargin = 24.dp
 
     // ===== Medication page: section label =====
-    val MedSectionLabelBottomMargin = 10.dp
+    val MedSectionLabelBottomMargin = 14.dp
     val MedSectionLabelStartPadding = 4.dp
 
     // ===== Medication page: timeline =====
-    val MedTimelineBottomMargin = 16.dp
-    val MedTimelineItemGap = 10.dp
+    val MedTimelineBottomMargin = 20.dp
+    val MedTimelineItemGap = 12.dp
     val MedTimelineLineWidth = 1.dp
     val MedTimelineTimeColWidth = 50.dp
     val MedTimelineDotSize = 10.dp
@@ -351,7 +351,7 @@ object ClearDuDimens {
     val MedSettingsPaddingV = 14.dp
     val MedSettingsIconSize = 34.dp
     val MedSettingsIconRadius = 10.dp
-    val MedSettingsBottomMargin = 8.dp
+    val MedSettingsBottomMargin = 12.dp
 
     // ===== Medication page: FAB =====
     val MedFabSize = 56.dp

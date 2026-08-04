@@ -69,7 +69,7 @@ fun FloatingNavigationBar(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .blur(20.dp)
+                .blur(12.dp)
                 .background(navBg)
         )
 
