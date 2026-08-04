@@ -74,7 +74,7 @@ fun UltrafiltrationPanel(
         // === Input Ring ===
         InputRing(
             displayValue = displayValue,
-            isPlaceholder = inputValue.isEmpty(),
+            isPlaceholder = rawInput.isEmpty(),
             progressFraction = ringFraction
         )
         Spacer(Modifier.height(ClearDuDimens.InputRingBottomMargin))
