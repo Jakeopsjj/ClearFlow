@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +64,16 @@ fun UltrafiltrationPanel(
     modifier: Modifier = Modifier
 ) {
     var rawInput by remember { mutableStateOf(if (inputValue > 0) inputValue.toString() else "") }
+
+    // Sync rawInput when inputValue changes from parent (e.g. data loaded from DataStore)
+    // Only sync when the numeric values differ, so we don't overwrite user's typing
+    LaunchedEffect(inputValue) {
+        val currentNumeric = rawInput.toIntOrNull() ?: 0
+        if (currentNumeric != inputValue) {
+            rawInput = if (inputValue > 0) inputValue.toString() else ""
+        }
+    }
+
     val displayValue = if (rawInput.isEmpty()) "___" else rawInput
     val numericValue = rawInput.toDoubleOrNull() ?: 0.0
     val goalTargetD = goalTarget.toDouble()

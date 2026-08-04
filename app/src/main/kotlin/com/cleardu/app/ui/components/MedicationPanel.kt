@@ -20,6 +20,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -168,6 +169,13 @@ private fun MedicationItem(
     modifier: Modifier = Modifier
 ) {
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
+
+    // Sync selectedIndex when initialSelectedIndex changes from parent
+    LaunchedEffect(initialSelectedIndex) {
+        if (selectedIndex != initialSelectedIndex) {
+            selectedIndex = initialSelectedIndex
+        }
+    }
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
