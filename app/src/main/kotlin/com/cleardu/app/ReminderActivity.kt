@@ -6,7 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.ReminderScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -34,7 +37,11 @@ class ReminderActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
+                val healthDataManager = remember {
+                    HealthDataManager(RecordRepository(this@ReminderActivity))
+                }
                 ReminderScreen(
+                    healthDataManager = healthDataManager,
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()

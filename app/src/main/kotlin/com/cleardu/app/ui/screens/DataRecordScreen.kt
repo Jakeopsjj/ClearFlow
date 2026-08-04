@@ -128,9 +128,9 @@ fun DataRecordScreen(
                     0 -> UltrafiltrationPanel(
                         inputValue = recordData.ultrafiltrationMl,
                         goalTarget = recordData.ufGoalTarget,
-                        todayRecorded = recordData.ufTodayRecorded,
+                        todayRecorded = recordData.ultrafiltrationMl,
                         onValueChange = { newVal ->
-                            update { copy(ultrafiltrationMl = newVal) }
+                            update { copy(ultrafiltrationMl = newVal, ufTodayRecorded = newVal) }
                         }
                     )
                     1 -> BpHrPanel(

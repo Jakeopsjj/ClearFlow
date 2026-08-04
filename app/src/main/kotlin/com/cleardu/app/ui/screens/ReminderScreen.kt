@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -26,11 +27,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.EmergencyCallCard
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.ReminderCountdownCard
 import com.cleardu.app.ui.components.ReminderSettingsCard
 import com.cleardu.app.ui.components.ReminderTodayList
+import com.cleardu.app.ui.components.TodayReminder
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -38,10 +41,11 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 /**
  * 提醒中心页面 — "提醒" tab。
  *
- * 布局复刻参考 HTML（浅色模式）：
- *   浅色网格渐变背景 → 可滚动内容 → 标题 → 倒计时卡 →
- *   今日提醒 → 提醒设置 → 紧急呼叫 → 底部说明 → 导航渐隐 → 悬浮导航栏。
+ * Observes [HealthDataManager] for real-time medication and reminder data.
+ * When a record is saved on the Data Record page, the reminder list updates
+ * automatically.
  *
+ * @param healthDataManager shared data manager for cross-page real-time sync
  * @param onNavItemSelected 导航栏点击回调
  * @param onNavigate 导航到医院回调
  * @param onCall 紧急拨打回调
@@ -50,6 +54,7 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun ReminderScreen(
+    healthDataManager: HealthDataManager,
     onNavItemSelected: (Int) -> Unit = {},
     onNavigate: () -> Unit = {},
     onCall: () -> Unit = {},
@@ -57,6 +62,14 @@ fun ReminderScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedNavIndex by remember { mutableIntStateOf(4) } // 提醒 tab active
+
+    // === Observe real-time data from shared data manager ===
+    val latestRecord by healthDataManager.latestRecord.collectAsState(initial = null)
+
+    // Derive today reminders from the latest record's medications
+    val todayReminders = remember(latestRecord) {
+        deriveTodayReminders(latestRecord)
+    }
 
     LightMeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -90,8 +103,9 @@ fun ReminderScreen(
                 SectionLabel(text = "今日提醒")
                 Spacer(Modifier.height(ClearDuDimens.ReminderSectionLabelBottomMargin))
 
-                // 4. 今日提醒卡片
+                // 4. 今日提醒卡片 (real data)
                 ReminderTodayList(
+                    reminders = todayReminders,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderTodayCardBottomMargin))
@@ -261,4 +275,77 @@ private fun LightNavBlurFade(modifier: Modifier = Modifier) {
                 drawRect(brush = brush)
             }
     )
+}
+
+// ===== Data derivation helpers =====
+
+/** Default reminder times for medication schedule. */
+private val reminderTimes = listOf("08:00", "12:00", "18:00", "21:00")
+
+/**
+ * Derive [TodayReminder] items from the latest record's medications
+ * and vitals data.
+ *
+ * Generates medication reminders followed by monitoring reminders
+ * based on what data has been recorded today.
+ */
+private fun deriveTodayReminders(
+    record: com.cleardu.app.data.RecordData?
+): List<TodayReminder> {
+    if (record == null) return emptyList()
+
+    val reminders = mutableListOf<TodayReminder>()
+
+    // Medication reminders from stored medications
+    record.selectedMedications.forEachIndexed { index, med ->
+        val time = reminderTimes.getOrElse(index) { "08:00" }
+        val status = if (med.doseMultiplier >= 1.0) "已服" else "待服"
+        reminders.add(
+            TodayReminder(
+                time = time,
+                title = "${med.name} ${med.detail}",
+                status = status
+            )
+        )
+    }
+
+    // Ultrafiltration reminder
+    if (record.ultrafiltrationMl > 0) {
+        reminders.add(
+            TodayReminder(
+                time = "10:00",
+                title = "超滤量已记录 ${record.ultrafiltrationMl}ml",
+                status = "完成"
+            )
+        )
+    } else {
+        reminders.add(
+            TodayReminder(
+                time = "10:00",
+                title = "记录今日超滤量",
+                status = "待办"
+            )
+        )
+    }
+
+    // Blood pressure reminder
+    if (record.systolic > 0 && record.diastolic > 0) {
+        reminders.add(
+            TodayReminder(
+                time = "09:00",
+                title = "血压已测量 ${record.systolic}/${record.diastolic}",
+                status = "完成"
+            )
+        )
+    } else {
+        reminders.add(
+            TodayReminder(
+                time = "09:00",
+                title = "测量血压心率",
+                status = "待办"
+            )
+        )
+    }
+
+    return reminders
 }

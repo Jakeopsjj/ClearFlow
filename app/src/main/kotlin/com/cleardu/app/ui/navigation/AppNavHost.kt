@@ -148,6 +148,7 @@ fun AppNavHost(
         // ===== 用药管理 =====
         composable(Routes.MEDICATION) {
             MedicationScreen(
+                healthDataManager = healthDataManager,
                 onNavItemSelected = navigateToTab,
                 modifier = Modifier.fillMaxSize()
             )
@@ -156,6 +157,7 @@ fun AppNavHost(
         // ===== 提醒中心 =====
         composable(Routes.REMINDER) {
             ReminderScreen(
+                healthDataManager = healthDataManager,
                 onNavItemSelected = navigateToTab,
                 modifier = Modifier.fillMaxSize()
             )

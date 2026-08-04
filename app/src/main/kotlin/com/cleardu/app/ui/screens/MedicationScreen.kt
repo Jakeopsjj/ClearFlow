@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -26,12 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.MedicationFab
 import com.cleardu.app.ui.components.MedicationProgressCard
 import com.cleardu.app.ui.components.MedicationSettingsEntry
 import com.cleardu.app.ui.components.MedicationTimeline
 import com.cleardu.app.ui.components.MedicationWarningBanner
+import com.cleardu.app.ui.components.MedDoseStatus
+import com.cleardu.app.ui.components.MedicationDose as TimelineMedDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -39,10 +43,11 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 /**
  * 用药管理页面 — "用药" tab。
  *
- * 布局复刻参考 HTML（浅色模式）：
- *   浅色网格渐变背景 → 可滚动内容 → 标题 → 进度环卡 → 警告横幅 →
- *   时间轴标题 → 用药时间轴 → 设置入口 → FAB → 导航渐隐 → 悬浮导航栏。
+ * Observes [HealthDataManager] for real-time medication data. When a record
+ * is saved on the Data Record page, the medication list and progress update
+ * automatically.
  *
+ * @param healthDataManager shared data manager for cross-page real-time sync
  * @param onNavItemSelected 导航栏点击回调
  * @param onRefill 申请续药回调
  * @param onSettings 用药提醒设置回调
@@ -51,6 +56,7 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun MedicationScreen(
+    healthDataManager: HealthDataManager,
     onNavItemSelected: (Int) -> Unit = {},
     onRefill: () -> Unit = {},
     onSettings: () -> Unit = {},
@@ -58,6 +64,30 @@ fun MedicationScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedNavIndex by remember { mutableIntStateOf(3) } // 用药 tab active
+
+    // === Observe real-time data from shared data manager ===
+    val latestRecord by healthDataManager.latestRecord.collectAsState(initial = null)
+    val vitals by healthDataManager.latestVitals.collectAsState(
+        initial = com.cleardu.app.data.DashboardVitals()
+    )
+
+    // Derive medication list from latest record
+    val storedMeds = latestRecord?.selectedMedications ?: emptyList()
+    val totalCount = storedMeds.size
+    val takenCount = remember(storedMeds) {
+        // Simulate: medications with doseMultiplier >= 1.0 are considered "taken" today
+        storedMeds.count { it.doseMultiplier >= 1.0 }
+    }
+
+    // Derive timeline doses from stored medications
+    val timelineDoses = remember(storedMeds) {
+        deriveTimelineDoses(storedMeds)
+    }
+
+    // Next medication info
+    val nextMed = timelineDoses.firstOrNull { it.status == MedDoseStatus.NEXT_DOSE }
+    val nextMedName = nextMed?.name ?: "无"
+    val nextMedTime = nextMed?.time ?: "--:--"
 
     LightMeshGradientBackground(
         modifier = modifier.fillMaxSize()
@@ -83,8 +113,13 @@ fun MedicationScreen(
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedPageTitleBottomMargin))
 
-                // === 今日服药进度卡 ===
-                MedicationProgressCard()
+                // === 今日服药进度卡 (real data) ===
+                MedicationProgressCard(
+                    takenCount = takenCount,
+                    totalCount = totalCount.coerceAtLeast(1),
+                    nextMedName = nextMedName,
+                    nextMedTime = nextMedTime
+                )
                 Spacer(Modifier.height(ClearDuDimens.MedProgressTitleBottomMargin))
 
                 // === 警告横幅 ===
@@ -100,8 +135,13 @@ fun MedicationScreen(
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedSectionLabelBottomMargin))
 
-                // === 用药时间轴 ===
-                MedicationTimeline()
+                // === 用药时间轴 (real data) ===
+                MedicationTimeline(
+                    doses = timelineDoses,
+                    onDoseTaken = { index ->
+                        // Medication taken — handled internally by timeline UI
+                    }
+                )
                 Spacer(Modifier.height(ClearDuDimens.MedTimelineBottomMargin))
 
                 // === 设置入口 ===
@@ -232,4 +272,49 @@ private fun LightNavBlurFade(modifier: Modifier = Modifier) {
                 drawRect(brush = brush)
             }
     )
+}
+
+// ===== Data derivation helpers =====
+
+/** Default medication times mapped by medication name keywords. */
+private val defaultMedTimes = listOf("08:00", "12:00", "18:00", "21:00")
+
+/** Icon colors for medication timeline items. */
+private val medIconColors = listOf(
+    LiquidGlassColors.TintPurpleBg to LiquidGlassColors.MedicalPurple,
+    LiquidGlassColors.TintOrangeBg to LiquidGlassColors.MedicalOrange,
+    LiquidGlassColors.TintGreenBg to LiquidGlassColors.MedicalGreen,
+    LiquidGlassColors.TintRedBg to LiquidGlassColors.MedicalRed,
+    LiquidGlassColors.TintCyanMd to LiquidGlassColors.MedicalCyan
+)
+
+/**
+ * Convert stored [com.cleardu.app.data.MedicationDose] items into
+ * [TimelineMedDose] display items for the medication timeline.
+ *
+ * Each stored medication gets a time slot based on its index. The first
+ * medication is marked as NEXT_DOSE (pending), the rest as UPCOMING.
+ */
+private fun deriveTimelineDoses(
+    storedMeds: List<com.cleardu.app.data.MedicationDose>
+): List<TimelineMedDose> {
+    if (storedMeds.isEmpty()) return emptyList()
+
+    return storedMeds.mapIndexed { index, med ->
+        val time = defaultMedTimes.getOrElse(index) { "08:00" }
+        val (iconBg, iconTint) = medIconColors[index % medIconColors.size]
+        val status = when (index) {
+            0 -> MedDoseStatus.NEXT_DOSE
+            else -> MedDoseStatus.UPCOMING
+        }
+        TimelineMedDose(
+            time = time,
+            name = med.name,
+            dose = med.detail,
+            instruction = if (index % 2 == 0) "餐后服用" else "随餐服用",
+            status = status,
+            iconTint = iconTint,
+            iconBg = iconBg,
+        )
+    }
 }
