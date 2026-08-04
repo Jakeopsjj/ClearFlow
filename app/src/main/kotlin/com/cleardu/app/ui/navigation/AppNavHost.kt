@@ -7,22 +7,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cleardu.app.data.DashboardData
-import com.cleardu.app.data.MedicationReminder
-import com.cleardu.app.data.QuickAction
-import com.cleardu.app.data.VitalItem
-import com.cleardu.app.data.VitalStatus
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.DashboardScreen
 import com.cleardu.app.ui.screens.DataRecordScreen
 import com.cleardu.app.ui.screens.HealthDataScreen
 import com.cleardu.app.ui.screens.MedicationScreen
 import com.cleardu.app.ui.screens.ReminderScreen
-import com.cleardu.app.ui.theme.LiquidGlassColors
 
 /**
  * 全局路由常量。
@@ -63,6 +60,10 @@ private const val FADE_DURATION = 300
  * saveState        — 弹出时保存页面状态
  * restoreState     — 导航时恢复目标页面保存的状态
  *
+ * —— 共享数据层 ——
+ * [HealthDataManager] 在 NavHost 顶层创建，所有页面共享同一个实例。
+ * 记录数据页面保存后，仪表盘和健康数据页面自动实时更新。
+ *
  * @param navController 由外部提供时可注入；默认 rememberNavController()
  */
 @Composable
@@ -70,19 +71,23 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
+    // === Shared data layer: single source of truth for all screens ===
+    val healthDataManager = remember {
+        HealthDataManager(RecordRepository(context))
+    }
+
     // 统一的 Tab 导航函数
     val navigateToTab: (Int) -> Unit = remember(navController) {
         { index ->
             val route = NAV_INDEX_TO_ROUTE[index]
             if (route != null) {
                 navController.navigate(route) {
-                    // 弹出至起始目的地，保存当前页状态
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
-                    // 单顶模式：目标已在栈顶则不新建
                     launchSingleTop = true
-                    // 恢复目标页保存的状态
                     restoreState = true
                 }
             }
@@ -101,29 +106,19 @@ fun AppNavHost(
     ) {
         // ===== 首页 =====
         composable(Routes.DASHBOARD) {
-            val dashboardData = remember { createDashboardData() }
             DashboardScreen(
-                data = dashboardData,
-                onVitalClick = { vital ->
-                    // Navigate to data record tab for the corresponding vital type
-                    when (vital.id) {
-                        "bp" -> navigateToTab(1)  // 血压心率 panel
-                        "hr" -> navigateToTab(1)   // 血压心率 panel
-                        "weight" -> navigateToTab(1) // 体重体温 panel
-                        "temp" -> navigateToTab(1)  // 体重体温 panel
+                healthDataManager = healthDataManager,
+                onVitalClick = { vitalId ->
+                    when (vitalId) {
+                        "bp", "hr" -> navigateToTab(1)
+                        "weight", "temp" -> navigateToTab(1)
                         else -> navigateToTab(1)
                     }
                 },
-                onMedRemind = {
-                    // Navigate to medication tab
-                    navigateToTab(3)
-                },
-                onQuickAction = { action ->
-                    when (action.id) {
-                        "uf" -> navigateToTab(1)    // 超滤量 panel
-                        "bp" -> navigateToTab(1)    // 血压心率 panel
-                        "med" -> navigateToTab(1)   // 用药 panel
-                        // "water" is handled inside DashboardScreen with snackbar
+                onMedRemind = { navigateToTab(3) },
+                onQuickAction = { actionId ->
+                    when (actionId) {
+                        "uf", "bp", "med" -> navigateToTab(1)
                     }
                 },
                 onNavItemSelected = navigateToTab,
@@ -134,6 +129,7 @@ fun AppNavHost(
         // ===== 数据记录 =====
         composable(Routes.DATA_RECORD) {
             DataRecordScreen(
+                healthDataManager = healthDataManager,
                 onSave = { navController.popBackStack() },
                 onNavItemSelected = navigateToTab,
                 modifier = Modifier.fillMaxSize()
@@ -143,6 +139,7 @@ fun AppNavHost(
         // ===== 健康数据 =====
         composable(Routes.HEALTH_DATA) {
             HealthDataScreen(
+                healthDataManager = healthDataManager,
                 onNavItemSelected = navigateToTab,
                 modifier = Modifier.fillMaxSize()
             )
@@ -165,79 +162,3 @@ fun AppNavHost(
         }
     }
 }
-
-// region Dashboard 模拟数据
-
-private fun createDashboardData(): DashboardData {
-    return DashboardData(
-        greeting = "早上好，张先生",
-        greetingSub = "今天是您透析后的第 2 天",
-        fluidIntake = 1850,
-        fluidTarget = 2500,
-        fluidStatus = "体液平衡良好",
-        vitals = listOf(
-            VitalItem(
-                id = "bp",
-                label = "血压",
-                value = "128/82",
-                unit = "mmHg",
-                status = VitalStatus.Normal,
-                accentColor = LiquidGlassColors.MedicalRed
-            ),
-            VitalItem(
-                id = "hr",
-                label = "心率",
-                value = "72",
-                unit = "bpm",
-                status = VitalStatus.Normal,
-                accentColor = LiquidGlassColors.MedicalRed
-            ),
-            VitalItem(
-                id = "weight",
-                label = "体重",
-                value = "65.2",
-                unit = "kg",
-                status = VitalStatus.Normal,
-                subValue = "较昨日 -0.3kg",
-                accentColor = LiquidGlassColors.MedicalCyan
-            ),
-            VitalItem(
-                id = "temp",
-                label = "体温",
-                value = "36.5",
-                unit = "°C",
-                status = VitalStatus.Normal,
-                accentColor = LiquidGlassColors.MedicalOrange
-            )
-        ),
-        medication = MedicationReminder(
-            title = "下次用药：降压药",
-            detail = "14:00 - 还有 4 小时",
-            actionLabel = "提醒我"
-        ),
-        quickActions = listOf(
-            QuickAction(
-                id = "uf",
-                label = "记录超滤",
-                accentColor = LiquidGlassColors.MedicalCyan
-            ),
-            QuickAction(
-                id = "bp",
-                label = "测血压",
-                accentColor = LiquidGlassColors.MedicalRed
-            ),
-            QuickAction(
-                id = "med",
-                label = "记用药",
-                accentColor = LiquidGlassColors.MedicalPurple
-            ),
-            QuickAction(
-                id = "water",
-                label = "喝了水",
-                accentColor = LiquidGlassColors.MedicalCyan
-            )
-        )
-    )
-}
-
-// endregion

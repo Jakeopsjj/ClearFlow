@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.DataRecordScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -31,7 +33,9 @@ class DataRecordActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
+                val healthDataManager = HealthDataManager(RecordRepository(this))
                 DataRecordScreen(
+                    healthDataManager = healthDataManager,
                     onSave = { finish() },
                     onNavItemSelected = { index ->
                         when (index) {

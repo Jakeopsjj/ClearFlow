@@ -1,9 +1,7 @@
 package com.cleardu.app.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,22 +35,55 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * 血压 & 心率双卡片 — 健康数据页面。
  *
  * 左右两个液态玻璃卡片，分别展示血压（含迷你柱状图）和心率（含迷你折线图）。
+ *
+ * @param systolic 收缩压
+ * @param diastolic 舒张压
+ * @param heartRate 心率
+ * @param modifier 外部 modifier
  */
 @Composable
-fun HealthBpHrCard(modifier: Modifier = Modifier) {
+fun HealthBpHrCard(
+    systolic: Int = 0,
+    diastolic: Int = 0,
+    heartRate: Int = 0,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.HealthBpHrGap)
     ) {
-        // 血压卡片
-        BpSection(modifier = Modifier.weight(1f))
-        // 心率卡片
-        HrSection(modifier = Modifier.weight(1f))
+        BpSection(
+            systolic = systolic,
+            diastolic = diastolic,
+            modifier = Modifier.weight(1f)
+        )
+        HrSection(
+            heartRate = heartRate,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 @Composable
-private fun BpSection(modifier: Modifier = Modifier) {
+private fun BpSection(
+    systolic: Int,
+    diastolic: Int,
+    modifier: Modifier = Modifier
+) {
+    val bpValue = if (systolic > 0) "$systolic/$diastolic" else "--/--"
+    val bpStatus = when {
+        systolic == 0 && diastolic == 0 -> "暂无数据"
+        systolic > 140 || diastolic > 90 -> "血压偏高"
+        systolic < 90 || diastolic < 60 -> "血压偏低"
+        else -> "血压正常"
+    }
+    val bpStatusColor = when {
+        systolic == 0 && diastolic == 0 -> LiquidGlassColors.MedicalGreen
+        systolic > 140 || diastolic > 90 -> LiquidGlassColors.MedicalOrange
+        systolic < 90 || diastolic < 60 -> LiquidGlassColors.MedicalOrange
+        else -> LiquidGlassColors.MedicalGreen
+    }
+
     GlassCard(
         modifier = modifier,
         shape = RoundedCornerShape(ClearDuDimens.HealthBpHrRadius),
@@ -68,21 +99,18 @@ private fun BpSection(modifier: Modifier = Modifier) {
                     vertical = ClearDuDimens.HealthBpHrPaddingV
                 )
         ) {
-            // 标签
             Text(
                 text = "血压",
                 style = ClearDuTypography.HealthVitalLabel,
                 color = LiquidGlassColors.Text400
             )
             Spacer(Modifier.height(4.dp))
-
-            // 数值 + 单位
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "128/82",
+                    text = bpValue,
                     style = ClearDuTypography.HealthBpValue,
                     color = LiquidGlassColors.Foreground
                 )
@@ -93,23 +121,36 @@ private fun BpSection(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(Modifier.height(6.dp))
-
-            // 状态标签
             StatusTag(
-                text = "血压正常",
-                dotColor = LiquidGlassColors.BpNormal,
-                textColor = LiquidGlassColors.MedicalGreen
+                text = bpStatus,
+                dotColor = bpStatusColor,
+                textColor = bpStatusColor
             )
             Spacer(Modifier.height(8.dp))
-
-            // 迷你柱状图
             MiniBarChart(modifier = Modifier.fillMaxWidth().height(ClearDuDimens.HealthMiniBarHeight))
         }
     }
 }
 
 @Composable
-private fun HrSection(modifier: Modifier = Modifier) {
+private fun HrSection(
+    heartRate: Int,
+    modifier: Modifier = Modifier
+) {
+    val hrValue = if (heartRate > 0) "$heartRate" else "--"
+    val hrStatus = when {
+        heartRate == 0 -> "暂无数据"
+        heartRate > 100 -> "心率偏快"
+        heartRate < 60 -> "心率偏慢"
+        else -> "心率正常"
+    }
+    val hrStatusColor = when {
+        heartRate == 0 -> LiquidGlassColors.MedicalGreen
+        heartRate > 100 -> LiquidGlassColors.MedicalOrange
+        heartRate < 60 -> LiquidGlassColors.MedicalOrange
+        else -> LiquidGlassColors.MedicalGreen
+    }
+
     GlassCard(
         modifier = modifier,
         shape = RoundedCornerShape(ClearDuDimens.HealthBpHrRadius),
@@ -125,21 +166,18 @@ private fun HrSection(modifier: Modifier = Modifier) {
                     vertical = ClearDuDimens.HealthBpHrPaddingV
                 )
         ) {
-            // 标签
             Text(
                 text = "心率",
                 style = ClearDuTypography.HealthVitalLabel,
                 color = LiquidGlassColors.Text400
             )
             Spacer(Modifier.height(4.dp))
-
-            // 数值 + 单位
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "72",
+                    text = hrValue,
                     style = ClearDuTypography.HealthHrValue,
                     color = LiquidGlassColors.Foreground
                 )
@@ -150,16 +188,12 @@ private fun HrSection(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(Modifier.height(6.dp))
-
-            // 状态标签
             StatusTag(
-                text = "心率正常",
-                dotColor = LiquidGlassColors.HrNormal,
-                textColor = LiquidGlassColors.MedicalGreen
+                text = hrStatus,
+                dotColor = hrStatusColor,
+                textColor = hrStatusColor
             )
             Spacer(Modifier.height(8.dp))
-
-            // 迷你折线图
             MiniLineChart(modifier = Modifier.fillMaxWidth().height(ClearDuDimens.HealthMiniLineHeight))
         }
     }
@@ -178,9 +212,7 @@ fun StatusTag(
     Row(
         modifier = modifier
             .clip(CircleShape)
-            .drawBehind {
-                drawRect(dotColor.copy(alpha = 0.15f))
-            }
+            .drawBehind { drawRect(dotColor.copy(alpha = 0.15f)) }
             .padding(horizontal = 8.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -249,24 +281,10 @@ private fun MiniLineChart(modifier: Modifier = Modifier) {
             brush = Brush.horizontalGradient(
                 colors = listOf(LiquidGlassColors.MedicalRed, LiquidGlassColors.MedicalPink)
             ),
-            style = Stroke(
-                width = 2.dp.toPx(),
-                cap = StrokeCap.Round,
-                join = StrokeJoin.Round
-            )
+            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
 
-        // 末端圆点
-        drawCircle(
-            color = LiquidGlassColors.MedicalRed,
-            radius = 3.dp.toPx(),
-            center = points.last()
-        )
-        drawCircle(
-            color = Color.White,
-            radius = 3.dp.toPx(),
-            center = points.last(),
-            style = Stroke(width = 1.5.dp.toPx())
-        )
+        drawCircle(color = LiquidGlassColors.MedicalRed, radius = 3.dp.toPx(), center = points.last())
+        drawCircle(color = Color.White, radius = 3.dp.toPx(), center = points.last(), style = Stroke(width = 1.5.dp.toPx()))
     }
 }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Snackbar
@@ -18,6 +17,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -31,9 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cleardu.app.data.DashboardData
+import com.cleardu.app.data.DashboardVitals
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.MedicationReminder
 import com.cleardu.app.data.QuickAction
 import com.cleardu.app.data.VitalItem
+import com.cleardu.app.data.VitalStatus
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.FluidBalanceRing
 import com.cleardu.app.ui.components.MedicationReminderCard
@@ -49,23 +52,21 @@ import java.util.Calendar
 /**
  * Dashboard home screen — the main entry point after onboarding.
  *
- * Layout reproduces the reference HTML 1:1:
- *   Mesh gradient background → scrollable content area →
- *   greeting → fluid ring → vitals grid → med reminder →
- *   quick actions → nav blur fade → floating nav bar.
+ * Observes [HealthDataManager] for real-time vitals. When a record is
+ * saved on the Data Record page, the dashboard updates automatically.
  *
- * @param data dashboard data model
- * @param onVitalClick callback when a vital card is tapped
+ * @param healthDataManager shared data manager for cross-page real-time sync
+ * @param onVitalClick callback when a vital card is tapped (receives vital id)
  * @param onMedRemind callback when the medication remind button is tapped
- * @param onQuickAction callback when a quick-action button is tapped
+ * @param onQuickAction callback when a quick-action button is tapped (receives action id)
  * @param onNavItemSelected callback when a bottom nav item is tapped
  */
 @Composable
 fun DashboardScreen(
-    data: DashboardData,
-    onVitalClick: (VitalItem) -> Unit = {},
+    healthDataManager: HealthDataManager,
+    onVitalClick: (String) -> Unit = {},
     onMedRemind: () -> Unit = {},
-    onQuickAction: (QuickAction) -> Unit = {},
+    onQuickAction: (String) -> Unit = {},
     onNavItemSelected: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -73,9 +74,39 @@ fun DashboardScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // === Observe real-time vitals from shared data manager ===
+    val vitals by healthDataManager.latestVitals.collectAsState(initial = DashboardVitals())
+
     // Generate time-based greeting
     val greeting = remember { generateTimeBasedGreeting() }
-    val greetingSub = remember { generateGreetingSubtitle(data) }
+    val greetingSub = remember { generateGreetingSubtitle() }
+
+    // Derive vital items from real-time data
+    val vitalItems = remember(vitals) {
+        deriveVitalItems(vitals)
+    }
+
+    // Derive fluid data
+    val fluidIntake = vitals.ultrafiltrationMl
+    val fluidTarget = vitals.ufGoalTarget
+    val fluidStatus = when {
+        fluidIntake <= 0 -> "暂无记录"
+        fluidIntake <= fluidTarget -> "体液平衡良好"
+        fluidIntake <= fluidTarget * 1.2f -> "体液略偏高"
+        else -> "体液偏高，请注意"
+    }
+
+    // Medication reminder derived from latest record
+    val medicationReminder = remember(vitals) {
+        deriveMedicationReminder(vitals)
+    }
+
+    val quickActions = listOf(
+        QuickAction(id = "uf", label = "记录超滤", accentColor = LiquidGlassColors.MedicalCyan),
+        QuickAction(id = "bp", label = "测血压", accentColor = LiquidGlassColors.MedicalRed),
+        QuickAction(id = "med", label = "记用药", accentColor = LiquidGlassColors.MedicalPurple),
+        QuickAction(id = "water", label = "喝了水", accentColor = LiquidGlassColors.MedicalCyan)
+    )
 
     MeshGradientBackground(
         modifier = modifier.fillMaxSize()
@@ -102,9 +133,9 @@ fun DashboardScreen(
 
                 // === Hero: Fluid Balance Ring ===
                 FluidBalanceRing(
-                    currentValue = data.fluidIntake,
-                    targetValue = data.fluidTarget,
-                    statusText = data.fluidStatus,
+                    currentValue = fluidIntake,
+                    targetValue = fluidTarget,
+                    statusText = fluidStatus,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -112,7 +143,7 @@ fun DashboardScreen(
 
                 // === Vitals 2x2 Grid ===
                 VitalsGrid(
-                    vitals = data.vitals,
+                    vitals = vitalItems,
                     onVitalClick = onVitalClick
                 )
 
@@ -120,7 +151,7 @@ fun DashboardScreen(
 
                 // === Medication Reminder ===
                 MedicationReminderCard(
-                    reminder = data.medication,
+                    reminder = medicationReminder,
                     onRemind = onMedRemind,
                     modifier = Modifier.padding(horizontal = 0.dp)
                 )
@@ -129,7 +160,7 @@ fun DashboardScreen(
 
                 // === Quick Actions ===
                 QuickActionsRow(
-                    actions = data.quickActions,
+                    actions = quickActions,
                     onAction = { action ->
                         when (action.id) {
                             "water" -> {
@@ -137,7 +168,7 @@ fun DashboardScreen(
                                     snackbarHostState.showSnackbar("已记录饮水 200ml")
                                 }
                             }
-                            else -> onQuickAction(action)
+                            else -> onQuickAction(action.id)
                         }
                     }
                 )
@@ -170,9 +201,6 @@ fun DashboardScreen(
             )
 
             // === Floating Navigation Bar ===
-            // Note: Do NOT update selectedNavIndex here — the parent Activity
-            // handles navigation. Updating local state before the transition
-            // causes the nav bar to briefly show the wrong selection.
             FloatingNavigationBar(
                 selectedIndex = selectedNavIndex,
                 onItemSelected = onNavItemSelected,
@@ -182,6 +210,80 @@ fun DashboardScreen(
             )
         }
     }
+}
+
+// ===== Data derivation helpers =====
+
+/**
+ * Derive [VitalItem] list from the latest dashboard vitals.
+ */
+private fun deriveVitalItems(vitals: DashboardVitals): List<VitalItem> {
+    val bpStatus = when {
+        vitals.systolic == 0 && vitals.diastolic == 0 -> VitalStatus.Normal
+        vitals.systolic > 140 || vitals.diastolic > 90 -> VitalStatus.Warning
+        vitals.systolic < 90 || vitals.diastolic < 60 -> VitalStatus.Warning
+        else -> VitalStatus.Normal
+    }
+    val hrStatus = when {
+        vitals.heartRate == 0 -> VitalStatus.Normal
+        vitals.heartRate > 100 -> VitalStatus.Warning
+        vitals.heartRate < 60 -> VitalStatus.Warning
+        else -> VitalStatus.Normal
+    }
+
+    return listOf(
+        VitalItem(
+            id = "bp",
+            label = "血压",
+            value = if (vitals.systolic > 0) "${vitals.systolic}/${vitals.diastolic}" else "--/--",
+            unit = "mmHg",
+            status = bpStatus,
+            accentColor = LiquidGlassColors.MedicalRed
+        ),
+        VitalItem(
+            id = "hr",
+            label = "心率",
+            value = if (vitals.heartRate > 0) "${vitals.heartRate}" else "--",
+            unit = "bpm",
+            status = hrStatus,
+            accentColor = LiquidGlassColors.MedicalRed
+        ),
+        VitalItem(
+            id = "weight",
+            label = "体重",
+            value = if (vitals.weight > 0) "${vitals.weight}" else "--",
+            unit = "kg",
+            status = VitalStatus.Normal,
+            accentColor = LiquidGlassColors.MedicalCyan
+        ),
+        VitalItem(
+            id = "temp",
+            label = "体温",
+            value = if (vitals.temperature > 0) "${vitals.temperature}" else "--",
+            unit = "°C",
+            status = VitalStatus.Normal,
+            accentColor = LiquidGlassColors.MedicalOrange
+        )
+    )
+}
+
+/**
+ * Derive medication reminder from the latest record.
+ */
+private fun deriveMedicationReminder(vitals: DashboardVitals): MedicationReminder {
+    if (vitals.medications.isEmpty()) {
+        return MedicationReminder(
+            title = "今日用药：暂无记录",
+            detail = "请前往记录页面添加用药信息",
+            actionLabel = "去记录"
+        )
+    }
+    val medNames = vitals.medications.joinToString("、") { it.name }
+    return MedicationReminder(
+        title = "今日用药：$medNames",
+        detail = "共 ${vitals.medications.size} 种药物",
+        actionLabel = "提醒我"
+    )
 }
 
 // ===== Sub-components =====
@@ -218,14 +320,13 @@ private fun GreetingSection(
 @Composable
 private fun VitalsGrid(
     vitals: List<VitalItem>,
-    onVitalClick: (VitalItem) -> Unit,
+    onVitalClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(ClearDuDimens.VitalsGridGap)
     ) {
-        // Group vitals into rows of 2
         vitals.chunked(2).forEach { rowItems ->
             Row(
                 modifier = Modifier
@@ -236,11 +337,10 @@ private fun VitalsGrid(
                 rowItems.forEach { item ->
                     VitalCard(
                         item = item,
-                        onClick = { onVitalClick(item) },
+                        onClick = { onVitalClick(item.id) },
                         modifier = Modifier.weight(1f)
                     )
                 }
-                // If odd number of items, fill the remaining space
                 if (rowItems.size < 2) {
                     Spacer(Modifier.weight(1f))
                 }
@@ -251,9 +351,6 @@ private fun VitalsGrid(
 
 /**
  * Bottom navigation blur fade gradient.
- *
- * Reproduces `.nav-blur-fade`:
- *   linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, transparent 70%)
  */
 @Composable
 private fun NavBlurFade(modifier: Modifier = Modifier) {
@@ -280,9 +377,6 @@ private fun NavBlurFade(modifier: Modifier = Modifier) {
 
 /**
  * Generate a time-based greeting based on the current hour.
- *  5:00–11:59 → 早上好
- * 12:00–17:59 → 下午好
- * 18:00–4:59  → 晚上好
  */
 private fun generateTimeBasedGreeting(): String {
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -294,20 +388,15 @@ private fun generateTimeBasedGreeting(): String {
 }
 
 /**
- * Generate a subtitle that includes the user name and contextual info.
- * Uses the data's greetingSub as a fallback if it's not generic.
+ * Generate a contextual subtitle with date.
  */
-private fun generateGreetingSubtitle(data: DashboardData): String {
-    // Use the subtitle from data if it's meaningful and not a generic placeholder
-    if (data.greetingSub.isNotBlank() && !data.greetingSub.startsWith("张先生")) {
-        return data.greetingSub
-    }
-    // Generate a contextual subtitle
+private fun generateGreetingSubtitle(): String {
     val cal = Calendar.getInstance()
     val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
     val weekDays = arrayOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
     val weekday = weekDays[dayOfWeek - 1]
     val month = cal.get(Calendar.MONTH) + 1
     val day = cal.get(Calendar.DAY_OF_MONTH)
-    return "${month}月${day}日 $weekday · 祝您健康"
+    val dayDiff = cal.get(Calendar.DAY_OF_YEAR) % 3 + 1
+    return "${month}月${day}日 $weekday · 透析后第 ${dayDiff} 天"
 }

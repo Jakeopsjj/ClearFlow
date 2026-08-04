@@ -11,14 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -34,14 +32,28 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  *
  * 四张液态玻璃卡片：钾(K)、磷(P)、钠(Na)、钙(Ca)。
  * 每张含元素符号、名称、数值、单位、范围条和范围标签。
+ *
+ * @param potassium 钾值 (mmol/L)
+ * @param phosphorus 磷值 (mmol/L)
+ * @param sodium 钠值 (mmol/L)
+ * @param calcium 钙值 (mmol/L)
+ * @param modifier 外部 modifier
  */
 @Composable
-fun HealthElectrolyteGrid(modifier: Modifier = Modifier) {
+fun HealthElectrolyteGrid(
+    potassium: Double = 0.0,
+    phosphorus: Double = 0.0,
+    sodium: Double = 0.0,
+    calcium: Double = 0.0,
+    modifier: Modifier = Modifier
+) {
+    fun fmt(v: Double, default: String): String = if (v > 0) "${v}" else default
+
     val elements = listOf(
-        ElectrolyteItem("K", "钾", "4.2", "mmol/L", 3.5f, 5.5f, 4.2f, isWarning = false),
-        ElectrolyteItem("P", "磷", "1.8", "mmol/L", 0.8f, 1.6f, 1.8f, isWarning = true),
-        ElectrolyteItem("Na", "钠", "138", "mmol/L", 135f, 145f, 138f, isWarning = false),
-        ElectrolyteItem("Ca", "钙", "2.3", "mmol/L", 2.1f, 2.6f, 2.3f, isWarning = false)
+        ElectrolyteItem("K", "钾", fmt(potassium, "4.2"), "mmol/L", 3.5f, 5.5f, potassium.toFloat().coerceIn(3.0f, 6.0f), isWarning = potassium > 5.5),
+        ElectrolyteItem("P", "磷", fmt(phosphorus, "1.8"), "mmol/L", 0.8f, 1.6f, phosphorus.toFloat().coerceIn(0.5f, 2.2f), isWarning = phosphorus > 1.6),
+        ElectrolyteItem("Na", "钠", fmt(sodium, "138"), "mmol/L", 135f, 145f, sodium.toFloat().coerceIn(130f, 150f), isWarning = sodium < 135 || sodium > 145),
+        ElectrolyteItem("Ca", "钙", fmt(calcium, "2.3"), "mmol/L", 2.1f, 2.6f, calcium.toFloat().coerceIn(1.8f, 3.0f), isWarning = calcium < 2.1 || calcium > 2.6)
     )
 
     Column(
@@ -98,7 +110,6 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 元素符号
             Text(
                 text = item.symbol,
                 style = ClearDuTypography.HealthEleSymbol,
@@ -113,7 +124,6 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             )
             Spacer(Modifier.height(4.dp))
 
-            // 数值
             val valueColor = if (item.isWarning) LiquidGlassColors.MedicalOrange else LiquidGlassColors.Foreground
             Text(
                 text = item.value,
@@ -129,7 +139,6 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             )
             Spacer(Modifier.height(8.dp))
 
-            // 范围条
             ElectrolyteRangeBar(
                 min = item.rangeMin,
                 max = item.rangeMax,
@@ -139,7 +148,6 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             )
             Spacer(Modifier.height(4.dp))
 
-            // 范围标签
             Text(
                 text = "${item.rangeMin} / ${item.rangeMax}",
                 style = ClearDuTypography.HealthEleRange,
@@ -165,21 +173,17 @@ private fun ElectrolyteRangeBar(
     val indicatorGlow = if (isWarning) LiquidGlassColors.TintOrangeActive else LiquidGlassColors.TintGreenGlow
 
     Box(modifier = modifier) {
-        // 轨道背景
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(2.dp))
         ) {
-            // 正常区（绿色渐变）
             drawRect(
                 brush = Brush.horizontalGradient(
                     colors = listOf(LiquidGlassColors.TintGreenBarStart, LiquidGlassColors.TintGreenBarEnd)
                 )
             )
-            // 警告区覆盖（如果超标）
             if (isWarning) {
-                val warningStart = ((max - min) / (max - min)) // 简化为右侧
                 drawRect(
                     color = LiquidGlassColors.TintOrangeBarStart,
                     topLeft = Offset(size.width * 0.8f, 0f),
@@ -188,32 +192,13 @@ private fun ElectrolyteRangeBar(
             }
         }
 
-        // 指示器圆点
         val ratio = ((current - min) / (max - min)).coerceIn(0f, 1f)
-        Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val x = size.width * ratio
             val cy = size.height / 2f
-            // 发光
-            drawCircle(
-                color = indicatorGlow.copy(alpha = 0.5f),
-                radius = 6.dp.toPx(),
-                center = Offset(x, cy)
-            )
-            // 白色外环
-            drawCircle(
-                color = Color.White,
-                radius = 5.dp.toPx(),
-                center = Offset(x, cy)
-            )
-            // 内圆
-            drawCircle(
-                color = indicatorColor,
-                radius = 3.dp.toPx(),
-                center = Offset(x, cy)
-            )
+            drawCircle(color = indicatorGlow.copy(alpha = 0.5f), radius = 6.dp.toPx(), center = Offset(x, cy))
+            drawCircle(color = Color.White, radius = 5.dp.toPx(), center = Offset(x, cy))
+            drawCircle(color = indicatorColor, radius = 3.dp.toPx(), center = Offset(x, cy))
         }
     }
 }

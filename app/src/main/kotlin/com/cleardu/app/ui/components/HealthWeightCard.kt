@@ -34,9 +34,21 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  * 体重记录卡片 — 健康数据页面。
  *
  * 展示当前体重、目标干体重、进度条和 7 天迷你趋势折线图。
+ *
+ * @param currentWeight 当前体重 (kg)
+ * @param weightTrend 7 天体重趋势数据
+ * @param targetWeight 目标干体重 (kg)
+ * @param modifier 外部 modifier
  */
 @Composable
-fun HealthWeightCard(modifier: Modifier = Modifier) {
+fun HealthWeightCard(
+    currentWeight: Double = 65.2,
+    weightTrend: List<Double> = listOf(66.1, 65.8, 65.5, 65.9, 65.3, 65.5, 65.2),
+    targetWeight: Double = 63.0,
+    modifier: Modifier = Modifier
+) {
+    val weightStr = if (currentWeight > 0) "${currentWeight}" else "--"
+
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.HealthWeightRadius),
@@ -63,7 +75,10 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
                     style = ClearDuTypography.HealthCardTitle,
                     color = LiquidGlassColors.Foreground
                 )
-                MiniWeightChart(modifier = Modifier.height(ClearDuDimens.HealthMiniWeightHeight))
+                MiniWeightChart(
+                    data = weightTrend,
+                    modifier = Modifier.height(ClearDuDimens.HealthMiniWeightHeight)
+                )
             }
             Spacer(Modifier.height(10.dp))
 
@@ -80,7 +95,7 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            text = "65.2",
+                            text = weightStr,
                             style = ClearDuTypography.HealthWeightValue,
                             color = LiquidGlassColors.Foreground
                         )
@@ -99,7 +114,7 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            text = "63.0",
+                            text = "${targetWeight}",
                             style = ClearDuTypography.HealthWeightValue,
                             color = LiquidGlassColors.MedicalCyan
                         )
@@ -114,7 +129,11 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
             Spacer(Modifier.height(12.dp))
 
             // 进度条
-            WeightProgressBar(modifier = Modifier.fillMaxWidth().height(ClearDuDimens.HealthWeightBarHeight))
+            WeightProgressBar(
+                currentWeight = currentWeight,
+                targetWeight = targetWeight,
+                modifier = Modifier.fillMaxWidth().height(ClearDuDimens.HealthWeightBarHeight)
+            )
             Spacer(Modifier.height(4.dp))
 
             // 刻度标签
@@ -123,7 +142,7 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("68 kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.Text400)
-                Text("目标 63 kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.MedicalGreen)
+                Text("目标 ${targetWeight} kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.MedicalGreen)
                 Text("62 kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.Text400)
             }
         }
@@ -134,15 +153,21 @@ fun HealthWeightCard(modifier: Modifier = Modifier) {
  * 体重进度条 — 渐变填充 + 目标标记。
  */
 @Composable
-private fun WeightProgressBar(modifier: Modifier = Modifier) {
-    val fillRatio = 0.467f // 65.2 在 68~62 之间的位置
-    val targetRatio = 0.833f // 63 在 68~62 之间的位置
+private fun WeightProgressBar(
+    currentWeight: Double,
+    targetWeight: Double,
+    modifier: Modifier = Modifier
+) {
+    val minWeight = 62f
+    val maxWeight = 68f
+    val fillRatio = if (currentWeight > 0) {
+        ((maxWeight - currentWeight.toFloat()) / (maxWeight - minWeight)).coerceIn(0f, 1f)
+    } else 0.467f
+    val targetRatio = ((maxWeight - targetWeight.toFloat()) / (maxWeight - minWeight)).coerceIn(0f, 1f)
 
     Box(modifier = modifier.clip(RoundedCornerShape(ClearDuDimens.HealthWeightBarRadius))) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            // 轨道
             drawRect(LiquidGlassColors.TrackBg)
-            // 填充
             drawRect(
                 brush = Brush.horizontalGradient(
                     colors = listOf(LiquidGlassColors.TintCyanBar, LiquidGlassColors.MedicalCyan)
@@ -150,7 +175,6 @@ private fun WeightProgressBar(modifier: Modifier = Modifier) {
                 size = Size(size.width * fillRatio, size.height)
             )
         }
-        // 目标标记线
         Canvas(modifier = Modifier.fillMaxSize()) {
             val x = size.width * targetRatio
             drawLine(
@@ -167,19 +191,22 @@ private fun WeightProgressBar(modifier: Modifier = Modifier) {
  * 迷你体重趋势折线图 — 青色填充 + 折线 + 末端圆点。
  */
 @Composable
-private fun MiniWeightChart(modifier: Modifier = Modifier) {
-    val data = listOf(66.1f, 65.8f, 65.5f, 65.9f, 65.3f, 65.5f, 65.2f)
+private fun MiniWeightChart(
+    data: List<Double>,
+    modifier: Modifier = Modifier
+) {
+    if (data.isEmpty()) return
 
     Canvas(modifier = modifier) {
         val max = data.max()
         val min = data.min()
-        val range = (max - min).coerceAtLeast(1f)
+        val range = (max - min).coerceAtLeast(1.0)
         val stepX = size.width / (data.size - 1)
 
         val points = data.mapIndexed { i, v ->
             Offset(
                 x = i * stepX,
-                y = size.height - ((v - min) / range) * size.height * 0.7f - size.height * 0.15f
+                y = (size.height - ((v - min) / range) * size.height * 0.7f - size.height * 0.15f).toFloat()
             )
         }
 
@@ -193,10 +220,7 @@ private fun MiniWeightChart(modifier: Modifier = Modifier) {
         drawPath(
             path = fillPath,
             brush = Brush.verticalGradient(
-                colors = listOf(
-                    LiquidGlassColors.TintCyanGlow.copy(alpha = 0.4f),
-                    Color.Transparent
-                )
+                colors = listOf(LiquidGlassColors.TintCyanGlow.copy(alpha = 0.4f), Color.Transparent)
             )
         )
 
@@ -208,24 +232,11 @@ private fun MiniWeightChart(modifier: Modifier = Modifier) {
         drawPath(
             path = linePath,
             color = LiquidGlassColors.MedicalCyan,
-            style = Stroke(
-                width = 2.dp.toPx(),
-                cap = StrokeCap.Round,
-                join = StrokeJoin.Round
-            )
+            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
 
         // 末端圆点
-        drawCircle(
-            color = LiquidGlassColors.MedicalCyan,
-            radius = 3.5.dp.toPx(),
-            center = points.last()
-        )
-        drawCircle(
-            color = Color.White,
-            radius = 3.5.dp.toPx(),
-            center = points.last(),
-            style = Stroke(width = 1.5.dp.toPx())
-        )
+        drawCircle(color = LiquidGlassColors.MedicalCyan, radius = 3.5.dp.toPx(), center = points.last())
+        drawCircle(color = Color.White, radius = 3.5.dp.toPx(), center = points.last(), style = Stroke(width = 1.5.dp.toPx()))
     }
 }

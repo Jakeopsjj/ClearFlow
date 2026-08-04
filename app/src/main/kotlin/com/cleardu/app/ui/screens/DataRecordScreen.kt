@@ -27,12 +27,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cleardu.app.data.MedicationDose
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordData
-import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.data.summary
 import com.cleardu.app.ui.components.BpHrPanel
 import com.cleardu.app.ui.components.ElementsPanel
@@ -56,16 +54,17 @@ import java.util.Calendar
 /**
  * Data record screen — the "记录" page of the app.
  *
- * Centralized state management: all tab inputs are held in a single [RecordData]
- * instance so switching tabs does not lose data. The save button collects all
- * state, persists it, shows a snackbar, and resets the form.
+ * Uses the shared [HealthDataManager] so that saved records immediately
+ * propagate to the Dashboard and Health Data pages via DataStore flows.
  *
+ * @param healthDataManager shared data manager for cross-page real-time sync
  * @param onSave callback when the save button is tapped (after internal save)
  * @param onNavItemSelected callback when a bottom nav item is tapped
  * @param modifier outer modifier
  */
 @Composable
 fun DataRecordScreen(
+    healthDataManager: HealthDataManager,
     onSave: () -> Unit = {},
     onNavItemSelected: (Int) -> Unit = {},
     modifier: Modifier = Modifier
@@ -78,8 +77,6 @@ fun DataRecordScreen(
     var recordData by remember { mutableStateOf(RecordData()) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val repository = remember { RecordRepository(context) }
 
     // Helper to update a single field
     fun update(transform: RecordData.() -> RecordData) {
@@ -170,10 +167,10 @@ fun DataRecordScreen(
                 SaveRecordButton(
                     onClick = {
                         scope.launch {
-                            // Persist record via DataStore
+                            // Persist via shared HealthDataManager
                             val saved = withContext(Dispatchers.IO) {
                                 try {
-                                    repository.save(recordData)
+                                    healthDataManager.save(recordData)
                                     true
                                 } catch (e: Exception) {
                                     false

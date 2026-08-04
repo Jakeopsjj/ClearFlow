@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.HealthDataScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -33,7 +35,9 @@ class HealthDataActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
+                val healthDataManager = HealthDataManager(RecordRepository(this))
                 HealthDataScreen(
+                    healthDataManager = healthDataManager,
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()
