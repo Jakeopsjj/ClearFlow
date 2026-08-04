@@ -284,6 +284,81 @@ object ClearDuDimens {
     val HealthExportGap = 10.dp
     val HealthExportIconSize = 18.dp
 
+    // ===== Medication page: layout =====
+    val MedPageContentTop = 44.dp
+    val MedPageContentHorizontal = 20.dp
+    val MedPageContentBottom = 72.dp
+    val MedPageTitleBottomMargin = 18.dp
+
+    // ===== Medication page: progress card =====
+    val MedProgressCardRadius = 24.dp
+    val MedProgressCardPaddingH = 20.dp
+    val MedProgressCardPaddingV = 18.dp
+    val MedProgressCardGap = 16.dp
+    val MedProgressRingSize = 72.dp
+    val MedProgressRingStrokeWidth = 7.dp
+    val MedProgressRingRadius = 30.dp
+    val MedProgressPctFontSize = 15
+    val MedProgressTitleBottomMargin = 20.dp
+
+    // ===== Medication page: warning banner =====
+    val MedWarningRadius = 16.dp
+    val MedWarningPaddingH = 14.dp
+    val MedWarningPaddingV = 12.dp
+    val MedWarningGap = 10.dp
+    val MedWarningIconSize = 28.dp
+    val MedWarningIconRadius = 8.dp
+    val MedWarningBtnPaddingH = 14.dp
+    val MedWarningBtnPaddingV = 6.dp
+    val MedWarningBottomMargin = 20.dp
+
+    // ===== Medication page: section label =====
+    val MedSectionLabelBottomMargin = 10.dp
+    val MedSectionLabelStartPadding = 4.dp
+
+    // ===== Medication page: timeline =====
+    val MedTimelineBottomMargin = 16.dp
+    val MedTimelineItemGap = 10.dp
+    val MedTimelineLineWidth = 1.dp
+    val MedTimelineTimeColWidth = 50.dp
+    val MedTimelineDotSize = 10.dp
+    val MedTimelineLineLeft = 35.dp
+    val MedTimelineDotLeft = 44.dp
+
+    // ===== Medication page: medication card =====
+    val MedCardRadius = 18.dp
+    val MedCardPaddingH = 14.dp
+    val MedCardPaddingV = 12.dp
+    val MedCardGap = 12.dp
+    val MedCardIconSize = 38.dp
+    val MedCardIconRadius = 10.dp
+    val MedCardNameBottomGap = 2.dp
+    val MedCardMetaGap = 6.dp
+    val MedCardDividerSize = 3.dp
+
+    // ===== Medication page: status indicators =====
+    val MedStatusCheckSize = 24.dp
+    val MedTakeBtnPaddingH = 16.dp
+    val MedTakeBtnPaddingV = 7.dp
+    val MedTakenLabelPaddingH = 8.dp
+    val MedTakenLabelPaddingV = 3.dp
+    val MedOptionalLabelPaddingH = 8.dp
+    val MedOptionalLabelPaddingV = 3.dp
+
+    // ===== Medication page: settings entry =====
+    val MedSettingsRadius = 18.dp
+    val MedSettingsPaddingH = 16.dp
+    val MedSettingsPaddingV = 14.dp
+    val MedSettingsIconSize = 34.dp
+    val MedSettingsIconRadius = 10.dp
+    val MedSettingsBottomMargin = 8.dp
+
+    // ===== Medication page: FAB =====
+    val MedFabSize = 56.dp
+    val MedFabBottomOffset = 82.dp
+    val MedFabEndOffset = 24.dp
+    val MedFabIconSize = 26.dp
+
     // ===== Mesh background glow radii (px-equivalent at design scale) =====
     object Mesh {
         val PurpleRadiusX = 320.dp

@@ -201,4 +201,57 @@ object LiquidGlassColors {
 
     val Black = Color(0xFF000000)
     val White = Color(0xFFFFFFFF)
+
+    // ===== Light mode tokens (medication page) =====
+    val LightBackground = Color(0xFFF2F2F7)
+    val LightForeground = Color(0xFF1D1D1F)
+    val LightGlassBg = Color(0xA6FFFFFF)       // rgba(255,255,255,0.65)
+    val LightGlassBgStrong = Color(0xCCFFFFFF)  // rgba(255,255,255,0.8)
+    val LightGlassBorder = Color(0xCCFFFFFF)    // rgba(255,255,255,0.8)
+    val LightGlassShadow = Color(0x1A000000)    // rgba(0,0,0,0.1)
+    val LightGlassSpecularTop = Color(0x99FFFFFF) // rgba(255,255,255,0.6)
+    val LightGlassSpecularMid = Color(0x33FFFFFF)  // rgba(255,255,255,0.2)
+    val LightGlassSpecularMidLow = Color(0x1AFFFFFF) // rgba(255,255,255,0.1)
+
+    // Light-mode tinted backgrounds
+    val LightTintCyanBg = Color(0x1A007AFF)       // rgba(0,122,255,0.1)
+    val LightTintCyanMd = Color(0x1F007AFF)       // rgba(0,122,255,0.12)
+    val LightTintCyanActive = Color(0x33007AFF)   // rgba(0,122,255,0.2)
+    val LightTintCyanBorder = Color(0x40007AFF)   // rgba(0,122,255,0.25)
+    val LightTintOrangeBg = Color(0x1AFF9500)     // rgba(255,149,0,0.1)
+    val LightTintOrangeIcon = Color(0x1FFF9500)   // rgba(255,149,0,0.12)
+    val LightTintOrangeBtn = Color(0x26FF9500)    // rgba(255,149,0,0.15)
+    val LightTintOrangeBorder = Color(0x4DFF9500)  // rgba(255,149,0,0.3)
+    val LightTintOrangeText = Color(0xB3FF9500)    // rgba(255,149,0,0.7)
+    val LightTintPurpleBg = Color(0x1FAF52DE)     // rgba(175,82,222,0.12)
+    val LightTintGreenBg = Color(0x1434C759)      // rgba(52,199,89,0.08)
+    val LightTintGreenStrong = Color(0x1F34C759)   // rgba(52,199,89,0.12)
+    val LightTintGreenBorder = Color(0x3334C759)   // rgba(52,199,89,0.2)
+    val LightTintIndigoBg = Color(0x1F5856D6)     // rgba(88,86,214,0.12)
+    val LightTintRedBg = Color(0x14FF3B30)         // rgba(255,59,48,0.08)
+
+    // Light-mode nav bar
+    val LightNavBg = Color(0x14FFFFFF)            // rgba(255,255,255,0.08)
+    val LightNavBorder = Color(0x33FFFFFF)         // rgba(255,255,255,0.2)
+    val LightNavSpecular = Color(0x33FFFFFF)       // rgba(255,255,255,0.2)
+    val LightNavBlurFadeStart = Color(0x26000000)   // rgba(0,0,0,0.15)
+    val LightNavBlurFadeMid = Color(0x0D000000)     // rgba(0,0,0,0.05)
+
+    // Light-mode FAB
+    val LightFabBg = Color(0x33007AFF)             // rgba(0,122,255,0.2)
+    val LightFabBorder = Color(0x4D007AFF)         // rgba(0,122,255,0.3)
+
+    // Light-mode mesh gradient stops
+    val LightMeshPurple = Color(0x335856D6)        // rgba(88,86,214,0.2)
+    val LightMeshCyan = Color(0x265AC8FA)          // rgba(90,200,250,0.15)
+    val LightMeshDeepPurple = Color(0x1FAF52DE)    // rgba(175,82,222,0.12)
+    val LightMeshBlue = Color(0x1F007AFF)          // rgba(0,122,255,0.12)
+    val LightMeshCyanExtra = Color(0x0F007AFF)     // rgba(0,122,255,0.06)
+
+    // Light-mode dividers
+    val LightDividerDot = Color(0x26000000)        // rgba(0,0,0,0.15)
+    val LightCircleEmptyBorder = Color(0x26000000)  // rgba(0,0,0,0.15)
+    val LightCircleEmptyBg = Color(0x0A000000)      // rgba(0,0,0,0.04)
+    val LightMuted = Color(0x08000000)              // rgba(0,0,0,0.03)
+    val LightBorderMedium = Color(0x1A000000)       // rgba(0,0,0,0.1)
 }

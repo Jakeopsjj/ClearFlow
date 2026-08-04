@@ -47,11 +47,15 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 fun FloatingNavigationBar(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lightMode: Boolean = false
 ) {
     val labels = listOf("首页", "记录", "数据", "用药", "提醒")
 
     val shape = RoundedCornerShape(ClearDuDimens.NavBarRadius)
+    val navBg = if (lightMode) LiquidGlassColors.LightNavBg else LiquidGlassColors.NavBg
+    val navBorder = if (lightMode) LiquidGlassColors.LightNavBorder else LiquidGlassColors.NavBorder
+    val navSpecular = if (lightMode) LiquidGlassColors.LightNavSpecular else LiquidGlassColors.NavSpecular
 
     Box(
         modifier = modifier
@@ -66,14 +70,14 @@ fun FloatingNavigationBar(
             modifier = Modifier
                 .fillMaxSize()
                 .blur(20.dp)
-                .background(LiquidGlassColors.NavBg)
+                .background(navBg)
         )
 
         // === Subtle top/bottom border ===
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .border(BorderStroke(0.5.dp, LiquidGlassColors.NavBorder), shape)
+                .border(BorderStroke(0.5.dp, navBorder), shape)
         )
 
         // === Top specular highlight (glass reflection) ===
@@ -83,7 +87,7 @@ fun FloatingNavigationBar(
                 .drawBehind {
                     val brush = Brush.verticalGradient(
                         colors = listOf(
-                            LiquidGlassColors.NavSpecular,
+                            navSpecular,
                             Color.Transparent.copy(alpha = 0.02f),
                             Color.Transparent
                         ),

@@ -37,8 +37,9 @@ class DataRecordActivity : ComponentActivity() {
                         when (index) {
                             0 -> startMainActivity()
                             2 -> startHealthDataActivity()
+                            3 -> startMedicationActivity()
                             // 1 = 记录 (current page, no-op)
-                            // Other tabs: future implementation
+                            // 4 = 提醒 (future implementation)
                         }
                     },
                     modifier = Modifier.fillMaxSize()
@@ -57,6 +58,14 @@ class DataRecordActivity : ComponentActivity() {
 
     private fun startHealthDataActivity() {
         val intent = Intent(this, HealthDataActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startMedicationActivity() {
+        val intent = Intent(this, MedicationActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

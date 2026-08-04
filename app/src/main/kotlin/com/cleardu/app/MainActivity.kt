@@ -46,7 +46,8 @@ class MainActivity : ComponentActivity() {
         when (index) {
             1 -> startActivity(Intent(this, DataRecordActivity::class.java))
             2 -> startActivity(Intent(this, HealthDataActivity::class.java))
-            // 0 = 首页 (current), others: future implementation
+            3 -> startActivity(Intent(this, MedicationActivity::class.java))
+            // 0 = 首页 (current), 4 = 提醒 (future implementation)
         }
     }
 

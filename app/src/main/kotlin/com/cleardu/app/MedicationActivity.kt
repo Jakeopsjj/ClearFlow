@@ -7,45 +7,45 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.cleardu.app.ui.screens.HealthDataScreen
+import com.cleardu.app.ui.screens.MedicationScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
 /**
- * 健康数据 Activity — "数据" tab 页面。
+ * 用药管理 Activity — "用药" tab 页面。
  *
- * 展示透析患者的健康数据汇总：
- *  - 超滤量趋势图（7 天折线 + 渐变填充）
- *  - 血压 & 心率双卡片（含迷你柱状图/折线图）
- *  - 电解质 2×2 网格（钾/磷/钠/钙，含范围条和指示器）
- *  - 体重记录卡片（当前体重、目标干体重、进度条）
- *  - 警告横幅（血磷偏高提示）
- *  - 导出报告 / 分享给医生按钮
- *  - 悬浮导航栏（数据 tab active）
+ * 展示透析患者的用药管理信息：
+ *  - 今日服药进度环（75% 完成）
+ *  - 药物余量警告横幅（磷结合剂剩余 3 天）
+ *  - 今日用药时间轴（7 条用药记录，含已服/待服/下次/可选状态）
+ *  - 用药提醒设置入口
+ *  - 添加药物 FAB
+ *  - 悬浮导航栏（用药 tab active）
  *
  * 导航：
  *  - 导航栏"首页" → MainActivity
  *  - 导航栏"记录" → DataRecordActivity
+ *  - 导航栏"数据" → HealthDataActivity
  */
-class HealthDataActivity : ComponentActivity() {
+class MedicationActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ClearDuTheme {
-                HealthDataScreen(
+                MedicationScreen(
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()
                             1 -> startDataRecordActivity()
-                            3 -> startMedicationActivity()
-                            // 2 = 数据 (current page, no-op)
+                            2 -> startHealthDataActivity()
+                            // 3 = 用药 (current page, no-op)
                             // 4 = 提醒 (future implementation)
                         }
                     },
-                    onExport = { /* TODO: 导出健康报告 */ },
-                    onShare = { /* TODO: 分享给医生 */ },
-                    onWarningClick = { /* TODO: 查看血磷偏高建议 */ },
+                    onRefill = { /* TODO: 申请续药 */ },
+                    onSettings = { /* TODO: 用药提醒设置 */ },
+                    onFab = { /* TODO: 添加药物 */ },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -68,8 +68,8 @@ class HealthDataActivity : ComponentActivity() {
         finish()
     }
 
-    private fun startMedicationActivity() {
-        val intent = Intent(this, MedicationActivity::class.java).apply {
+    private fun startHealthDataActivity() {
+        val intent = Intent(this, HealthDataActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

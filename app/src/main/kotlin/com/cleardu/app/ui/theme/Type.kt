@@ -551,6 +551,118 @@ object ClearDuTypography {
         fontWeight = FontWeight.W500,
         fontSize = 10.sp
     )
+
+    // ===== Medication page =====
+    val MedPageTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W700,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        letterSpacing = (-0.03).sp
+    )
+
+    val MedProgressPct = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W700,
+        fontSize = 15.sp,
+        letterSpacing = (-0.02).sp,
+        lineHeight = 15.sp
+    )
+
+    val MedProgressTitle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 15.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val MedProgressDetail = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 13.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val MedProgressNext = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val MedWarningMain = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 13.sp
+    )
+
+    val MedWarningSub = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val MedRefillBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 12.sp
+    )
+
+    val MedSectionLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp,
+        letterSpacing = 0.02.sp
+    )
+
+    val MedTimelineTime = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val MedCardName = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        letterSpacing = (-0.01).sp
+    )
+
+    val MedCardMeta = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val MedCardDose = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.W400,
+        fontSize = 12.sp
+    )
+
+    val MedTakeBtn = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp
+    )
+
+    val MedTakenLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W600,
+        fontSize = 11.sp
+    )
+
+    val MedOptionalLabel = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W400,
+        fontSize = 11.sp
+    )
+
+    val MedSettingsText = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 14.sp
+    )
 }
 
 /** Material3 typography holder. Screen-level composables use [ClearDuTypography]
