@@ -2,12 +2,7 @@ package com.cleardu.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.EaseInOutSine
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -58,59 +52,30 @@ fun EmergencyCallCard(
     onFamilyContact: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // 红色呼吸辉光：2.5s ease-in-out，alpha 0.08 ↔ 0.20
-    val infiniteTransition = rememberInfiniteTransition(label = "emergency")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.08f,
-        targetValue = 0.20f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2500, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowAlpha"
-    )
-
     val cardShape = RoundedCornerShape(ClearDuDimens.ReminderEmergencyCardRadius)
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .clip(cardShape)
             .drawBehind {
-                // 呼吸红色径向辉光
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            LiquidGlassColors.LightTintRedGlow.copy(alpha = glowAlpha),
-                            Color.Transparent
-                        ),
-                        center = Offset(size.width / 2f, size.height / 2f),
-                        radius = size.maxDimension
-                    )
+                // 红色 tint 背景
+                drawRect(LiquidGlassColors.LightTintRedBg)
+                // 顶部高光（上 50% 渐变）
+                val specBrush = Brush.verticalGradient(
+                    colors = listOf(
+                        LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.65f),
+                        LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.1f),
+                        Color.Transparent
+                    ),
+                    startY = 0f,
+                    endY = size.height * 0.5f
                 )
+                drawRect(specBrush)
             }
+            .border(1.dp, LiquidGlassColors.LightTintRedBorder, cardShape)
+            .padding(ClearDuDimens.ReminderEmergencyCardPadding)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(cardShape)
-                .drawBehind {
-                    // 红色 tint 背景
-                    drawRect(LiquidGlassColors.LightTintRedBg)
-                    // 顶部高光（上 50% 渐变）
-                    val specBrush = Brush.verticalGradient(
-                        colors = listOf(
-                            LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.65f),
-                            LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.1f),
-                            Color.Transparent
-                        ),
-                        startY = 0f,
-                        endY = size.height * 0.5f
-                    )
-                    drawRect(specBrush)
-                }
-                .border(1.dp, LiquidGlassColors.LightTintRedBorder, cardShape)
-                .padding(ClearDuDimens.ReminderEmergencyCardPadding)
-        ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 // 1. 标题行
                 Row(
@@ -152,7 +117,6 @@ fun EmergencyCallCard(
                 FamilyContactLink(onClick = onFamilyContact)
             }
         }
-    }
 }
 
 /**

@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,10 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -67,16 +63,6 @@ fun ReminderCountdownCard(
         ),
         label = "pulseAlpha"
     )
-    // 蓝色光晕：3s 呼吸，alpha 0.2 ↔ 0.35（rgba(0,122,255,0.2)→0.35）
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.35f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "countdownGlowAlpha"
-    )
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -98,23 +84,11 @@ fun ReminderCountdownCard(
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownLabelBottomMargin)
             )
 
-            // 2. 倒计时行（圆形呼吸光晕 + 透明度脉动）
-            Box(
-                modifier = Modifier
-                    .drawBehind {
-                        val glowCenter = Offset(size.width / 2f, size.height / 2f)
-                        val glowRadius = size.minDimension * 0.7f
-                        drawCircle(
-                            color = LiquidGlassColors.MedicalBlue.copy(alpha = glowAlpha * 0.6f),
-                            radius = glowRadius,
-                            center = glowCenter
-                        )
-                    }
-                    .alpha(pulseAlpha)
+            // 2. 倒计时行（透明度脉动）
+            Row(
+                modifier = Modifier.alpha(pulseAlpha),
+                verticalAlignment = Alignment.Bottom
             ) {
-                Row(
-                    verticalAlignment = Alignment.Bottom
-                ) {
                     Text(
                         text = "2",
                         style = ClearDuTypography.ReminderCountdownNumber,
@@ -149,8 +123,7 @@ fun ReminderCountdownCard(
                         text = "分",
                         style = ClearDuTypography.ReminderCountdownUnit,
                         color = LiquidGlassColors.Text400
-                    )
-                }
+                )
             }
 
             Spacer(Modifier.height(8.dp))
