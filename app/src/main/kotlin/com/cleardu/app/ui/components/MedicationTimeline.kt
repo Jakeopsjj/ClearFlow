@@ -67,21 +67,60 @@ data class MedicationDose(
 /**
  * 今日用药时间线。
  *
- * 左侧时间列 + 居中时间线/状态点 + 右侧玻璃药品卡片。
+ * 左侧时间列 + 时间线/状态点 + 右侧玻璃药品卡片。
  * 点击"服了"按钮可将 [MedDoseStatus.NEXT_DOSE] 项切换为 [MedDoseStatus.TAKEN]。
+ * 列表为空时显示空状态提示，引导用户通过 FAB 添加用药。
+ *
+ * @param doses 当日用药列表，为空时展示空状态
+ * @param onDoseTaken 服药确认回调
+ * @param modifier 外部 modifier
  */
 @Composable
-fun MedicationTimeline(modifier: Modifier = Modifier) {
-    val doses = remember { mutableStateListOf(*SampleMedicationDoses.toTypedArray()) }
-    // 通过点击"服了"刚确认服药的索引 —— 这些卡片保持不透明，区别于历史已服的 0.6 透明
+fun MedicationTimeline(
+    doses: List<MedicationDose> = emptyList(),
+    onDoseTaken: (Int) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    // 追踪刚点击"服了"的索引，保持卡片不透明
     val justTaken = remember { mutableStateListOf<Int>() }
 
     val timeColWidth = ClearDuDimens.MedTimelineTimeColWidth
     val gap = ClearDuDimens.MedCardGap
     val dotSize = ClearDuDimens.MedTimelineDotSize
     val lineWidth = ClearDuDimens.MedTimelineLineWidth
-    val lineCenterX = timeColWidth + gap / 2
+    // 时间线贴近时间列，距卡片更远，视觉更舒适
+    val lineCenterX = timeColWidth + ClearDuDimens.MedTimelineLineOffsetFromTime
     val dotLeft = lineCenterX - dotSize / 2
+
+    if (doses.isEmpty()) {
+        // === 空状态 ===
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                MedClockIcon(
+                    tint = LiquidGlassColors.Text400.copy(alpha = 0.5f),
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = "暂无用药记录",
+                    style = ClearDuTypography.MedSectionLabel,
+                    color = LiquidGlassColors.Text400
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "点击右下角 + 添加用药时间",
+                    style = ClearDuTypography.MedCardMeta,
+                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
+                )
+            }
+        }
+        return
+    }
 
     Box(
         modifier = modifier
@@ -111,8 +150,8 @@ fun MedicationTimeline(modifier: Modifier = Modifier) {
                         if (dose.status == MedDoseStatus.NEXT_DOSE ||
                             dose.status == MedDoseStatus.UPCOMING
                         ) {
-                            doses[index] = dose.copy(status = MedDoseStatus.TAKEN)
                             if (index !in justTaken) justTaken.add(index)
+                            onDoseTaken(index)
                         }
                     }
                 )
@@ -406,69 +445,3 @@ private fun TimelineDot(status: MedDoseStatus, modifier: Modifier = Modifier) {
         }
     }
 }
-
-private val SampleMedicationDoses = listOf(
-    MedicationDose(
-        time = "07:30",
-        name = "降压药 氨氯地平",
-        dose = "5mg",
-        instruction = "饭前服用",
-        status = MedDoseStatus.TAKEN,
-        iconTint = LiquidGlassColors.MedicalBlue,
-        iconBg = LiquidGlassColors.LightTintCyanBg
-    ),
-    MedicationDose(
-        time = "08:00",
-        name = "磷结合剂 碳酸钙",
-        dose = "1片",
-        instruction = "餐中服用",
-        status = MedDoseStatus.TAKEN,
-        iconTint = LiquidGlassColors.MedicalOrange,
-        iconBg = LiquidGlassColors.LightTintOrangeBg
-    ),
-    MedicationDose(
-        time = "12:00",
-        name = "铁剂 琥珀酸亚铁",
-        dose = "1片",
-        instruction = "饭后服用",
-        status = MedDoseStatus.TAKEN,
-        iconTint = LiquidGlassColors.MedicalGreen,
-        iconBg = LiquidGlassColors.LightTintGreenBg
-    ),
-    MedicationDose(
-        time = "14:00",
-        name = "降压药 氨氯地平",
-        dose = "5mg",
-        instruction = "饭后服用",
-        status = MedDoseStatus.NEXT_DOSE,
-        iconTint = LiquidGlassColors.MedicalCyan,
-        iconBg = LiquidGlassColors.LightTintCyanBg
-    ),
-    MedicationDose(
-        time = "19:00",
-        name = "磷结合剂 碳酸钙",
-        dose = "1片",
-        instruction = "餐中服用",
-        status = MedDoseStatus.UPCOMING,
-        iconTint = LiquidGlassColors.MedicalOrange,
-        iconBg = LiquidGlassColors.LightTintOrangeBg
-    ),
-    MedicationDose(
-        time = "21:00",
-        name = "促红素 皮下注射",
-        dose = "遵医嘱",
-        instruction = null,
-        status = MedDoseStatus.UPCOMING,
-        iconTint = LiquidGlassColors.MedicalPurple,
-        iconBg = LiquidGlassColors.LightTintPurpleBg
-    ),
-    MedicationDose(
-        time = "22:00",
-        name = "安眠药(必要时)",
-        dose = "遵医嘱",
-        instruction = "按需服用",
-        status = MedDoseStatus.OPTIONAL,
-        iconTint = LiquidGlassColors.MedicalIndigo,
-        iconBg = LiquidGlassColors.LightTintIndigoBg
-    )
-)
