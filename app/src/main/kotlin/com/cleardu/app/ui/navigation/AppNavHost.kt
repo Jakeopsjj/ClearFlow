@@ -104,9 +104,26 @@ fun AppNavHost(
             val dashboardData = remember { createDashboardData() }
             DashboardScreen(
                 data = dashboardData,
+                onVitalClick = { vital ->
+                    // Navigate to data record tab for the corresponding vital type
+                    when (vital.id) {
+                        "bp" -> navigateToTab(1)  // 血压心率 panel
+                        "hr" -> navigateToTab(1)   // 血压心率 panel
+                        "weight" -> navigateToTab(1) // 体重体温 panel
+                        "temp" -> navigateToTab(1)  // 体重体温 panel
+                        else -> navigateToTab(1)
+                    }
+                },
+                onMedRemind = {
+                    // Navigate to medication tab
+                    navigateToTab(3)
+                },
                 onQuickAction = { action ->
                     when (action.id) {
-                        "uf", "bp", "med" -> navigateToTab(1)
+                        "uf" -> navigateToTab(1)    // 超滤量 panel
+                        "bp" -> navigateToTab(1)    // 血压心率 panel
+                        "med" -> navigateToTab(1)   // 用药 panel
+                        // "water" is handled inside DashboardScreen with snackbar
                     }
                 },
                 onNavItemSelected = navigateToTab,

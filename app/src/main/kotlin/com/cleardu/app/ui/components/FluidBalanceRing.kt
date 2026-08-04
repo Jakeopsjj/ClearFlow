@@ -127,7 +127,7 @@ fun FluidBalanceRing(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     androidx.compose.material3.Text(
-                        text = "1,850",
+                        text = "%,d".format(currentValue),
                         style = ClearDuTypography.RingValue,
                         color = LiquidGlassColors.Foreground,
                         textAlign = TextAlign.Center

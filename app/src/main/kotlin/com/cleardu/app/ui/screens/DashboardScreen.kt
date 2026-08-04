@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +43,8 @@ import com.cleardu.app.ui.components.VitalCard
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
+import java.util.Calendar
 
 /**
  * Dashboard home screen — the main entry point after onboarding.
@@ -64,6 +70,12 @@ fun DashboardScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedNavIndex by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Generate time-based greeting
+    val greeting = remember { generateTimeBasedGreeting() }
+    val greetingSub = remember { generateGreetingSubtitle(data) }
 
     MeshGradientBackground(
         modifier = modifier.fillMaxSize()
@@ -82,8 +94,8 @@ fun DashboardScreen(
             ) {
                 // === Greeting ===
                 GreetingSection(
-                    greeting = data.greeting,
-                    subtitle = data.greetingSub
+                    greeting = greeting,
+                    subtitle = greetingSub
                 )
 
                 Spacer(Modifier.height(ClearDuDimens.GreetingBottomMargin))
@@ -118,13 +130,36 @@ fun DashboardScreen(
                 // === Quick Actions ===
                 QuickActionsRow(
                     actions = data.quickActions,
-                    onAction = onQuickAction
+                    onAction = { action ->
+                        when (action.id) {
+                            "water" -> {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("已记录饮水 200ml")
+                                }
+                            }
+                            else -> onQuickAction(action)
+                        }
+                    }
                 )
 
                 Spacer(Modifier.height(ClearDuDimens.QuickActionsBottomMargin))
 
                 // Bottom spacer for nav bar clearance
                 Spacer(Modifier.height(ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 16.dp))
+            }
+
+            // === Snackbar host ===
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = ClearDuDimens.NavBarHeight + ClearDuDimens.NavBarBottomOffset + 24.dp)
+            ) { snackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    containerColor = LiquidGlassColors.GlassBgStrong,
+                    contentColor = LiquidGlassColors.Foreground
+                )
             }
 
             // === Navigation blur fade ===
@@ -239,4 +274,40 @@ private fun NavBlurFade(modifier: Modifier = Modifier) {
                 drawRect(brush = brush)
             }
     )
+}
+
+// ===== Helper functions =====
+
+/**
+ * Generate a time-based greeting based on the current hour.
+ *  5:00–11:59 → 早上好
+ * 12:00–17:59 → 下午好
+ * 18:00–4:59  → 晚上好
+ */
+private fun generateTimeBasedGreeting(): String {
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when {
+        hour in 5..11 -> "早上好"
+        hour in 12..17 -> "下午好"
+        else -> "晚上好"
+    }
+}
+
+/**
+ * Generate a subtitle that includes the user name and contextual info.
+ * Uses the data's greetingSub as a fallback if it's not generic.
+ */
+private fun generateGreetingSubtitle(data: DashboardData): String {
+    // Use the subtitle from data if it's meaningful and not a generic placeholder
+    if (data.greetingSub.isNotBlank() && !data.greetingSub.startsWith("张先生")) {
+        return data.greetingSub
+    }
+    // Generate a contextual subtitle
+    val cal = Calendar.getInstance()
+    val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+    val weekDays = arrayOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
+    val weekday = weekDays[dayOfWeek - 1]
+    val month = cal.get(Calendar.MONTH) + 1
+    val day = cal.get(Calendar.DAY_OF_MONTH)
+    return "${month}月${day}日 $weekday · 祝您健康"
 }
