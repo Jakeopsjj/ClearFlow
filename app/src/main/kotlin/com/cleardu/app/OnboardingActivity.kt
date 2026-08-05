@@ -178,6 +178,7 @@ class OnboardingActivity : ComponentActivity() {
                 item, Manifest.permission.ACCESS_FINE_LOCATION
             )
             "phone" -> requestRuntimePermission(item, Manifest.permission.CALL_PHONE)
+            "contacts" -> requestRuntimePermission(item, Manifest.permission.READ_CONTACTS)
             "storage" -> {
                 val perm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     Manifest.permission.READ_MEDIA_IMAGES
@@ -249,6 +250,7 @@ class OnboardingActivity : ComponentActivity() {
 
         grantedState["location"] = check(Manifest.permission.ACCESS_FINE_LOCATION)
         grantedState["phone"] = check(Manifest.permission.CALL_PHONE)
+        grantedState["contacts"] = check(Manifest.permission.READ_CONTACTS)
         grantedState["storage"] = check(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 Manifest.permission.READ_MEDIA_IMAGES

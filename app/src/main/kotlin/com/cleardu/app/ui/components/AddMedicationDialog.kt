@@ -51,6 +51,7 @@ fun AddMedicationDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
+                .fillMaxHeight(0.8f)
                 .clip(RoundedCornerShape(24.dp))
                 .background(LiquidGlassColors.LightBackground)
         ) {
@@ -96,7 +97,7 @@ fun AddMedicationDialog(
                                 value = name,
                                 onValueChange = { name = it },
                                 modifier = Modifier.fillMaxWidth(),
-                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                 singleLine = true,
                                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                 decorationBox = { inner ->
@@ -124,7 +125,7 @@ fun AddMedicationDialog(
                                 value = detail,
                                 onValueChange = { detail = it },
                                 modifier = Modifier.fillMaxWidth(),
-                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                 singleLine = true,
                                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                 decorationBox = { inner ->
@@ -198,7 +199,7 @@ fun AddMedicationDialog(
                                 value = notes,
                                 onValueChange = { notes = it },
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp),
-                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                 decorationBox = { inner ->
                                     if (notes.isEmpty()) {

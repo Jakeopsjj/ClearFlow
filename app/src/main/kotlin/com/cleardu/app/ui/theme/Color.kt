@@ -186,7 +186,7 @@ object LiquidGlassColors {
 
     // ===== Data record: placeholders =====
     val PlaceholderText = Color(0x59F5F5F7)        // rgba(245,245,247,0.35)
-    val PlaceholderInput = Color(0x998E8E93)       // rgba(142,142,147,0.6)
+    val PlaceholderInput = Color(0xFF666666)       // 深灰色，浅色背景可见
     val PlaceholderInputStrong = Color(0xB38E8E93) // rgba(142,142,147,0.7)
 
     // ===== Data record: save button glow =====

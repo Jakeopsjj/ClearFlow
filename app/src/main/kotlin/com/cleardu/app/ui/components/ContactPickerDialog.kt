@@ -68,7 +68,7 @@ fun ContactPickerDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .fillMaxHeight(0.6f)
+                .fillMaxHeight(0.8f)
                 .clip(RoundedCornerShape(24.dp))
                 .background(LiquidGlassColors.LightBackground)
         ) {
@@ -122,7 +122,7 @@ fun ContactPickerDialog(
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
                             textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                color = LiquidGlassColors.Foreground
+                                color = LiquidGlassColors.LightForeground
                             ),
                             singleLine = true,
                             cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -191,7 +191,7 @@ fun ContactPickerDialog(
                                     onValueChange = { customName = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                        color = LiquidGlassColors.Foreground
+                                        color = LiquidGlassColors.LightForeground
                                     ),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -220,7 +220,7 @@ fun ContactPickerDialog(
                                     onValueChange = { customPhone = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                        color = LiquidGlassColors.Foreground
+                                        color = LiquidGlassColors.LightForeground
                                     ),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -303,7 +303,7 @@ private fun ContactItem(
                     Text(
                         text = contact.name,
                         style = ClearDuTypography.MedItemName,
-                        color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Foreground
+                        color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.LightForeground
                     )
                     if (contact.role.isNotEmpty()) {
                         Spacer(Modifier.width(8.dp))

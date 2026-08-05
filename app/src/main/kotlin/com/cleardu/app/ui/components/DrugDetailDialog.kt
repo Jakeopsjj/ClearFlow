@@ -172,7 +172,7 @@ fun DrugDetailDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("记录用量", style = ClearDuTypography.MedItemName, color = LiquidGlassColors.Foreground)
+                        Text("记录用量", style = ClearDuTypography.MedItemName, color = LiquidGlassColors.LightForeground)
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             listOf("0.5", "1", "2").forEachIndexed { index, label ->
                                 DoseChip(
@@ -190,7 +190,7 @@ fun DrugDetailDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("记录时间", style = ClearDuTypography.MedItemName, color = LiquidGlassColors.Foreground)
+                        Text("记录时间", style = ClearDuTypography.MedItemName, color = LiquidGlassColors.LightForeground)
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             times.forEach { time ->
                                 TimeChip(
@@ -253,7 +253,7 @@ private fun DrugSection(title: String, content: String) {
             Text(
                 text = content,
                 style = ClearDuTypography.MedDetail.copy(fontSize = 13.sp, lineHeight = 20.sp),
-                color = LiquidGlassColors.Foreground
+                color = LiquidGlassColors.LightForeground
             )
         }
     }

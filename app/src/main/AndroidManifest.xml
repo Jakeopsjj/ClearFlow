@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- 通讯录权限：读取紧急联系人 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <!-- 闹钟与提醒：服药提醒、透析时间闹钟 (Android 12+) -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />

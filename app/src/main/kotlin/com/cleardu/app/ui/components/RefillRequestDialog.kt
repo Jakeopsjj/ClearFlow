@@ -110,7 +110,7 @@ fun RefillRequestDialog(
                                         Text(
                                             text = request.medicationName,
                                             style = ClearDuTypography.MedItemName,
-                                            color = LiquidGlassColors.Foreground
+                                            color = LiquidGlassColors.LightForeground
                                         )
                                         if (request.detail.isNotEmpty()) {
                                             Text(
@@ -163,7 +163,7 @@ fun RefillRequestDialog(
                                     value = medName,
                                     onValueChange = { medName = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                     decorationBox = { inner ->
@@ -190,7 +190,7 @@ fun RefillRequestDialog(
                                     value = medDetail,
                                     onValueChange = { medDetail = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                     decorationBox = { inner ->
@@ -217,7 +217,7 @@ fun RefillRequestDialog(
                                     value = notes,
                                     onValueChange = { notes = it },
                                     modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp),
-                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.Foreground),
+                                    textStyle = ClearDuTypography.MedSearchPlaceholder.copy(color = LiquidGlassColors.LightForeground),
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                                     decorationBox = { inner ->
                                         if (notes.isEmpty()) {

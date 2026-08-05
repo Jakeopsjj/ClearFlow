@@ -320,17 +320,17 @@ object ClearDuDimens {
     val MedTimelineBottomMargin = 20.dp
     val MedTimelineItemGap = 12.dp
     val MedTimelineLineWidth = 1.dp
-    val MedTimelineTimeColWidth = 50.dp
+    val MedTimelineTimeColWidth = 40.dp
     val MedTimelineDotSize = 10.dp
-    val MedTimelineLineLeft = 35.dp
-    val MedTimelineDotLeft = 44.dp
-    val MedTimelineLineOffsetFromTime = 0.dp  // 时间线紧贴时间列右边缘（左移以增加与卡片间距）
+    val MedTimelineLineLeft = 28.dp
+    val MedTimelineDotLeft = 36.dp
+    val MedTimelineLineOffsetFromTime = -6.dp  // 时间线向左偏移，增加与卡片间距
 
     // ===== Medication page: medication card =====
     val MedCardRadius = 18.dp
     val MedCardPaddingH = 14.dp
     val MedCardPaddingV = 12.dp
-    val MedCardGap = 16.dp  // 时间轴与卡片间距（增大以提升美观度）
+    val MedCardGap = 20.dp  // 时间轴与卡片间距（增大以提升美观度）
     val MedCardIconSize = 38.dp
     val MedCardIconRadius = 10.dp
     val MedCardNameBottomGap = 2.dp

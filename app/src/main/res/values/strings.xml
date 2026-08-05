@@ -25,6 +25,9 @@
     <string name="perm_phone_name">电话权限</string>
     <string name="perm_phone_desc">一键拨打主治医生/紧急联系人</string>
 
+    <string name="perm_contacts_name">通讯录权限</string>
+    <string name="perm_contacts_desc">读取联系人信息、设置紧急联系人</string>
+
     <string name="perm_apps_name">应用列表读取</string>
     <string name="perm_apps_desc">健康数据导入、与其他健康App联动</string>
 

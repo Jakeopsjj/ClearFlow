@@ -142,7 +142,7 @@ fun HospitalPickerDialog(
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
                             textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                color = LiquidGlassColors.Foreground
+                                color = LiquidGlassColors.LightForeground
                             ),
                             singleLine = true,
                             cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -214,7 +214,7 @@ fun HospitalPickerDialog(
                                     onValueChange = { customName = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                        color = LiquidGlassColors.Foreground
+                                        color = LiquidGlassColors.LightForeground
                                     ),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -243,7 +243,7 @@ fun HospitalPickerDialog(
                                     onValueChange = { customAddress = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                        color = LiquidGlassColors.Foreground
+                                        color = LiquidGlassColors.LightForeground
                                     ),
                                     singleLine = true,
                                     cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
@@ -320,7 +320,7 @@ private fun HospitalItem(
                 Text(
                     text = hospital.name,
                     style = ClearDuTypography.MedItemName,
-                    color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Foreground,
+                    color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.LightForeground,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

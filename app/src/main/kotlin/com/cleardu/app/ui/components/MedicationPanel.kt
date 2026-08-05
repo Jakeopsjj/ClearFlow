@@ -224,7 +224,7 @@ private fun MedicationSearchBar(
                 onValueChange = onQueryChange,
                 modifier = Modifier.weight(1f),
                 textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                    color = LiquidGlassColors.Foreground
+                    color = LiquidGlassColors.LightForeground
                 ),
                 singleLine = true,
                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),

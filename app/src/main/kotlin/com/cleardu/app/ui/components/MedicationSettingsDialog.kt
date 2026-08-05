@@ -99,7 +99,7 @@ fun MedicationSettingsDialog(
                                 Text(
                                     text = "启用用药提醒",
                                     style = ClearDuTypography.MedItemName,
-                                    color = LiquidGlassColors.Foreground
+                                    color = LiquidGlassColors.LightForeground
                                 )
                                 Text(
                                     text = "在设定的时间提醒您服药",
@@ -128,7 +128,7 @@ fun MedicationSettingsDialog(
                                 Text(
                                     text = "提前提醒时间",
                                     style = ClearDuTypography.MedItemName,
-                                    color = LiquidGlassColors.Foreground
+                                    color = LiquidGlassColors.LightForeground
                                 )
                                 Text(
                                     text = "在服药时间前${advanceMinutes}分钟发送提醒",
@@ -193,7 +193,7 @@ fun MedicationSettingsDialog(
                                         Text(
                                             text = med.name,
                                             style = ClearDuTypography.MedItemName,
-                                            color = LiquidGlassColors.Foreground
+                                            color = LiquidGlassColors.LightForeground
                                         )
                                         Text(
                                             text = "${med.detail} · ${med.frequency} ${med.times.joinToString(", ")}",
