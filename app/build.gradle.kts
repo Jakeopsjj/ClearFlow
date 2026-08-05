@@ -16,8 +16,8 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 23
-        versionName = "1.7.11"
+        versionCode = 24
+        versionName = "1.7.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -212,6 +212,9 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.navigation.compose)
+
+    // OSMDroid — 免费开源地图，无需 API Key
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
