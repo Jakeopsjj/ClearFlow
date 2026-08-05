@@ -96,7 +96,7 @@ fun HospitalPickerDialog(
                         scope.launch {
                             try {
                                 val hospitals = NearbySearchService.searchNearbyHospitals(
-                                    result.location.latitude, result.location.longitude
+                                    context, result.location.latitude, result.location.longitude
                                 )
                                 hospitalSearchState = if (hospitals.isEmpty()) {
                                     HospitalSearchState.Empty
@@ -118,7 +118,7 @@ fun HospitalPickerDialog(
                         scope.launch {
                             try {
                                 val hospitals = NearbySearchService.searchNearbyHospitals(
-                                    result.location.latitude, result.location.longitude
+                                    context, result.location.latitude, result.location.longitude
                                 )
                                 hospitalSearchState = if (hospitals.isEmpty()) {
                                     HospitalSearchState.Empty
