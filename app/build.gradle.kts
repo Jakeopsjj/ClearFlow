@@ -16,8 +16,8 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 21
-        versionName = "1.7.9"
+        versionCode = 22
+        versionName = "1.7.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
