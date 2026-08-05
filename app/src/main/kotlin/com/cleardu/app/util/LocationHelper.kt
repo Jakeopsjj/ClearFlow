@@ -8,8 +8,11 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.widget.Toast
@@ -42,6 +45,15 @@ class LocationHelper private constructor(
     private val appContext = context.applicationContext
     private val locationManager =
         appContext.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+
+    /** [修改点] 主线程 Handler，用于超时定时器，复用同一个实例避免泄漏。 */
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    /** [修改点] 超时 Runnable 引用，便于在拿到位置后取消，防止泄漏 + 重复回调。 */
+    private var timeoutRunnable: Runnable? = null
+
+    /** [修改点] 标记本次请求结果是否已投递，防止缓存 + 实时更新双重回调。 */
+    private var resultDelivered = false
 
     /** 当前注册中的 listener，便于 [destroy] 注销。 */
     private var activeListener: LocationListener? = null
@@ -115,6 +127,10 @@ class LocationHelper private constructor(
         android.util.Log.i(TAG, "===== requestSingleUpdate start =====")
         logPermissionState()
 
+        // [修改点] 每次请求前重置状态，防止上一次请求的残留标志影响本次
+        resultDelivered = false
+        cancelTimeout()
+
         // ---------- 校验 0：LocationManager 是否存在 ----------
         if (locationManager == null) {
             android.util.Log.e(TAG, "LocationManager is null")
@@ -158,7 +174,13 @@ class LocationHelper private constructor(
                 TAG,
                 "【精确位置开关】Android 12+ 仅授予 COARSE，未开启精确位置；只能粗定位"
             )
-            // 继续执行，但结果会是粗定位
+            // [修改点] 提示用户去开启精确位置，否则只能粗定位
+            Toast.makeText(
+                appContext,
+                "当前仅粗略定位可用。如需精确定位，请前往系统设置 → 应用 → ClearDu → " +
+                    "权限 → 位置信息，开启【精确位置】",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         // ---------- 尝试读取缓存 ----------
@@ -169,16 +191,17 @@ class LocationHelper private constructor(
                 "使用缓存位置: lat=${cached.latitude}, lng=${cached.longitude}, " +
                     "accuracy=${cached.accuracy}m, age=${cacheAgeMinutes(cached)}min"
             )
-            // 缓存可用时立即返回（仍会注册监听以获取更精准的更新）
             val result = if (cached.accuracy > COARSE_ACCURACY_THRESHOLD_M) {
                 if (fineOnly) Result.CoarseOnly(cached) else Result.Success(cached)
             } else {
                 Result.Success(cached)
             }
-            onResult(result)
+            // [修改点] 有缓存立即返回，不再注册监听，避免重复回调和无效耗电
+            deliverResult(result, onResult)
+            return
         }
 
-        // ---------- 注册双 Provider 监听 ----------
+        // ---------- 无缓存，注册双 Provider 监听 ----------
         startLocationUpdates(timeoutMs, fineOnly, onResult)
     }
 
@@ -196,6 +219,26 @@ class LocationHelper private constructor(
             Toast.makeText(
                 appContext,
                 "请前往系统设置 → 位置信息，开启定位功能",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    /**
+     * [修改点] 跳转本应用权限设置页（Android 12+ 引导用户开启【精确位置】开关）。
+     */
+    fun openAppPermissionSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", appContext.packageName, null)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            appContext.startActivity(intent)
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "无法跳转应用权限设置页", e)
+            Toast.makeText(
+                appContext,
+                "请前往系统设置 → 应用 → ClearDu → 权限，手动开启定位权限",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -232,16 +275,13 @@ class LocationHelper private constructor(
                 logLocation("onLocationChanged", location)
                 lastCallbackElapsedRealtime = SystemClock.elapsedRealtime()
 
-                // 注销监听（单次定位）
-                stopLocationUpdates()
-
-                // 精度判断
+                // [修改点] 精度判断后通过 deliverResult 投递，自动注销监听 + 取消超时
                 val isCoarse = location.accuracy > COARSE_ACCURACY_THRESHOLD_M
                 val result = when {
                     fineOnly && isCoarse -> Result.CoarseOnly(location)
                     else -> Result.Success(location)
                 }
-                onResult(result)
+                deliverResult(result, onResult)
             }
 
             // 兼容旧 API（Android 8-9）
@@ -305,11 +345,14 @@ class LocationHelper private constructor(
         scheduleTimeout(timeoutMs, onResult)
     }
 
-    /** 超时定时器（使用 Handler 主线程延迟）。 */
+    /**
+     * [修改点] 超时定时器，复用 mainHandler + 存储 Runnable 便于取消。
+     * 超时后通过 deliverResult 投递，自动注销监听。
+     */
     private fun scheduleTimeout(timeoutMs: Long, onResult: (Result) -> Unit) {
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
-        handler.postDelayed({
-            if (activeListener != null) {
+        cancelTimeout()
+        val runnable = Runnable {
+            if (!resultDelivered && activeListener != null) {
                 val sinceLast = SystemClock.elapsedRealtime() - lastCallbackElapsedRealtime
                 android.util.Log.w(
                     TAG,
@@ -322,14 +365,37 @@ class LocationHelper private constructor(
                     showDomesticRomHint()
                 }
 
-                stopLocationUpdates()
-                onResult(Result.Timeout)
+                deliverResult(Result.Timeout, onResult)
             }
-        }, timeoutMs)
+        }
+        timeoutRunnable = runnable
+        mainHandler.postDelayed(runnable, timeoutMs)
+    }
+
+    /** [修改点] 取消超时定时器，防止泄漏和超时后重复回调。 */
+    private fun cancelTimeout() {
+        timeoutRunnable?.let { mainHandler.removeCallbacks(it) }
+        timeoutRunnable = null
+    }
+
+    /**
+     * [修改点] 投递定位结果，保证单次请求只回调一次。
+     * 同时注销监听 + 取消超时，彻底清理资源。
+     */
+    private fun deliverResult(result: Result, onResult: (Result) -> Unit) {
+        if (resultDelivered) {
+            android.util.Log.d(TAG, "结果已投递，忽略重复回调: $result")
+            return
+        }
+        resultDelivered = true
+        stopLocationUpdates()
+        onResult(result)
     }
 
     /** 注销所有监听。 */
     private fun stopLocationUpdates() {
+        // [修改点] 同时取消超时定时器
+        cancelTimeout()
         activeListener?.let { listener ->
             try {
                 locationManager?.removeUpdates(listener)
@@ -510,5 +576,52 @@ class LocationHelper private constructor(
          */
         fun create(context: Context): LocationHelper =
             LocationHelper(context.applicationContext)
+
+        /**
+         * [修改点] 返回运行时需要申请的定位权限数组。
+         *
+         * - Android 12+（SDK 31）：同时申请 ACCESS_FINE_LOCATION + ACCESS_COARSE_LOCATION，
+         *   系统会弹出"精确/粗略"位置选择弹窗。只申请 FINE 会导致部分 ROM 不回调定位。
+         * - Android 11 及以下：仅申请 ACCESS_FINE_LOCATION（COARSE 隐含在 FINE 中）。
+         */
+        fun requiredLocationPermissions(): Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            } else {
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+
+        /**
+         * [修改点] 检查是否已获得任意定位权限（至少 COARSE）。
+         * Android 12+：FINE 或 COARSE 任一授予即可；Android 11-：仅 FINE。
+         */
+        fun hasAnyLocationPermission(context: Context): Boolean {
+            val fine = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            val coarse = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                fine || coarse
+            } else {
+                fine
+            }
+        }
+
+        /**
+         * [修改点] 检查是否已获得精确定位权限（FINE + COARSE 同时授予）。
+         * Android 12+ 系统独立【精确位置】开关开启的表现。
+         */
+        fun hasFineLocationPermission(context: Context): Boolean =
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
     }
 }

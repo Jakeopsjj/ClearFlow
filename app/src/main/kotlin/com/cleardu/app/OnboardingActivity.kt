@@ -33,6 +33,7 @@ import com.cleardu.app.data.PermissionItem
 import com.cleardu.app.ui.screens.OnboardingScreen
 import com.cleardu.app.ui.screens.SplashScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
+import com.cleardu.app.util.LocationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -56,6 +57,9 @@ import kotlinx.coroutines.launch
 class OnboardingActivity : ComponentActivity() {
 
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
+
+    /** [修改点] 多权限同时申请 Launcher，用于 Android 12+ 定位 FINE + COARSE 同时申请 */
+    private lateinit var multiPermissionLauncher: ActivityResultLauncher<Array<String>>
 
     private val grantedState = mutableStateMapOf<String, Boolean>()
     private val pendingItemFlow = MutableStateFlow<PermissionItem?>(null)
@@ -81,7 +85,42 @@ class OnboardingActivity : ComponentActivity() {
             grantedState[item.id] = granted
             pendingItemFlow.value = null
 
+            // [修改点] 定位权限拒绝友好提示，不崩溃
+            if (!granted && item.id == "location") {
+                Toast.makeText(
+                    this,
+                    "定位权限被拒绝，部分功能（如附近医院、紧急定位）将无法使用。" +
+                        "可稍后在系统设置中重新授予。",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             // If we're in "grant all" mode, request the next permission
+            if (isGrantingAll) {
+                requestNextInQueue()
+            }
+        }
+
+        // [修改点] 多权限 Launcher：Android 12+ 定位需同时申请 FINE + COARSE
+        multiPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { results ->
+            val item = pendingItemFlow.value ?: return@registerForActivityResult
+            // 定位权限：至少 COARSE 授予即视为成功（FINE 是精确位置升级项）
+            val granted = results.values.any { it }
+            grantedState[item.id] = granted
+            pendingItemFlow.value = null
+
+            // [修改点] 权限拒绝友好提示
+            if (!granted && item.id == "location") {
+                Toast.makeText(
+                    this,
+                    "定位权限被拒绝，部分功能（如附近医院、紧急定位）将无法使用。" +
+                        "可稍后在系统设置中重新授予。",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             if (isGrantingAll) {
                 requestNextInQueue()
             }
@@ -175,9 +214,16 @@ class OnboardingActivity : ComponentActivity() {
 
     private fun requestPermission(item: PermissionItem) {
         when (item.id) {
-            "location" -> requestRuntimePermission(
-                item, Manifest.permission.ACCESS_FINE_LOCATION
-            )
+            // [修改点] Android 12+ 同时申请 FINE + COARSE，系统才弹"精确/粗略"选择弹窗；
+            //         Android 11 及以下仅申请 FINE（COARSE 隐含在 FINE 中）
+            "location" -> {
+                val perms = LocationHelper.requiredLocationPermissions()
+                if (perms.size > 1) {
+                    requestRuntimePermissions(item, perms)
+                } else {
+                    requestRuntimePermission(item, perms[0])
+                }
+            }
             "phone" -> requestRuntimePermission(item, Manifest.permission.CALL_PHONE)
             "contacts" -> requestRuntimePermission(item, Manifest.permission.READ_CONTACTS)
             "storage" -> {
@@ -244,12 +290,31 @@ class OnboardingActivity : ComponentActivity() {
         permissionLauncher.launch(permission)
     }
 
+    /**
+     * [修改点] 同时申请多个运行时权限。
+     * 用于 Android 12+ 定位：必须同时申请 FINE + COARSE，
+     * 系统才会弹出"精确位置/粗略位置"选择弹窗。
+     */
+    private fun requestRuntimePermissions(item: PermissionItem, permissions: Array<String>) {
+        val allGranted = permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+        if (allGranted) {
+            grantedState[item.id] = true
+            if (isGrantingAll) requestNextInQueue()
+            return
+        }
+        pendingItemFlow.value = item
+        multiPermissionLauncher.launch(permissions)
+    }
+
     private fun refreshGrantedState() {
         fun check(permission: String): Boolean =
             ContextCompat.checkSelfPermission(this, permission) ==
                 PackageManager.PERMISSION_GRANTED
 
-        grantedState["location"] = check(Manifest.permission.ACCESS_FINE_LOCATION)
+        // [修改点] Android 12+ 用户可能只授予 COARSE（粗略定位），也应视为已授权
+        grantedState["location"] = LocationHelper.hasAnyLocationPermission(this)
         grantedState["phone"] = check(Manifest.permission.CALL_PHONE)
         grantedState["contacts"] = check(Manifest.permission.READ_CONTACTS)
         grantedState["storage"] = check(
