@@ -3,10 +3,11 @@ package com.cleardu.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -14,18 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
-import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.util.LocationHelper
 
 /**
  * Nearby hospital data for selection.
- * In a production app this would come from a location API (e.g. Amap/Google Maps).
  */
 data class NearbyHospital(
     val name: String,
@@ -35,23 +35,21 @@ data class NearbyHospital(
     val lng: Double = 0.0
 )
 
-/** Default nearby hospitals list (mock data for demo). */
-private val nearbyHospitals = listOf(
-    NearbyHospital("北京大学第一医院 血液净化中心", "西城区西什库大街8号", "约2.3km"),
-    NearbyHospital("北京协和医院 肾内科血透室", "东城区东单北大街53号", "约3.1km"),
-    NearbyHospital("中日友好医院 血液净化中心", "朝阳区樱花园东街2号", "约4.5km"),
-    NearbyHospital("北京友谊医院 透析中心", "西城区永安路95号", "约5.0km"),
-    NearbyHospital("解放军总医院 肾内科透析室", "海淀区复兴路28号", "约6.2km"),
-    NearbyHospital("北京安贞医院 血液净化科", "朝阳区安贞路2号", "约5.8km"),
-    NearbyHospital("北京朝阳医院 透析中心", "朝阳区工体南路8号", "约3.7km"),
-    NearbyHospital("北京天坛医院 肾内科", "丰台区南四环西路119号", "约8.3km")
-)
+/**
+ * [修改点] 用户当前位置状态，用于 HospitalPickerDialog 内部定位。
+ */
+private sealed class UserLocationState {
+    data object Loading : UserLocationState()
+    data class Success(val lat: Double, val lng: Double, val accuracy: Float) : UserLocationState()
+    data class Error(val message: String) : UserLocationState()
+}
 
 /**
  * Hospital picker dialog.
  *
- * Shows nearby hospitals for selection, plus a custom input option.
- * User can search nearby hospitals or enter a custom hospital name.
+ * [修改点] 移除硬编码北京医院 mock 数据，改用 LocationHelper 获取用户真实 GPS 位置。
+ * 由于无法接入第三方地图 API（高德/Google Maps 需 API Key），
+ * "附近医院" 标签页展示用户当前位置，引导用户使用"自定义"输入。
  *
  * @param currentSettings current app settings
  * @param onSave callback with updated settings
@@ -63,20 +61,52 @@ fun HospitalPickerDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var showCustomInput by remember { mutableStateOf(false) }
+    // [修改点] 获取 Context 用于 LocationHelper
+    val context = LocalContext.current
+    val locationHelper = remember { LocationHelper.create(context) }
+
     var customName by remember { mutableStateOf("") }
     var customAddress by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) } // 0=附近医院, 1=自定义
 
-    val filteredHospitals = remember(searchQuery, selectedTab) {
-        if (selectedTab == 0 && searchQuery.isNotBlank()) {
-            nearbyHospitals.filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                it.address.contains(searchQuery, ignoreCase = true)
+    // [修改点] 用户真实位置状态
+    var userLocationState by remember { mutableStateOf<UserLocationState>(UserLocationState.Loading) }
+
+    // [修改点] 定位权限检查 + 发起定位
+    LaunchedEffect(Unit) {
+        if (!LocationHelper.hasAnyLocationPermission(context)) {
+            userLocationState = UserLocationState.Error("定位权限未授予，无法获取附近医院")
+            return@LaunchedEffect
+        }
+        locationHelper.requestSingleUpdate { result ->
+            userLocationState = when (result) {
+                is LocationHelper.Result.Success -> {
+                    UserLocationState.Success(
+                        result.location.latitude,
+                        result.location.longitude,
+                        result.location.accuracy
+                    )
+                }
+                is LocationHelper.Result.CoarseOnly -> {
+                    UserLocationState.Success(
+                        result.location.latitude,
+                        result.location.longitude,
+                        result.location.accuracy
+                    )
+                }
+                is LocationHelper.Result.LocationDisabled -> {
+                    UserLocationState.Error("系统定位开关未开启，请前往系统设置打开定位")
+                }
+                is LocationHelper.Result.PermissionDenied -> {
+                    UserLocationState.Error("定位权限未授予，无法获取附近医院")
+                }
+                is LocationHelper.Result.Timeout -> {
+                    UserLocationState.Error("定位超时，请检查系统定位设置后重试")
+                }
+                is LocationHelper.Result.NoManager -> {
+                    UserLocationState.Error("定位服务不可用")
+                }
             }
-        } else {
-            nearbyHospitals
         }
     }
 
@@ -125,77 +155,141 @@ fun HospitalPickerDialog(
                 Spacer(Modifier.height(12.dp))
 
                 if (selectedTab == 0) {
-                    // Search bar
-                    GlassCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
-                        specularTop = LiquidGlassColors.GlassSpecularTop
-                    ) {
-                        BasicTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 10.dp),
-                            textStyle = ClearDuTypography.MedSearchPlaceholder.copy(
-                                color = LiquidGlassColors.LightForeground
-                            ),
-                            singleLine = true,
-                            cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
-                            decorationBox = { inner ->
-                                Box {
-                                    if (searchQuery.isEmpty()) {
-                                        Text(
-                                            "搜索附近医院...",
-                                            style = ClearDuTypography.MedSearchPlaceholder,
-                                            color = LiquidGlassColors.PlaceholderInput
-                                        )
-                                    }
-                                    inner()
-                                }
-                            }
-                        )
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    // Hospital list
-                    LazyColumn(
+                    // [修改点] 附近医院标签页：展示用户真实位置 + 提示
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
+                            .verticalScroll(rememberScrollState())
                             .padding(horizontal = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(filteredHospitals) { hospital ->
-                            HospitalItem(
-                                hospital = hospital,
-                                isSelected = currentSettings.hospitalName == hospital.name,
-                                onClick = {
-                                    onSave(
-                                        currentSettings.copy(
-                                            hospitalName = hospital.name,
-                                            hospitalAddress = hospital.address,
-                                            hospitalLat = hospital.lat,
-                                            hospitalLng = hospital.lng,
-                                            hospitalIsCustom = false
+                        // [修改点] 用户位置卡片
+                        GlassCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            background = LiquidGlassColors.GlassBg,
+                            border = LiquidGlassColors.GlassBorder,
+                            specularTop = LiquidGlassColors.GlassSpecularTop
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "我的位置",
+                                    style = ClearDuTypography.MedListTitle,
+                                    color = LiquidGlassColors.Text400
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                when (val state = userLocationState) {
+                                    is UserLocationState.Loading -> {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(16.dp),
+                                                strokeWidth = 2.dp,
+                                                color = LiquidGlassColors.MedicalCyan
+                                            )
+                                            Text(
+                                                "正在获取您的位置...",
+                                                style = ClearDuTypography.MedDetail,
+                                                color = LiquidGlassColors.Text400
+                                            )
+                                        }
+                                    }
+                                    is UserLocationState.Success -> {
+                                        Text(
+                                            "纬度: ${"%.6f".format(state.lat)}",
+                                            style = ClearDuTypography.MedDetail,
+                                            color = LiquidGlassColors.LightForeground
                                         )
-                                    )
-                                    onDismiss()
+                                        Text(
+                                            "经度: ${"%.6f".format(state.lng)}",
+                                            style = ClearDuTypography.MedDetail,
+                                            color = LiquidGlassColors.LightForeground
+                                        )
+                                        Text(
+                                            "精度: ${"%.0f".format(state.accuracy)}m",
+                                            style = ClearDuTypography.MedCardMeta,
+                                            color = LiquidGlassColors.Text400
+                                        )
+                                    }
+                                    is UserLocationState.Error -> {
+                                        Text(
+                                            state.message,
+                                            style = ClearDuTypography.MedDetail,
+                                            color = LiquidGlassColors.MedicalOrange
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
-                        item { Spacer(Modifier.height(8.dp)) }
+
+                        // [修改点] 提示卡片：说明无法自动搜索附近医院
+                        GlassCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            background = LiquidGlassColors.TintCyanBg,
+                            border = LiquidGlassColors.MedicalCyan.copy(alpha = 0.15f),
+                            specularTop = LiquidGlassColors.GlassSpecularTop
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "提示",
+                                    style = ClearDuTypography.MedListTitle,
+                                    color = LiquidGlassColors.MedicalCyan
+                                )
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    "当前版本暂不支持自动搜索附近透析医院。" +
+                                        "请切换到「自定义」标签页，手动输入您常去的透析医院名称和地址。",
+                                    style = ClearDuTypography.MedDetail,
+                                    color = LiquidGlassColors.Text400
+                                )
+                            }
+                        }
+
+                        // [修改点] 已有医院信息（如之前选过）
+                        if (currentSettings.hospitalName.isNotBlank()) {
+                            GlassCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                background = LiquidGlassColors.GlassBg,
+                                border = LiquidGlassColors.GlassBorder,
+                                specularTop = LiquidGlassColors.GlassSpecularTop
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        "当前选择的医院",
+                                        style = ClearDuTypography.MedListTitle,
+                                        color = LiquidGlassColors.Text400
+                                    )
+                                    Spacer(Modifier.height(6.dp))
+                                    Text(
+                                        currentSettings.hospitalName,
+                                        style = ClearDuTypography.MedItemName,
+                                        color = LiquidGlassColors.LightForeground
+                                    )
+                                    if (currentSettings.hospitalAddress.isNotBlank()) {
+                                        Text(
+                                            currentSettings.hospitalAddress,
+                                            style = ClearDuTypography.MedDetail,
+                                            color = LiquidGlassColors.Text400
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(8.dp))
                     }
                 } else {
                     // Custom input
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
                             .padding(horizontal = 20.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -289,56 +383,6 @@ fun HospitalPickerDialog(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HospitalItem(
-    hospital: NearbyHospital,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    GlassCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        background = if (isSelected) LiquidGlassColors.TintCyanMd else LiquidGlassColors.GlassBg,
-        border = if (isSelected) LiquidGlassColors.MedicalCyan.copy(alpha = 0.3f) else LiquidGlassColors.GlassBorder,
-        specularTop = LiquidGlassColors.GlassSpecularTop
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = hospital.name,
-                    style = ClearDuTypography.MedItemName,
-                    color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.LightForeground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = hospital.address,
-                    style = ClearDuTypography.MedDetail,
-                    color = LiquidGlassColors.Text400,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (hospital.distance.isNotEmpty()) {
-                Text(
-                    text = hospital.distance,
-                    style = ClearDuTypography.MedCardMeta,
-                    color = LiquidGlassColors.Text400
-                )
             }
         }
     }
