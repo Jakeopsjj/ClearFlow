@@ -4,9 +4,15 @@
 
     <!-- ===== Onboarding-listed permissions (each declared with explicit purpose) ===== -->
 
-    <!-- 位置与导航：导航到透析中心、附近医院定位 -->
+    <!-- ====== 定位权限（仅前台定位） ====== -->
+    <!-- 粗略定位：基于基站/WiFi/IP，室内可用，Android 12+ 必须同时声明 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 精确定位：基于 GPS，室外可用 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- [修改点] 明确声明：不使用后台定位。
+         国产 ROM（HyperOS/ColorOS/OriginOS/MagicOS）申请 ACCESS_BACKGROUND_LOCATION
+         会连带限制前台定位回调，故严禁声明。仅做前台定位。 -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
 
     <!-- 通讯录权限：读取紧急联系人 -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
