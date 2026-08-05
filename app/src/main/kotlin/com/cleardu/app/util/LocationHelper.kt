@@ -188,8 +188,10 @@ class LocationHelper private constructor(
         if (cached != null) {
             android.util.Log.i(
                 TAG,
-                "使用缓存位置: lat=${cached.latitude}, lng=${cached.longitude}, " +
-                    "accuracy=${cached.accuracy}m, age=${cacheAgeMinutes(cached)}min"
+                "【数据来源=缓存】使用 getLastKnownLocation 缓存位置: " +
+                    "lat=${cached.latitude}, lng=${cached.longitude}, " +
+                    "accuracy=${cached.accuracy}m, provider=${cached.provider}, " +
+                    "age=${cacheAgeMinutes(cached)}min"
             )
             val result = if (cached.accuracy > COARSE_ACCURACY_THRESHOLD_M) {
                 if (fineOnly) Result.CoarseOnly(cached) else Result.Success(cached)
@@ -544,9 +546,10 @@ class LocationHelper private constructor(
         } else {
             "精确定位"
         }
+        val source = if (ageMin > 1) "缓存" else "系统实时"
         android.util.Log.i(
             TAG,
-            "$tag: lat=${loc.latitude}, lng=${loc.longitude}, " +
+            "【数据来源=${source}】$tag: lat=${loc.latitude}, lng=${loc.longitude}, " +
                 "accuracy=${loc.accuracy}m [$accuracyStr], " +
                 "provider=${loc.provider}, time=${loc.time} (age=${ageMin}min)"
         )

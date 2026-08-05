@@ -21,6 +21,7 @@ import java.util.Locale
  */
 object NearbySearchService {
 
+    private const val TAG = "NearbySearchService"
     private const val OVERPASS_URL = "https://overpass-api.de/api/interpreter"
     private const val SEARCH_RADIUS_METERS = 20_000
     private const val CONNECT_TIMEOUT_MS = 10_000
@@ -39,16 +40,32 @@ object NearbySearchService {
      */
     suspend fun searchNearbyHospitals(context: Context, lat: Double, lng: Double): List<NearbyHospital> =
         withContext(Dispatchers.IO) {
+            android.util.Log.i(TAG, "开始搜索附近医院: lat=$lat, lng=$lng")
+
             // 1) 优先用 Android Geocoder（国产 ROM 底层是百度/高德）
             val geocoderResults = searchViaGeocoder(context, lat, lng)
-            if (geocoderResults.isNotEmpty()) return@withContext geocoderResults
+            if (geocoderResults.isNotEmpty()) {
+                android.util.Log.i(
+                    TAG,
+                    "【数据来源=系统Geocoder】搜索到 ${geocoderResults.size} 家医院"
+                )
+                return@withContext geocoderResults
+            }
+
+            android.util.Log.i(TAG, "Geocoder 无结果，回退到 Overpass API")
 
             // 2) 回退到 Overpass API
             try {
                 val query = buildOverpassQuery(lat, lng)
                 val response = executeQuery(query)
-                parseHospitals(response, lat, lng)
-            } catch (_: Exception) {
+                val results = parseHospitals(response, lat, lng)
+                android.util.Log.i(
+                    TAG,
+                    "【数据来源=Overpass API(联网)】搜索到 ${results.size} 家医院"
+                )
+                results
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "所有数据源均失败: Geocoder 无结果, Overpass API 异常", e)
                 emptyList()
             }
         }
@@ -58,7 +75,12 @@ object NearbySearchService {
      * 国产 ROM 上 Geocoder 底层使用百度/高德服务，数据质量高。
      */
     private fun searchViaGeocoder(context: Context, lat: Double, lng: Double): List<NearbyHospital> {
-        if (!Geocoder.isPresent()) return emptyList()
+        if (!Geocoder.isPresent()) {
+            android.util.Log.w(TAG, "Geocoder 不可用，跳过系统搜索")
+            return emptyList()
+        }
+
+        android.util.Log.i(TAG, "使用 Geocoder 搜索附近医院，区域: ±${GEOCODER_DELTA}°")
 
         val geocoder = Geocoder(context, Locale.CHINA)
         val lowerLat = lat - GEOCODER_DELTA

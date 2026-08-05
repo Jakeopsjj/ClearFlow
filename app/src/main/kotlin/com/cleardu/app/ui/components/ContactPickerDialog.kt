@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.ui.theme.ClearDuDimens
@@ -23,8 +24,8 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 /**
  * Contact picker dialog for emergency contact selection.
  *
- * Shows a list of mock contacts (in production, would use ContactsContract API)
- * plus a custom input option for manual entry.
+ * 通讯录标签页：正式版本不加载内置预置模拟数据。当用户未授权读取系统通讯录权限
+ * 或系统通讯录无数据时，显示空状态提示，引导用户切换到「自定义」标签页手动输入。
  *
  * @param currentSettings current app settings
  * @param onSave callback with updated settings
@@ -36,26 +37,23 @@ fun ContactPickerDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) } // 0=通讯录, 1=自定义
     var customName by remember { mutableStateOf("") }
     var customPhone by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
 
-    // Mock contacts (in production, read from ContactsContract)
-    val mockContacts = remember {
-        listOf(
-            ContactInfo("李医生", "138-0000-1001", "主治医师"),
-            ContactInfo("王护士长", "139-0000-2002", "血液净化中心"),
-            ContactInfo("张主任", "136-0000-3003", "肾内科主任"),
-            ContactInfo("急诊科", "120", "医院急诊"),
-            ContactInfo("家人（配偶）", "137-0000-4004", "紧急联系人"),
-            ContactInfo("家人（子女）", "135-0000-5005", "紧急联系人")
-        )
+    // 正式版本禁止使用内置预置模拟静态数据。
+    // 通讯录数据应从系统 ContactsContract API 读取（需 READ_CONTACTS 权限）。
+    // 当前未实现系统通讯录读取，返回空列表，引导用户使用「自定义」标签页。
+    val contacts = remember {
+        android.util.Log.i("ContactPicker", "【数据来源=无】未读取系统通讯录，通讯录列表为空")
+        emptyList<ContactInfo>()
     }
 
     val filteredContacts = remember(searchQuery) {
-        if (searchQuery.isBlank()) mockContacts
-        else mockContacts.filter {
+        if (searchQuery.isBlank()) contacts
+        else contacts.filter {
             it.name.contains(searchQuery, ignoreCase = true) ||
             it.phone.contains(searchQuery)
         }
@@ -151,21 +149,42 @@ fun ContactPickerDialog(
                             .padding(horizontal = 20.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        filteredContacts.forEach { contact ->
-                            ContactItem(
-                                contact = contact,
-                                isSelected = currentSettings.emergencyContactPhone == contact.phone,
-                                onClick = {
-                                    onSave(
-                                        currentSettings.copy(
-                                            emergencyContactName = contact.name,
-                                            emergencyContactPhone = contact.phone,
-                                            emergencyContactIsCustom = false
-                                        )
+                        if (filteredContacts.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        "暂无可用的系统通讯录数据",
+                                        style = ClearDuTypography.MedDetail,
+                                        color = LiquidGlassColors.Text400
                                     )
-                                    onDismiss()
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        "请切换到「自定义」标签页手动输入",
+                                        style = ClearDuTypography.MedCardMeta,
+                                        color = LiquidGlassColors.MedicalCyan
+                                    )
                                 }
-                            )
+                            }
+                        } else {
+                            filteredContacts.forEach { contact ->
+                                ContactItem(
+                                    contact = contact,
+                                    isSelected = currentSettings.emergencyContactPhone == contact.phone,
+                                    onClick = {
+                                        onSave(
+                                            currentSettings.copy(
+                                                emergencyContactName = contact.name,
+                                                emergencyContactPhone = contact.phone,
+                                                emergencyContactIsCustom = false
+                                            )
+                                        )
+                                        onDismiss()
+                                    }
+                                )
+                            }
                         }
                     }
                 } else {
