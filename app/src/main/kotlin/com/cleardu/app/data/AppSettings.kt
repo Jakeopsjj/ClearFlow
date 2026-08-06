@@ -105,7 +105,10 @@ data class AppSettings(
     val refillRequests: List<RefillRequest> = emptyList(),
 
     // ===== 天气背景 =====
-    val weatherBackgroundEnabled: Boolean = false  // 天气背景总开关，关闭时不调用任何网络
+    val weatherBackgroundEnabled: Boolean = false,  // 天气背景总开关，关闭时不调用任何网络
+
+    // ===== 版本更新 =====
+    val lastSeenVersion: String = ""  // 上次已查看过更新日志的版本号，为空表示首次使用
 ) {
     companion object {
         fun fromJson(obj: JSONObject): AppSettings = AppSettings(
@@ -185,7 +188,9 @@ data class AppSettings(
             medicationReminderAdvanceMinutes = obj.optInt("medicationReminderAdvanceMinutes", 15),
             refillRequests = parseRefillRequests(obj.optJSONArray("refillRequests")),
             // 天气背景
-            weatherBackgroundEnabled = obj.optBoolean("weatherBackgroundEnabled", false)
+            weatherBackgroundEnabled = obj.optBoolean("weatherBackgroundEnabled", false),
+            // 版本更新
+            lastSeenVersion = obj.optString("lastSeenVersion", "")
         )
     }
 }
@@ -274,6 +279,8 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     })
     // 天气背景
     put("weatherBackgroundEnabled", weatherBackgroundEnabled)
+    // 版本更新
+    put("lastSeenVersion", lastSeenVersion)
 }
 
 /** Backup history record. */

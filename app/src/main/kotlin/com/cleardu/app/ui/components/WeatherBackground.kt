@@ -1,43 +1,67 @@
 package com.cleardu.app.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntSize
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cleardu.app.data.weather.WeatherBackgroundManager
-import com.cleardu.app.data.weather.WeatherCodeMapper
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import android.graphics.BitmapFactory
+import kotlin.math.max
+import kotlin.math.sqrt
+import kotlin.random.Random
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
- * Weather-aware background — drop-in replacement for [MeshGradientBackground].
+ * 多波纹扩散圆心数据
+ */
+private data class RippleCenter(
+    val centerX: Float,
+    val centerY: Float,
+    val delayMs: Long,
+    val durationMs: Int,
+)
+
+/**
+ * Weather-aware background with multi-ripple diffusion transition.
  *
- * Behavior:
- * - When weather background is **disabled** (default): delegates to [MeshGradientBackground].
- * - When **enabled** with a cached Pexels image: shows the image with fade-in + dark scrim.
- * - When **enabled** but no image (network failed): shows a Compose-drawn gradient
- *   matched to the current weather code + day/night.
+ * Layers (bottom to top):
+ * 1. Local weather scene (Canvas drawn) — always visible
+ * 2. Network image layer — clipped by expanding circles during transition
+ * 3. Dark scrim for text readability
+ * 4. Foreground content
  *
- * All screens that previously used [MeshGradientBackground] can switch to this
- * composable with no other changes. The [WeatherBackgroundManager] singleton
- * provides the state; no parameters need to be passed.
- *
- * @param modifier outer layout modifier
- * @param background substrate color (used when weather is disabled)
- * @param content foreground content drawn on top
+ * When a Pexels image loads:
+ * - Random 1-3 circle centers are generated
+ * - Each circle expands independently from 0 to full screen
+ * - Inside circles: new image; outside: old local scene
+ * - No blur, no opacity fade — both images stay sharp
  */
 @Composable
 fun WeatherBackground(
@@ -48,132 +72,178 @@ fun WeatherBackground(
     val weatherState by WeatherBackgroundManager.state.collectAsState()
 
     if (!weatherState.enabled) {
-        // Weather background disabled — use original mesh gradient
         MeshGradientBackground(modifier = modifier, background = background, content = content)
         return
     }
 
-    // Weather background enabled
-    val imageFile = weatherState.imageFile
     val localType = weatherState.localBackgroundType
+    val imageFile = weatherState.imageFile
+    val hasImage = imageFile != null && imageFile.exists()
+
+    var sizePx by remember { mutableStateOf(IntSize.Zero) }
+
+    // Load bitmap from file (for Canvas drawing during transition)
+    val imageBitmap = remember(imageFile?.absolutePath) {
+        if (hasImage) {
+            try {
+                BitmapFactory.decodeFile(imageFile!!.absolutePath)?.asImageBitmap()
+            } catch (e: Exception) {
+                null
+            }
+        } else null
+    }
+
+    // Generate ripple centers (stable per image change)
+    val rippleCenters = remember(imageFile?.absolutePath) {
+        if (hasImage) generateRippleCenters() else emptyList()
+    }
+
+    // Animation progress for each ripple (0f → 1f)
+    val rippleProgressList = remember(imageFile?.absolutePath) {
+        rippleCenters.map { Animatable(0f) }
+    }
+
+    // Trigger animation when image is available
+    LaunchedEffect(imageFile) {
+        if (hasImage && rippleProgressList.isNotEmpty()) {
+            rippleProgressList.forEachIndexed { index, anim ->
+                launch {
+                    delay(rippleCenters[index].delayMs)
+                    anim.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = rippleCenters[index].durationMs,
+                            easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    val allAnimating = rippleProgressList.any { it.value < 1f }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .drawBehind {
-                // Always draw the local gradient as a base layer.
-                // If an image loads on top, it covers this; if not, this is the visible background.
-                drawLocalWeatherGradient(localType)
-            }
+            .onSizeChanged { sizePx = it }
     ) {
-        // Image layer (if available)
-        if (imageFile != null && imageFile.exists()) {
-            val imageAlpha by animateFloatAsState(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 800),
-                label = "weatherImageFade"
-            )
+        if (hasImage && imageBitmap != null && rippleProgressList.isNotEmpty() && sizePx != IntSize.Zero) {
+            if (allAnimating) {
+                // === Transition: draw local scene + new image clipped by expanding circles ===
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    // 1. Draw local scene (outside circles)
+                    with(WeatherSceneDrawer) { drawWeatherScene(localType) }
 
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageFile)
-                    .crossfade(false) // we handle fade ourselves
-                    .build(),
-                contentDescription = "Weather background",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(imageAlpha)
-            )
-
-            // Dark scrim overlay for text readability
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.45f),
-                                Color.Black.copy(alpha = 0.65f)
+                    // 2. Build union of all ripples
+                    val unionPath = Path()
+                    rippleProgressList.forEachIndexed { index, anim ->
+                        val center = rippleCenters[index]
+                        val cx = center.centerX * size.width
+                        val cy = center.centerY * size.height
+                        val maxRadius = maxOf(
+                            sqrt(cx.toDouble() * cx + cy.toDouble() * cy),
+                            sqrt((size.width - cx).toDouble() * (size.width - cx) + cy.toDouble() * cy),
+                            sqrt(cx.toDouble() * cx + (size.height - cy).toDouble() * (size.height - cy)),
+                            sqrt((size.width - cx).toDouble() * (size.width - cx) + (size.height - cy).toDouble() * (size.height - cy))
+                        ).toFloat() * 1.1f
+                        val currentRadius = maxRadius * anim.value
+                        unionPath.addOval(
+                            Rect(
+                                cx - currentRadius, cy - currentRadius,
+                                cx + currentRadius, cy + currentRadius
                             )
                         )
-                    )
-                    .alpha(imageAlpha)
-            )
+                    }
+
+                    // 3. Draw new image inside circles
+                    clipPath(unionPath) {
+                        drawImage(
+                            image = imageBitmap,
+                            dstSize = androidx.compose.ui.unit.IntSize(
+                                size.width.toInt(),
+                                size.height.toInt()
+                            )
+                        )
+                        // Dark scrim
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Black.copy(alpha = 0.65f)
+                                )
+                            )
+                        )
+                    }
+                }
+            } else {
+                // === Animation complete: show only new image ===
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageFile)
+                        .crossfade(false)
+                        .build(),
+                    contentDescription = "Weather background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawWithContent {
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.45f),
+                                        Color.Black.copy(alpha = 0.65f)
+                                    )
+                                )
+                            )
+                            drawContent()
+                        }
+                )
+            }
+        } else {
+            // === No image: show local scene ===
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                with(WeatherSceneDrawer) { drawWeatherScene(localType) }
+            }
         }
 
-        // Content layer on top of background
+        // Content layer
         content()
     }
 }
 
 /**
- * Draw a gradient background based on the local weather type.
- * Used as fallback when no Pexels image is available.
+ * Generate 1-3 random ripple centers with different delays and durations.
+ * Centers are spread across the screen, each with independent timing for a
+ * natural, rhythmic expansion effect.
  */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLocalWeatherGradient(
-    type: WeatherCodeMapper.LocalBackgroundType
-) {
-    val (topColor, bottomColor) = when (type) {
-        WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY ->
-            Color(0xFF1565C0) to Color(0xFF42A5F5)
-        WeatherCodeMapper.LocalBackgroundType.SUNNY_NIGHT ->
-            Color(0xFF0A0E27) to Color(0xFF1A237E)
-        WeatherCodeMapper.LocalBackgroundType.CLOUDY_DAY ->
-            Color(0xFF455A64) to Color(0xFF90A4AE)
-        WeatherCodeMapper.LocalBackgroundType.CLOUDY_NIGHT ->
-            Color(0xFF1C1C2E) to Color(0xFF263238)
-        WeatherCodeMapper.LocalBackgroundType.OVERCAST ->
-            Color(0xFF37474F) to Color(0xFF607D8B)
-        WeatherCodeMapper.LocalBackgroundType.RAIN_DAY ->
-            Color(0xFF263238) to Color(0xFF546E7A)
-        WeatherCodeMapper.LocalBackgroundType.RAIN_NIGHT ->
-            Color(0xFF0D1B2A) to Color(0xFF1B2838)
-        WeatherCodeMapper.LocalBackgroundType.SNOW_DAY ->
-            Color(0xFF78909C) to Color(0xFFB0BEC5)
-        WeatherCodeMapper.LocalBackgroundType.SNOW_NIGHT ->
-            Color(0xFF1A237E) to Color(0xFF283593)
-        WeatherCodeMapper.LocalBackgroundType.STORM ->
-            Color(0xFF1A0033) to Color(0xFF311B92)
-        WeatherCodeMapper.LocalBackgroundType.FOG ->
-            Color(0xFF546E7A) to Color(0xFF90A4AE)
-        WeatherCodeMapper.LocalBackgroundType.SANDSTORM ->
-            Color(0xFF4E342E) to Color(0xFF8D6E63)
+private fun generateRippleCenters(): List<RippleCenter> {
+    val count = Random.nextInt(1, 4) // 1 to 3
+    val usedPositions = mutableListOf<Pair<Float, Float>>()
+
+    return (0 until count).map { index ->
+        var cx: Float
+        var cy: Float
+        var attempts = 0
+        do {
+            cx = Random.nextFloat() * 0.8f + 0.1f
+            cy = Random.nextFloat() * 0.8f + 0.1f
+            attempts++
+        } while (attempts < 20 && usedPositions.any { (px, py) ->
+            val dx = cx - px
+            val dy = cy - py
+            dx * dx + dy * dy < 0.15f * 0.15f
+        })
+        usedPositions.add(cx to cy)
+
+        RippleCenter(
+            centerX = cx,
+            centerY = cy,
+            delayMs = index * 200L + Random.nextLong(0, 400),
+            durationMs = 2000 + Random.nextInt(0, 1500)
+        )
     }
-
-    // Base vertical gradient
-    drawRect(
-        brush = Brush.verticalGradient(
-            colors = listOf(topColor, bottomColor),
-            startY = 0f,
-            endY = size.height
-        )
-    )
-
-    // Add subtle radial highlights for depth (similar to mesh gradient)
-    drawRect(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                Color.White.copy(alpha = 0.08f),
-                Color.Transparent
-            ),
-            center = androidx.compose.ui.geometry.Offset(
-                size.width * 0.2f,
-                size.height * 0.3f
-            ),
-            radius = size.minDimension * 0.6f
-        )
-    )
-
-    // Dark overlay at bottom for text readability
-    drawRect(
-        brush = Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                Color.Black.copy(alpha = 0.3f)
-            ),
-            startY = size.height * 0.5f,
-            endY = size.height
-        )
-    )
 }

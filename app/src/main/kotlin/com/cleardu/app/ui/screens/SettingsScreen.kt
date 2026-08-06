@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +36,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +68,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.GitHubReleaseChecker
+import com.cleardu.app.data.ReleaseInfo
 import com.cleardu.app.data.toJson
+import com.cleardu.app.BuildConfig
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -126,6 +131,26 @@ fun SettingsScreen(
     var showAboutDialog by remember { mutableStateOf(false) }
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var showUpdateLogDialog by remember { mutableStateOf(false) }
+    var latestRelease by remember { mutableStateOf<ReleaseInfo?>(null) }
+    var isCheckingUpdate by remember { mutableStateOf(false) }
+    var updateLogText by remember { mutableStateOf("") }
+
+    // 检查是否需要显示更新日志弹窗
+    LaunchedEffect(Unit) {
+        val currentVersion = BuildConfig.VERSION_NAME
+        if (s.lastSeenVersion != currentVersion) {
+            // 首次启动此版本，尝试获取更新日志
+            val release = GitHubReleaseChecker.fetchLatestRelease()
+            if (release != null) {
+                updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }
+            } else {
+                updateLogText = "版本 $currentVersion\n\n感谢使用清渡，祝您健康每一天。"
+            }
+            showUpdateLogDialog = true
+        }
+    }
 
     WeatherBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -267,8 +292,26 @@ fun SettingsScreen(
                     iconBg = Color(0x14FFFFFF),
                     iconFg = LiquidGlassColors.Text400,
                     label = "检查更新",
-                    value = "v2.1.0",
-                    onClick = { Toast.makeText(context, "已是最新版本 v2.1.0", Toast.LENGTH_SHORT).show() }
+                    value = if (isCheckingUpdate) "检查中..." else "v${BuildConfig.VERSION_NAME}",
+                    onClick = {
+                        if (isCheckingUpdate) return@SettingsNavItem
+                        isCheckingUpdate = true
+                        scope.launch {
+                            val release = GitHubReleaseChecker.fetchLatestRelease()
+                            latestRelease = release
+                            isCheckingUpdate = false
+                            if (release != null) {
+                                val latestVer = release.versionName
+                                if (latestVer != BuildConfig.VERSION_NAME) {
+                                    showUpdateDialog = true
+                                } else {
+                                    Toast.makeText(context, "已是最新版本 v${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "检查失败，请检查网络连接", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 )
                 SettingsNavItem(
                     icon = { DocIcon() },
@@ -413,6 +456,31 @@ fun SettingsScreen(
                     onNavigateToDashboard()
                 },
                 onDismiss = { showLogoutDialog = false }
+            )
+        }
+        if (showUpdateDialog && latestRelease != null) {
+            UpdateAvailableDialog(
+                currentVersion = BuildConfig.VERSION_NAME,
+                release = latestRelease!!,
+                onDownload = {
+                    showUpdateDialog = false
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(latestRelease!!.htmlUrl))
+                    context.startActivity(intent)
+                },
+                onDismiss = { showUpdateDialog = false }
+            )
+        }
+        if (showUpdateLogDialog) {
+            UpdateLogDialog(
+                versionName = BuildConfig.VERSION_NAME,
+                logText = updateLogText,
+                onDismiss = {
+                    showUpdateLogDialog = false
+                    // 标记当前版本已查看
+                    scope.launch {
+                        healthDataManager.updateSettings { it.copy(lastSeenVersion = BuildConfig.VERSION_NAME) }
+                    }
+                }
             )
         }
     }
@@ -1590,8 +1658,8 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    "版本：v2.1.0\n" +
-                    "构建号：2026.08.06\n\n" +
+                    "版本：v${BuildConfig.VERSION_NAME}\n" +
+                    "构建号：${BuildConfig.VERSION_CODE}\n\n" +
                     "清渡是一款专为透析患者设计的健康管理应用，帮助您轻松记录透析数据、管理用药、设置提醒，让健康管理更简单、更安心。\n\n" +
                     "© 2026 清渡团队",
                     color = LiquidGlassColors.Text400,
@@ -1679,6 +1747,97 @@ private fun LogoutDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )}
+
+// ===== Update Dialogs =====
+
+@Composable
+private fun UpdateAvailableDialog(
+    currentVersion: String,
+    release: ReleaseInfo,
+    onDownload: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text("发现新版本", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+        },
+        text = {
+            Column {
+                Text(
+                    "当前版本：v$currentVersion\n最新版本：v${release.versionName}\n\n" +
+                    "更新内容：\n${release.body.take(500)}",
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDownload) {
+                Text("前往下载", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("稍后再说", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun UpdateLogDialog(
+    versionName: String,
+    logText: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(LiquidGlassColors.MedicalCyan, LiquidGlassColors.MedicalBlue)
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("清", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+                Spacer(Modifier.width(12.dp))
+                Text("v$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    logText,
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了", color = LiquidGlassColors.MedicalBlue)
             }
         },
         containerColor = Color(0xFF1C1C2E),
