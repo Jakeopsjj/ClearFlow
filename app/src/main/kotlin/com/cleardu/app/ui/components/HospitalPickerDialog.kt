@@ -24,7 +24,8 @@ import com.cleardu.app.data.AppSettings
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
 import com.cleardu.app.util.LocationHelper
-import com.cleardu.app.util.NearbySearchService
+import com.cleardu.app.util.map.LocationFallbackManager
+import com.cleardu.app.util.map.PoiSearchManager
 import kotlinx.coroutines.launch
 
 /**
@@ -41,7 +42,7 @@ data class NearbyHospital(
 /** 用户当前位置状态 */
 private sealed class UserLocationState {
     data object Loading : UserLocationState()
-    data class Success(val lat: Double, val lng: Double, val accuracy: Float) : UserLocationState()
+    data class Success(val lat: Double, val lng: Double, val accuracy: Float, val vendor: String) : UserLocationState()
     data class Error(val message: String) : UserLocationState()
 }
 
@@ -57,13 +58,13 @@ private sealed class HospitalSearchState {
 /**
  * Hospital picker dialog.
  *
- * 使用 OSMDroid 地图展示用户位置和附近医院标记，
- * 下方列表显示医院名称和距离，点击地图标记或列表项即可选中。
- *
- * [修改点] 接受外部 LocationHelper，生命周期由 Activity 管理，避免内部创建导致泄漏。
+ * 使用三家地图 SDK 实现地图展示和附近医院搜索：
+ * - 地图视图：MapViewSwitcher（高德 → 百度 → 腾讯 自动降级）
+ * - 医院搜索：PoiSearchManager（百度 → 高德 → 腾讯 自动降级）
+ * - 定位：优先使用 LocationHelper，回退到 LocationFallbackManager
  *
  * @param currentSettings current app settings
- * @param locationHelper [修改点] 外部传入的定位工具实例（可选，由 Activity 管理生命周期）
+ * @param locationHelper 外部传入的定位工具实例（可选，由 Activity 管理生命周期）
  * @param onSave callback with updated settings
  * @param onDismiss dismiss callback
  */
@@ -75,7 +76,6 @@ fun HospitalPickerDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    // [修改点] 优先使用外部传入的 locationHelper（由 Activity 管理生命周期），否则自行创建
     val locHelper = locationHelper ?: remember { LocationHelper.create(context) }
     val scope = rememberCoroutineScope()
 
@@ -93,61 +93,95 @@ fun HospitalPickerDialog(
             userLocationState = UserLocationState.Error("定位权限未授予，无法获取附近医院")
             return@LaunchedEffect
         }
+
+        // 先用 LocationHelper 尝试定位
         locHelper.requestSingleUpdate { result ->
-            userLocationState = when (result) {
+            when (result) {
                 is LocationHelper.Result.Success -> {
-                    if (hospitalSearchState is HospitalSearchState.Idle) {
-                        hospitalSearchState = HospitalSearchState.Loading
-                        scope.launch {
-                            try {
-                                val hospitals = NearbySearchService.searchNearbyHospitals(
-                                    context, result.location.latitude, result.location.longitude
-                                )
-                                hospitalSearchState = if (hospitals.isEmpty()) {
-                                    HospitalSearchState.Empty
-                                } else {
-                                    HospitalSearchState.Success(hospitals)
-                                }
-                            } catch (e: Exception) {
-                                hospitalSearchState = HospitalSearchState.Error(
-                                    "搜索附近医院失败：${e.message ?: "网络异常"}"
-                                )
-                            }
-                        }
-                    }
-                    UserLocationState.Success(result.location.latitude, result.location.longitude, result.location.accuracy)
+                    userLocationState = UserLocationState.Success(
+                        lat = result.location.latitude,
+                        lng = result.location.longitude,
+                        accuracy = result.location.accuracy,
+                        vendor = "系统定位"
+                    )
+                    searchHospitals(
+                        scope, context,
+                        result.location.latitude,
+                        result.location.longitude
+                    ) { hospitalSearchState = it }
                 }
                 is LocationHelper.Result.CoarseOnly -> {
-                    if (hospitalSearchState is HospitalSearchState.Idle) {
-                        hospitalSearchState = HospitalSearchState.Loading
-                        scope.launch {
-                            try {
-                                val hospitals = NearbySearchService.searchNearbyHospitals(
-                                    context, result.location.latitude, result.location.longitude
+                    userLocationState = UserLocationState.Success(
+                        lat = result.location.latitude,
+                        lng = result.location.longitude,
+                        accuracy = result.location.accuracy,
+                        vendor = "系统定位(粗略)"
+                    )
+                    searchHospitals(
+                        scope, context,
+                        result.location.latitude,
+                        result.location.longitude
+                    ) { hospitalSearchState = it }
+                }
+                is LocationHelper.Result.LocationDisabled -> {
+                    // 系统定位失败，尝试 SDK 定位降级
+                    scope.launch {
+                        val sdkResult = LocationFallbackManager.getLocation(context)
+                        when (sdkResult) {
+                            is LocationFallbackManager.LocationResult.Success -> {
+                                userLocationState = UserLocationState.Success(
+                                    lat = sdkResult.lat,
+                                    lng = sdkResult.lng,
+                                    accuracy = sdkResult.accuracy,
+                                    vendor = sdkResult.vendor
                                 )
-                                hospitalSearchState = if (hospitals.isEmpty()) {
-                                    HospitalSearchState.Empty
-                                } else {
-                                    HospitalSearchState.Success(hospitals)
-                                }
-                            } catch (e: Exception) {
-                                hospitalSearchState = HospitalSearchState.Error(
-                                    "搜索附近医院失败：${e.message ?: "网络异常"}"
-                                )
+                                searchHospitals(
+                                    scope, context,
+                                    sdkResult.lat, sdkResult.lng
+                                ) { hospitalSearchState = it }
+                            }
+                            else -> {
+                                userLocationState = UserLocationState.Error("系统定位开关未开启，请前往系统设置打开定位")
                             }
                         }
                     }
-                    UserLocationState.Success(result.location.latitude, result.location.longitude, result.location.accuracy)
                 }
-                is LocationHelper.Result.LocationDisabled ->
-                    UserLocationState.Error("系统定位开关未开启，请前往系统设置打开定位")
                 is LocationHelper.Result.PermissionDenied ->
-                    UserLocationState.Error("定位权限未授予，无法获取附近医院")
-                is LocationHelper.Result.Timeout ->
-                    UserLocationState.Error("定位超时，请检查系统定位设置后重试")
+                    userLocationState = UserLocationState.Error("定位权限未授予，无法获取附近医院")
+                is LocationHelper.Result.Timeout -> {
+                    // 超时，尝试 SDK 定位降级
+                    scope.launch {
+                        val sdkResult = LocationFallbackManager.getLocation(context)
+                        when (sdkResult) {
+                            is LocationFallbackManager.LocationResult.Success -> {
+                                userLocationState = UserLocationState.Success(
+                                    lat = sdkResult.lat,
+                                    lng = sdkResult.lng,
+                                    accuracy = sdkResult.accuracy,
+                                    vendor = sdkResult.vendor
+                                )
+                                searchHospitals(
+                                    scope, context,
+                                    sdkResult.lat, sdkResult.lng
+                                ) { hospitalSearchState = it }
+                            }
+                            else -> {
+                                userLocationState = UserLocationState.Error("定位超时，请检查系统定位设置后重试")
+                            }
+                        }
+                    }
+                }
                 is LocationHelper.Result.NoManager ->
-                    UserLocationState.Error("定位服务不可用")
+                    userLocationState = UserLocationState.Error("定位服务不可用")
             }
+        }
+    }
+
+    // 页面销毁时取消搜索
+    DisposableEffect(Unit) {
+        onDispose {
+            PoiSearchManager.cancel()
+            LocationFallbackManager.cancel()
         }
     }
 
@@ -278,7 +312,7 @@ fun HospitalPickerDialog(
                                             color = LiquidGlassColors.LightForeground
                                         )
                                         Text(
-                                            "精度 ${"%.0f".format(locState.accuracy)}m",
+                                            "${locState.vendor} 精度 ${"%.0f".format(locState.accuracy)}m",
                                             style = ClearDuTypography.MedCardMeta,
                                             color = LiquidGlassColors.Text400
                                         )
@@ -452,6 +486,44 @@ fun HospitalPickerDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * 搜索附近医院，优先使用 PoiSearchManager，回退到 NearbySearchService。
+ */
+private fun searchHospitals(
+    scope: kotlinx.coroutines.CoroutineScope,
+    context: android.content.Context,
+    lat: Double,
+    lng: Double,
+    onState: (HospitalSearchState) -> Unit
+) {
+    onState(HospitalSearchState.Loading)
+    scope.launch {
+        try {
+            // 优先使用三家 SDK POI 搜索
+            val sdkResults = PoiSearchManager.searchNearbyHospitals(context, lat, lng)
+            if (sdkResults.isNotEmpty()) {
+                onState(HospitalSearchState.Success(sdkResults))
+                return@launch
+            }
+
+            // 回退到 Geocoder + Overpass API
+            val fallbackResults = com.cleardu.app.util.NearbySearchService.searchNearbyHospitals(
+                context, lat, lng
+            )
+            onState(
+                if (fallbackResults.isEmpty()) HospitalSearchState.Empty
+                else HospitalSearchState.Success(fallbackResults)
+            )
+        } catch (e: Exception) {
+            onState(
+                HospitalSearchState.Error(
+                    "搜索附近医院失败：${e.message ?: "网络异常"}"
+                )
+            )
         }
     }
 }

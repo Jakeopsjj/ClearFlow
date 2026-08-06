@@ -16,8 +16,14 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 26
-        versionName = "1.7.14"
+        versionCode = 27
+        versionName = "1.7.15"
+
+        // === Native 库过滤：仅保留 armeabi-v7a 和 arm64-v8a，去除 x86/x86_64 减小包体积 ===
+        // 同时解决三家地图 SDK 的 so 库冲突
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -174,7 +180,30 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.navigation.compose)
 
-    // OSMDroid — 免费开源地图，无需 API Key
+    // ============================================================
+    // 三家地图 SDK 依赖（对外分发版本需移除腾讯 SDK 规避授权限制）
+    // ============================================================
+
+    // --- 高德地图 3D 地图 + 定位 + 搜索 ---
+    // 注意：3dmap 10.0.600 已包含完整定位 SDK，无需单独引用 location
+    implementation("com.amap.api:3dmap:10.0.600")
+    implementation("com.amap.api:search:9.7.0")
+
+    // --- 百度地图 基础地图 + 定位 + 搜索 ---
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Map:8.2.0")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Location:9.6.9")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Search:8.2.0")
+
+    // --- 腾讯地图 矢量地图 SDK ---
+    // 对外分发版本需移除，规避腾讯地图授权限制
+    // 腾讯地图 SDK 已发布至 Maven Central，可直接引用
+    implementation("com.tencent.map:tencent-map-vector-sdk:5.4.1")
+    // 腾讯地图组件库（POI 搜索、地理编码等）
+    implementation("com.tencent.map:sdk-utilities:1.0.9")
+    // 腾讯定位 SDK
+    implementation("com.tencent.map.geolocation:TencentLocationSdk-openplatform:7.5.3.2")
+
+    // OSMDroid — 保留作为无 SDK 环境的备用方案（仅瓦片显示，不参与三家降级链）
     implementation("org.osmdroid:osmdroid-android:6.1.18")
 
     debugImplementation(libs.androidx.compose.ui.tooling)

@@ -55,7 +55,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ClearDu"
+        tools:replace="android:allowBackup"
         tools:targetApi="34">
+
+        <!-- ===== 高德地图 SDK Key ===== -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="7d77f94ed5a6df1706b7737300caff08" />
+
+        <!-- ===== 百度地图 SDK AK ===== -->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="AjsnmGdq1Y7kGMCNI7JM7P8vcWjV7Az0" />
+
+        <!-- ===== 腾讯地图 SDK Key ===== -->
+        <meta-data
+            android:name="TencentMapSDK"
+            android:value="4ECBZ-STU33-UBQ3T-OATOO-CZPYH-PXFEW" />
+
+        <!-- 百度定位 Service -->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
 
         <activity
             android:name=".OnboardingActivity"
