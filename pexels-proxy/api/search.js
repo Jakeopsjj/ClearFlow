@@ -100,7 +100,7 @@ module.exports = async (req, res) => {
 
     const photo = pexelsData.photos[0];
     const result = {
-      imageUrl: photo.src?.large2x || photo.src?.large || photo.src?.original,
+      imageUrl: photo.src?.original || photo.src?.large2x || photo.src?.large,
       photographer: photo.photographer || '',
       photographerUrl: photo.photographer_url || '',
       alt: photo.alt || query,

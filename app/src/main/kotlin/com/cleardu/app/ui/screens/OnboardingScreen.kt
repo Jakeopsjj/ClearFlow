@@ -59,9 +59,9 @@ import com.cleardu.app.R
 import com.cleardu.app.data.PermissionCatalog
 import com.cleardu.app.data.PermissionItem
 import com.cleardu.app.ui.components.AppLogo
-import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.components.PermissionCard
 import com.cleardu.app.ui.components.StartButton
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -94,7 +94,7 @@ fun OnboardingScreen(
 ) {
     val allGranted = PermissionCatalog.items.all { grantedMap[it.id] == true }
 
-    MeshGradientBackground(modifier = modifier.fillMaxSize()) {
+    WeatherBackground(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
