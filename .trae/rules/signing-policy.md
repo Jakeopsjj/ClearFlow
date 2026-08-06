@@ -29,7 +29,7 @@
 - **Debug**: `app/keystore/debug.keystore`
 - **Release**: `app/keystore/release.keystore`
 
-keystore 文件已加入 `.gitignore`，不会提交到 Git 仓库。请在安全位置备份这两份文件。
+keystore 文件已提交到 Git 仓库，新环境克隆后可直接构建，无需手动恢复。
 
 ## 构建行为
 
@@ -42,16 +42,6 @@ keystore 文件已加入 `.gitignore`，不会提交到 Git 仓库。请在安�
 2. **禁止修改签名配置**：`signingConfigs` 中的 keystore 路径、密码、别名均不可更改。
 3. **禁止修改 SHA1/SHA256**：任何情况下不得生成新的 keystore 替换现有文件。
 4. **环境变量注入仅用于正式发布**：`CLEARDU_RELEASE_KEYSTORE_*` 环境变量仅在需要注入真实生产签名时使用，覆盖默认固化 keystore。日常开发构建直接使用固化的 keystore。
-
-## 新环境初始化
-
-在新机器上克隆项目后，需要手动将备份的 keystore 文件复制到 `app/keystore/` 目录：
-
-```bash
-mkdir -p app/keystore
-cp /path/to/backup/debug.keystore app/keystore/debug.keystore
-cp /path/to/backup/release.keystore app/keystore/release.keystore
-```
 
 ## 违规处理
 
