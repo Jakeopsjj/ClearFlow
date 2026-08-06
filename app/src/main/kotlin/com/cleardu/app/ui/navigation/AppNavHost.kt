@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cleardu.app.data.HealthDataManager
-import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.BackupScreen
 import com.cleardu.app.ui.screens.DashboardScreen
 import com.cleardu.app.ui.screens.DataRecordScreen
@@ -71,23 +69,19 @@ private const val FADE_DURATION = 300
  * restoreState     — 导航时恢复目标页面保存的状态
  *
  * —— 共享数据层 ——
- * [HealthDataManager] 在 NavHost 顶层创建，所有页面共享同一个实例。
- * 记录数据页面保存后，仪表盘和健康数据页面自动实时更新。
+ * [HealthDataManager] 由 [MainActivity] 在顶层创建，所有页面共享同一个实例。
+ * 设置页面、通知页面、备份页面等均通过此 manager 读写 AppSettings，
+ * 任意页面修改设置后，其他页面自动通过 Flow 同步刷新。
  *
+ * @param healthDataManager 由 MainActivity 注入的全局共享数据管理器
  * @param navController 由外部提供时可注入；默认 rememberNavController()
  */
 @Composable
 fun AppNavHost(
+    healthDataManager: HealthDataManager,
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
-    // === Shared data layer: single source of truth for all screens ===
-    val healthDataManager = remember {
-        HealthDataManager(RecordRepository(context))
-    }
-
     // 统一的 Tab 导航函数
     val navigateToTab: (Int) -> Unit = remember(navController) {
         { index ->
@@ -177,6 +171,7 @@ fun AppNavHost(
         // ===== 设置 =====
         composable(Routes.SETTINGS) {
             SettingsScreen(
+                healthDataManager = healthDataManager,
                 onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
                 onNavigateToNotification = { navController.navigate(Routes.NOTIFICATION) },
                 onNavigateToBackup = { navController.navigate(Routes.BACKUP) },
@@ -192,6 +187,7 @@ fun AppNavHost(
         // ===== 个人资料 =====
         composable(Routes.PROFILE) {
             ProfileScreen(
+                healthDataManager = healthDataManager,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToDashboard = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -205,6 +201,7 @@ fun AppNavHost(
         // ===== 数据备份 =====
         composable(Routes.BACKUP) {
             BackupScreen(
+                healthDataManager = healthDataManager,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToDashboard = {
                     navController.navigate(Routes.DASHBOARD) {
@@ -218,6 +215,7 @@ fun AppNavHost(
         // ===== 通知与提醒 =====
         composable(Routes.NOTIFICATION) {
             NotificationScreen(
+                healthDataManager = healthDataManager,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToDashboard = {
                     navController.navigate(Routes.DASHBOARD) {

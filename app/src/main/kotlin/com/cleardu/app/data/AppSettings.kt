@@ -4,47 +4,152 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * App-level settings persisted in DataStore.
- * Includes hospital info, emergency contact, custom medications,
- * medication reminders, and refill requests.
+ * App-level settings persisted in DataStore — single source of truth for all
+ * configuration across all screens.
+ *
+ * Every setting toggle, preference, and reminder flag lives here. All screens
+ * read from the same [HealthDataManager.settings] Flow, guaranteeing that
+ * any change in one screen immediately propagates to all others.
  */
 data class AppSettings(
-    // 提醒中心 - 医院
+    // ===== 设置 - 通用 =====
+    val darkMode: Boolean = true,
+    val unitSystem: String = "kg/mmHg",       // kg/mmHg | lb/mmHg
+    val language: String = "zh_CN",            // zh_CN | en_US
+
+    // ===== 设置 - 健康管理 =====
+    val waterRestrictionReminder: Boolean = true,
+    val dialysisPlan: String = "每周一三五 · 08:00",
+    val dryWeightTarget: String = "65.0 kg",
+    val emergencyContactCount: Int = 2,
+
+    // ===== 设置 - 数据备份 =====
+    val autoBackup: Boolean = true,
+    val backupWifiOnly: Boolean = true,
+    val backupFrequency: String = "每天",
+    val backupContent: String = "全部数据",
+    val backupEncryption: Boolean = true,
+
+    // ===== 通知 - 强提醒 =====
+    val strongReminder: Boolean = true,
+
+    // ===== 通知 - 透析相关 =====
+    val dialysisDayReminder: Boolean = true,
+    val dialysisDayReminderSub: String = "透析前1小时",
+    val weightReminder: Boolean = true,
+    val weightReminderSub: String = "透析前后",
+    val waterControlReminder: Boolean = false,
+
+    // ===== 通知 - 用药提醒 =====
+    val medicationNotificationReminder: Boolean = true,
+    val medicationNotificationReminderSub: String = "按您设置的用药计划",
+    val epoInjectionReminder: Boolean = true,
+    val epoInjectionReminderSub: String = "每周二、五 20:00",
+    val ironSupplementReminder: Boolean = true,
+    val missedDoseReminder: Boolean = true,
+    val missedDoseReminderSub: String = "15分钟后二次提醒",
+
+    // ===== 通知 - 健康监测 =====
+    val bpMeasurementReminder: Boolean = true,
+    val bpMeasurementReminderSub: String = "每日早晚",
+    val abnormalDataWarning: Boolean = true,
+    val abnormalDataWarningSub: String = "血压/钾/磷超标时",
+    val weightGainWarning: Boolean = true,
+    val weightGainWarningSub: String = "日增重>1.5kg时",
+    val checkupReminder: Boolean = true,
+    val checkupReminderSub: String = "每月一次",
+
+    // ===== 通知 - 提醒方式 =====
+    val soundReminder: String = "默认铃声",
+    val vibrationReminder: Boolean = true,
+    val lockScreenPopup: Boolean = true,
+    val reminderTimePeriod: String = "全天",
+
+    // ===== 提醒中心 - 医院（已有字段） =====
     val hospitalName: String = "",
     val hospitalAddress: String = "",
     val hospitalLat: Double = 0.0,
     val hospitalLng: Double = 0.0,
     val hospitalIsCustom: Boolean = false,
 
-    // 提醒中心 - 下次透析时间
+    // ===== 提醒中心 - 下次透析时间 =====
     val nextDialysisTime: Long = 0L, // epoch millis
 
-    // 提醒中心 - 紧急联系人
+    // ===== 提醒中心 - 紧急联系人 =====
     val emergencyContactName: String = "",
     val emergencyContactPhone: String = "",
     val emergencyContactIsCustom: Boolean = false,
 
-    // 用药管理 - 自定义药物列表
+    // ===== 用药管理 - 自定义药物列表 =====
     val customMedications: List<CustomMedication> = emptyList(),
 
-    // 用药管理 - 提醒设置
+    // ===== 用药管理 - 提醒设置 =====
     val medicationReminderEnabled: Boolean = true,
     val medicationReminderAdvanceMinutes: Int = 15,
 
-    // 用药管理 - 续药申请列表
+    // ===== 用药管理 - 续药申请列表 =====
     val refillRequests: List<RefillRequest> = emptyList()
 ) {
     companion object {
         fun fromJson(obj: JSONObject): AppSettings = AppSettings(
+            // 设置 - 通用
+            darkMode = obj.optBoolean("darkMode", true),
+            unitSystem = obj.optString("unitSystem", "kg/mmHg"),
+            language = obj.optString("language", "zh_CN"),
+            // 设置 - 健康管理
+            waterRestrictionReminder = obj.optBoolean("waterRestrictionReminder", true),
+            dialysisPlan = obj.optString("dialysisPlan", "每周一三五 · 08:00"),
+            dryWeightTarget = obj.optString("dryWeightTarget", "65.0 kg"),
+            emergencyContactCount = obj.optInt("emergencyContactCount", 2),
+            // 设置 - 数据备份
+            autoBackup = obj.optBoolean("autoBackup", true),
+            backupWifiOnly = obj.optBoolean("backupWifiOnly", true),
+            backupFrequency = obj.optString("backupFrequency", "每天"),
+            backupContent = obj.optString("backupContent", "全部数据"),
+            backupEncryption = obj.optBoolean("backupEncryption", true),
+            // 通知 - 强提醒
+            strongReminder = obj.optBoolean("strongReminder", true),
+            // 通知 - 透析相关
+            dialysisDayReminder = obj.optBoolean("dialysisDayReminder", true),
+            dialysisDayReminderSub = obj.optString("dialysisDayReminderSub", "透析前1小时"),
+            weightReminder = obj.optBoolean("weightReminder", true),
+            weightReminderSub = obj.optString("weightReminderSub", "透析前后"),
+            waterControlReminder = obj.optBoolean("waterControlReminder", false),
+            // 通知 - 用药提醒
+            medicationNotificationReminder = obj.optBoolean("medicationNotificationReminder", true),
+            medicationNotificationReminderSub = obj.optString("medicationNotificationReminderSub", "按您设置的用药计划"),
+            epoInjectionReminder = obj.optBoolean("epoInjectionReminder", true),
+            epoInjectionReminderSub = obj.optString("epoInjectionReminderSub", "每周二、五 20:00"),
+            ironSupplementReminder = obj.optBoolean("ironSupplementReminder", true),
+            missedDoseReminder = obj.optBoolean("missedDoseReminder", true),
+            missedDoseReminderSub = obj.optString("missedDoseReminderSub", "15分钟后二次提醒"),
+            // 通知 - 健康监测
+            bpMeasurementReminder = obj.optBoolean("bpMeasurementReminder", true),
+            bpMeasurementReminderSub = obj.optString("bpMeasurementReminderSub", "每日早晚"),
+            abnormalDataWarning = obj.optBoolean("abnormalDataWarning", true),
+            abnormalDataWarningSub = obj.optString("abnormalDataWarningSub", "血压/钾/磷超标时"),
+            weightGainWarning = obj.optBoolean("weightGainWarning", true),
+            weightGainWarningSub = obj.optString("weightGainWarningSub", "日增重>1.5kg时"),
+            checkupReminder = obj.optBoolean("checkupReminder", true),
+            checkupReminderSub = obj.optString("checkupReminderSub", "每月一次"),
+            // 通知 - 提醒方式
+            soundReminder = obj.optString("soundReminder", "默认铃声"),
+            vibrationReminder = obj.optBoolean("vibrationReminder", true),
+            lockScreenPopup = obj.optBoolean("lockScreenPopup", true),
+            reminderTimePeriod = obj.optString("reminderTimePeriod", "全天"),
+            // 提醒中心 - 医院
             hospitalName = obj.optString("hospitalName", ""),
             hospitalAddress = obj.optString("hospitalAddress", ""),
             hospitalLat = obj.optDouble("hospitalLat", 0.0),
             hospitalLng = obj.optDouble("hospitalLng", 0.0),
             hospitalIsCustom = obj.optBoolean("hospitalIsCustom", false),
+            // 提醒中心 - 下次透析
             nextDialysisTime = obj.optLong("nextDialysisTime", 0L),
+            // 提醒中心 - 紧急联系人
             emergencyContactName = obj.optString("emergencyContactName", ""),
             emergencyContactPhone = obj.optString("emergencyContactPhone", ""),
             emergencyContactIsCustom = obj.optBoolean("emergencyContactIsCustom", false),
+            // 用药管理
             customMedications = parseCustomMeds(obj.optJSONArray("customMedications")),
             medicationReminderEnabled = obj.optBoolean("medicationReminderEnabled", true),
             medicationReminderAdvanceMinutes = obj.optInt("medicationReminderAdvanceMinutes", 15),
@@ -54,15 +159,64 @@ data class AppSettings(
 }
 
 fun AppSettings.toJson(): JSONObject = JSONObject().apply {
+    // 设置 - 通用
+    put("darkMode", darkMode)
+    put("unitSystem", unitSystem)
+    put("language", language)
+    // 设置 - 健康管理
+    put("waterRestrictionReminder", waterRestrictionReminder)
+    put("dialysisPlan", dialysisPlan)
+    put("dryWeightTarget", dryWeightTarget)
+    put("emergencyContactCount", emergencyContactCount)
+    // 设置 - 数据备份
+    put("autoBackup", autoBackup)
+    put("backupWifiOnly", backupWifiOnly)
+    put("backupFrequency", backupFrequency)
+    put("backupContent", backupContent)
+    put("backupEncryption", backupEncryption)
+    // 通知 - 强提醒
+    put("strongReminder", strongReminder)
+    // 通知 - 透析相关
+    put("dialysisDayReminder", dialysisDayReminder)
+    put("dialysisDayReminderSub", dialysisDayReminderSub)
+    put("weightReminder", weightReminder)
+    put("weightReminderSub", weightReminderSub)
+    put("waterControlReminder", waterControlReminder)
+    // 通知 - 用药提醒
+    put("medicationNotificationReminder", medicationNotificationReminder)
+    put("medicationNotificationReminderSub", medicationNotificationReminderSub)
+    put("epoInjectionReminder", epoInjectionReminder)
+    put("epoInjectionReminderSub", epoInjectionReminderSub)
+    put("ironSupplementReminder", ironSupplementReminder)
+    put("missedDoseReminder", missedDoseReminder)
+    put("missedDoseReminderSub", missedDoseReminderSub)
+    // 通知 - 健康监测
+    put("bpMeasurementReminder", bpMeasurementReminder)
+    put("bpMeasurementReminderSub", bpMeasurementReminderSub)
+    put("abnormalDataWarning", abnormalDataWarning)
+    put("abnormalDataWarningSub", abnormalDataWarningSub)
+    put("weightGainWarning", weightGainWarning)
+    put("weightGainWarningSub", weightGainWarningSub)
+    put("checkupReminder", checkupReminder)
+    put("checkupReminderSub", checkupReminderSub)
+    // 通知 - 提醒方式
+    put("soundReminder", soundReminder)
+    put("vibrationReminder", vibrationReminder)
+    put("lockScreenPopup", lockScreenPopup)
+    put("reminderTimePeriod", reminderTimePeriod)
+    // 提醒中心 - 医院
     put("hospitalName", hospitalName)
     put("hospitalAddress", hospitalAddress)
     put("hospitalLat", hospitalLat)
     put("hospitalLng", hospitalLng)
     put("hospitalIsCustom", hospitalIsCustom)
+    // 提醒中心 - 下次透析
     put("nextDialysisTime", nextDialysisTime)
+    // 提醒中心 - 紧急联系人
     put("emergencyContactName", emergencyContactName)
     put("emergencyContactPhone", emergencyContactPhone)
     put("emergencyContactIsCustom", emergencyContactIsCustom)
+    // 用药管理
     put("customMedications", JSONArray().apply {
         customMedications.forEach { put(it.toJson()) }
     })
@@ -79,8 +233,8 @@ data class CustomMedication(
     val name: String,
     val detail: String,
     val dosage: String = "",
-    val frequency: String = "每日", // 每日/隔日/每周
-    val times: List<String> = listOf("08:00"), // e.g. ["08:00", "20:00"]
+    val frequency: String = "每日",
+    val times: List<String> = listOf("08:00"),
     val notes: String = "",
     val isActive: Boolean = true
 ) {
@@ -101,7 +255,7 @@ data class RefillRequest(
     val id: String = java.util.UUID.randomUUID().toString(),
     val medicationName: String,
     val detail: String = "",
-    val status: String = "pending", // pending / submitted / fulfilled
+    val status: String = "pending",
     val requestDate: Long = System.currentTimeMillis(),
     val notes: String = ""
 ) {

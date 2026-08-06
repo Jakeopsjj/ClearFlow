@@ -24,9 +24,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +45,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cleardu.app.data.AppSettings
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * 数据备份页面 — 匹配 "数据备份" HTML 参考设计。
@@ -59,11 +64,20 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun BackupScreen(
+    healthDataManager: HealthDataManager,
     onNavigateBack: () -> Unit = {},
     onNavigateToDashboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+
+    val settings by healthDataManager.settings.collectAsState(initial = null)
+    val s = settings ?: return
+
+    fun update(block: (AppSettings) -> AppSettings) {
+        scope.launch { healthDataManager.updateSettings(block) }
+    }
 
     MeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -91,18 +105,21 @@ fun BackupScreen(
             BackupCard {
                 BackupToggleItem(
                     label = "自动备份",
-                    initialChecked = true
+                    checked = s.autoBackup,
+                    onCheckedChange = { update { it.copy(autoBackup = !it.autoBackup) } }
                 )
-                BackupNavItem(label = "备份频率", value = "每天")
+                BackupNavItem(label = "备份频率", value = s.backupFrequency)
                 BackupToggleItem(
                     label = "仅Wi-Fi备份",
-                    initialChecked = true
+                    checked = s.backupWifiOnly,
+                    onCheckedChange = { update { it.copy(backupWifiOnly = !it.backupWifiOnly) } }
                 )
-                BackupNavItem(label = "备份内容", value = "全部数据")
+                BackupNavItem(label = "备份内容", value = s.backupContent)
                 BackupToggleItemWithSub(
                     label = "备份加密",
                     sublabel = "端到端加密保护",
-                    initialChecked = true
+                    checked = s.backupEncryption,
+                    onCheckedChange = { update { it.copy(backupEncryption = !it.backupEncryption) } }
                 )
             }
 
@@ -424,10 +441,9 @@ private fun BackupCard(
 @Composable
 private fun BackupToggleItem(
     label: String,
-    initialChecked: Boolean = false
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -442,7 +458,7 @@ private fun BackupToggleItem(
             modifier = Modifier.weight(1f)
         )
 
-        IosToggle(checked = checked, onCheckedChange = { checked = it })
+        IosToggle(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
@@ -450,10 +466,9 @@ private fun BackupToggleItem(
 private fun BackupToggleItemWithSub(
     label: String,
     sublabel: String,
-    initialChecked: Boolean = false
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -475,7 +490,7 @@ private fun BackupToggleItemWithSub(
             )
         }
 
-        IosToggle(checked = checked, onCheckedChange = { checked = it })
+        IosToggle(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

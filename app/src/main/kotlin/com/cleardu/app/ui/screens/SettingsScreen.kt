@@ -24,9 +24,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,9 +50,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cleardu.app.data.AppSettings
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * Settings page — matches the "设置" HTML reference design.
@@ -65,6 +70,7 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun SettingsScreen(
+    healthDataManager: HealthDataManager,
     onNavigateToProfile: () -> Unit = {},
     onNavigateToNotification: () -> Unit = {},
     onNavigateToBackup: () -> Unit = {},
@@ -72,6 +78,16 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+
+    // 从全局共享数据层读取 AppSettings，所有设置项同源
+    val settings by healthDataManager.settings.collectAsState(initial = null)
+    val s = settings ?: return
+
+    // 一键更新设置的工具函数
+    fun update(block: (AppSettings) -> AppSettings) {
+        scope.launch { healthDataManager.updateSettings(block) }
+    }
 
     MeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -98,13 +114,16 @@ fun SettingsScreen(
             // === Section: 通用 ===
             SettingsSectionHeader("通用")
             SettingsCard {
-                DarkModeToggleItem()
+                DarkModeToggleItem(
+                    checked = s.darkMode,
+                    onCheckedChange = { update { it.copy(darkMode = !it.darkMode) } }
+                )
                 SettingsNavItem(
                     icon = { NotificationIcon() },
                     iconBg = LiquidGlassColors.TintOrangeBg,
                     iconFg = LiquidGlassColors.MedicalOrange,
                     label = "通知与提醒",
-                    sublabel = "强提醒已开启",
+                    sublabel = if (s.strongReminder) "强提醒已开启" else "强提醒已关闭",
                     onClick = onNavigateToNotification
                 )
                 SettingsNavItem(
@@ -112,7 +131,7 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintCyanBg,
                     iconFg = LiquidGlassColors.MedicalCyan,
                     label = "单位设置",
-                    value = "kg/mmHg",
+                    value = if (s.unitSystem == "kg/mmHg") "kg/mmHg" else "lb/mmHg",
                     onClick = {}
                 )
                 SettingsNavItem(
@@ -120,7 +139,7 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintBlueBg,
                     iconFg = LiquidGlassColors.MedicalBlue,
                     label = "语言",
-                    value = "简体中文",
+                    value = if (s.language == "zh_CN") "简体中文" else "English",
                     onClick = {}
                 )
             }
@@ -165,7 +184,7 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintCyanBg,
                     iconFg = LiquidGlassColors.MedicalCyan,
                     label = "透析计划",
-                    sublabel = "每周一三五 08:00",
+                    sublabel = s.dialysisPlan,
                     onClick = {}
                 )
                 SettingsNavItem(
@@ -173,7 +192,7 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintGreenBg,
                     iconFg = LiquidGlassColors.MedicalGreen,
                     label = "干体重目标",
-                    value = "65.0 kg",
+                    value = s.dryWeightTarget,
                     onClick = {}
                 )
                 ToggleItem(
@@ -181,14 +200,15 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintBlueBg,
                     iconFg = LiquidGlassColors.MedicalBlue,
                     label = "限水提醒",
-                    initialChecked = true
+                    checked = s.waterRestrictionReminder,
+                    onCheckedChange = { update { it.copy(waterRestrictionReminder = !it.waterRestrictionReminder) } }
                 )
                 SettingsNavItem(
                     icon = { EmergencyIcon() },
                     iconBg = LiquidGlassColors.TintRedBg,
                     iconFg = LiquidGlassColors.MedicalRed,
                     label = "紧急联系人",
-                    value = "2位",
+                    value = "${s.emergencyContactCount}位",
                     onClick = {}
                 )
             }
@@ -472,10 +492,9 @@ private fun ToggleItem(
     iconBg: Color,
     iconFg: Color,
     label: String,
-    initialChecked: Boolean = false
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -504,7 +523,7 @@ private fun ToggleItem(
 
         IosToggle(
             checked = checked,
-            onCheckedChange = { checked = it }
+            onCheckedChange = onCheckedChange
         )
     }
 }
@@ -586,9 +605,10 @@ private fun SettingsCenterItem(
 }
 
 @Composable
-private fun DarkModeToggleItem() {
-    var checked by remember { mutableStateOf(true) }
-
+private fun DarkModeToggleItem(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -617,7 +637,7 @@ private fun DarkModeToggleItem() {
 
         IosToggle(
             checked = checked,
-            onCheckedChange = { checked = it }
+            onCheckedChange = onCheckedChange
         )
     }
 }

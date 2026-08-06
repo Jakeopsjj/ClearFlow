@@ -23,9 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +43,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cleardu.app.data.AppSettings
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.launch
 
 /**
  * 通知与提醒页面 — 匹配 "通知与提醒" HTML 参考设计。
@@ -57,11 +62,20 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun NotificationScreen(
+    healthDataManager: HealthDataManager,
     onNavigateBack: () -> Unit = {},
     onNavigateToDashboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+
+    val settings by healthDataManager.settings.collectAsState(initial = null)
+    val s = settings ?: return
+
+    fun update(block: (AppSettings) -> AppSettings) {
+        scope.launch { healthDataManager.updateSettings(block) }
+    }
 
     MeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -80,7 +94,10 @@ fun NotificationScreen(
             Spacer(Modifier.height(4.dp))
 
             // === Strong Reminder Card ===
-            StrongReminderCard()
+            StrongReminderCard(
+                checked = s.strongReminder,
+                onCheckedChange = { update { it.copy(strongReminder = !it.strongReminder) } }
+            )
 
             Spacer(Modifier.height(28.dp))
 
@@ -89,22 +106,26 @@ fun NotificationScreen(
             NotifCard {
                 NotifToggleWithSub(
                     label = "透析日提醒",
-                    sublabel = "透析前1小时",
-                    initialChecked = true
+                    sublabel = s.dialysisDayReminderSub,
+                    checked = s.dialysisDayReminder,
+                    onCheckedChange = { update { it.copy(dialysisDayReminder = !it.dialysisDayReminder) } }
                 )
                 NotifToggleWithSub(
                     label = "称重提醒",
-                    sublabel = "透析前后",
-                    initialChecked = true
+                    sublabel = s.weightReminderSub,
+                    checked = s.weightReminder,
+                    onCheckedChange = { update { it.copy(weightReminder = !it.weightReminder) } }
                 )
                 NotifToggleWithSub(
                     label = "限水提醒",
                     sublabel = "每日多次提醒",
-                    initialChecked = true
+                    checked = s.waterRestrictionReminder,
+                    onCheckedChange = { update { it.copy(waterRestrictionReminder = !it.waterRestrictionReminder) } }
                 )
                 NotifToggleItem(
                     label = "控水达标提醒",
-                    initialChecked = false
+                    checked = s.waterControlReminder,
+                    onCheckedChange = { update { it.copy(waterControlReminder = !it.waterControlReminder) } }
                 )
             }
 
@@ -115,22 +136,26 @@ fun NotificationScreen(
             NotifCard {
                 NotifToggleWithSub(
                     label = "服药提醒",
-                    sublabel = "按您设置的用药计划",
-                    initialChecked = true
+                    sublabel = s.medicationNotificationReminderSub,
+                    checked = s.medicationNotificationReminder,
+                    onCheckedChange = { update { it.copy(medicationNotificationReminder = !it.medicationNotificationReminder) } }
                 )
                 NotifToggleWithSub(
                     label = "注射促红素",
-                    sublabel = "每周二、五 20:00",
-                    initialChecked = true
+                    sublabel = s.epoInjectionReminderSub,
+                    checked = s.epoInjectionReminder,
+                    onCheckedChange = { update { it.copy(epoInjectionReminder = !it.epoInjectionReminder) } }
                 )
                 NotifToggleItem(
                     label = "补铁剂提醒",
-                    initialChecked = true
+                    checked = s.ironSupplementReminder,
+                    onCheckedChange = { update { it.copy(ironSupplementReminder = !it.ironSupplementReminder) } }
                 )
                 NotifToggleWithSub(
                     label = "用药漏服提醒",
-                    sublabel = "15分钟后二次提醒",
-                    initialChecked = true
+                    sublabel = s.missedDoseReminderSub,
+                    checked = s.missedDoseReminder,
+                    onCheckedChange = { update { it.copy(missedDoseReminder = !it.missedDoseReminder) } }
                 )
             }
 
@@ -141,24 +166,28 @@ fun NotificationScreen(
             NotifCard {
                 NotifToggleWithSub(
                     label = "血压测量提醒",
-                    sublabel = "每日早晚",
-                    initialChecked = true
+                    sublabel = s.bpMeasurementReminderSub,
+                    checked = s.bpMeasurementReminder,
+                    onCheckedChange = { update { it.copy(bpMeasurementReminder = !it.bpMeasurementReminder) } }
                 )
                 NotifToggleWithSub(
                     label = "异常数据预警",
-                    sublabel = "血压/钾/磷超标时",
+                    sublabel = s.abnormalDataWarningSub,
                     warning = true,
-                    initialChecked = true
+                    checked = s.abnormalDataWarning,
+                    onCheckedChange = { update { it.copy(abnormalDataWarning = !it.abnormalDataWarning) } }
                 )
                 NotifToggleWithSub(
                     label = "体重增长过快警告",
-                    sublabel = "日增重>1.5kg时",
-                    initialChecked = true
+                    sublabel = s.weightGainWarningSub,
+                    checked = s.weightGainWarning,
+                    onCheckedChange = { update { it.copy(weightGainWarning = !it.weightGainWarning) } }
                 )
                 NotifToggleWithSub(
                     label = "复查提醒",
-                    sublabel = "每月一次",
-                    initialChecked = true
+                    sublabel = s.checkupReminderSub,
+                    checked = s.checkupReminder,
+                    onCheckedChange = { update { it.copy(checkupReminder = !it.checkupReminder) } }
                 )
             }
 
@@ -167,15 +196,20 @@ fun NotificationScreen(
             // === Section: 提醒方式 ===
             NotifSectionHeader("提醒方式")
             NotifCard {
-                NotifNavItem(label = "声音提醒", value = "默认铃声")
-                NotifToggleItem(label = "震动提醒", initialChecked = true)
+                NotifNavItem(label = "声音提醒", value = s.soundReminder)
+                NotifToggleItem(
+                    label = "震动提醒",
+                    checked = s.vibrationReminder,
+                    onCheckedChange = { update { it.copy(vibrationReminder = !it.vibrationReminder) } }
+                )
                 NotifToggleWithSub(
                     label = "锁屏弹窗",
                     sublabel = "强提醒",
                     accentSub = true,
-                    initialChecked = true
+                    checked = s.lockScreenPopup,
+                    onCheckedChange = { update { it.copy(lockScreenPopup = !it.lockScreenPopup) } }
                 )
-                NotifNavItem(label = "提醒时段", value = "全天")
+                NotifNavItem(label = "提醒时段", value = s.reminderTimePeriod)
             }
         }
     }
@@ -239,8 +273,10 @@ private fun NotifPageNav(
 }
 
 @Composable
-private fun StrongReminderCard() {
-    var checked by remember { mutableStateOf(true) }
+private fun StrongReminderCard(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     val trackColor by animateColorAsState(
         targetValue = if (checked) LiquidGlassColors.MedicalOrange else LiquidGlassColors.ToggleOff,
         animationSpec = tween(300),
@@ -331,7 +367,7 @@ private fun StrongReminderCard() {
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { checked = !checked }
+                    ) { onCheckedChange(!checked) }
             ) {
                 Box(
                     modifier = Modifier
@@ -380,10 +416,9 @@ private fun NotifCard(
 @Composable
 private fun NotifToggleItem(
     label: String,
-    initialChecked: Boolean = false
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -397,7 +432,7 @@ private fun NotifToggleItem(
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
-        IosToggle(checked = checked, onCheckedChange = { checked = it })
+        IosToggle(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
@@ -407,10 +442,9 @@ private fun NotifToggleWithSub(
     sublabel: String,
     warning: Boolean = false,
     accentSub: Boolean = false,
-    initialChecked: Boolean = false
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -435,7 +469,7 @@ private fun NotifToggleWithSub(
                 }
             )
         }
-        IosToggle(checked = checked, onCheckedChange = { checked = it })
+        IosToggle(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

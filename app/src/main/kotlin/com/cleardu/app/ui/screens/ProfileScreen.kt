@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -55,11 +57,15 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
  */
 @Composable
 fun ProfileScreen(
+    healthDataManager: HealthDataManager,
     onNavigateBack: () -> Unit = {},
     onNavigateToDashboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+
+    val settings by healthDataManager.settings.collectAsState(initial = null)
+    val s = settings
 
     MeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -91,7 +97,7 @@ fun ProfileScreen(
                 ProfileNavItem(label = "身高", value = "172 cm")
                 ProfileNavItem(
                     label = "干体重",
-                    value = "65.0 kg",
+                    value = s?.dryWeightTarget ?: "65.0 kg",
                     highlight = true
                 )
                 ProfileNavItem(label = "血型", value = "A型 Rh阳性")
@@ -106,10 +112,10 @@ fun ProfileScreen(
                 ProfileNavItem(label = "首次透析日期", value = "2023-03-15")
                 ProfileNavItem(label = "透析龄", value = "3年2个月")
                 ProfileNavItem(label = "血管通路", value = "左前臂动静脉内瘘")
-                ProfileNavItem(label = "透析医院", value = "市第一人民医院")
+                ProfileNavItem(label = "透析医院", value = s?.hospitalName?.ifEmpty { "市第一人民医院" } ?: "市第一人民医院")
                 ProfileNavItem(
                     label = "透析计划",
-                    value = "每周一三五 · 08:00",
+                    value = s?.dialysisPlan ?: "每周一三五 · 08:00",
                     subValue = "每次4小时"
                 )
             }
@@ -120,9 +126,9 @@ fun ProfileScreen(
             ProfileSectionHeader("紧急联系")
             ProfileCard {
                 EmergencyContactItem(
-                    name = "张女士",
+                    name = s?.emergencyContactName?.ifEmpty { "张女士" } ?: "张女士",
                     relation = "配偶",
-                    phone = "138-1234-5678"
+                    phone = s?.emergencyContactPhone?.ifEmpty { "138-1234-5678" } ?: "138-1234-5678"
                 )
                 EmergencyContactItem(
                     name = "张小明",
