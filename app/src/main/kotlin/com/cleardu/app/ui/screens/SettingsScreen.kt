@@ -22,7 +22,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import android.widget.Toast
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,10 +52,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
@@ -88,6 +97,24 @@ fun SettingsScreen(
     fun update(block: (AppSettings) -> AppSettings) {
         scope.launch { healthDataManager.updateSettings(block) }
     }
+
+    val context = LocalContext.current
+
+    // ===== Dialog state variables =====
+    var showUnitDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    var showDialysisPlanDialog by remember { mutableStateOf(false) }
+    var showDryWeightDialog by remember { mutableStateOf(false) }
+    var dryWeightInput by remember(s.dryWeightTarget) { mutableStateOf(s.dryWeightTarget.removeSuffix(" kg")) }
+    var showEmergencyContactDialog by remember { mutableStateOf(false) }
+    var emergencyNameInput by remember(s.emergencyContactName) { mutableStateOf(s.emergencyContactName) }
+    var emergencyPhoneInput by remember(s.emergencyContactPhone) { mutableStateOf(s.emergencyContactPhone) }
+    var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+    var showClearCacheDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     MeshGradientBackground(modifier = modifier.fillMaxSize()) {
         Column(
@@ -132,7 +159,7 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalCyan,
                     label = "单位设置",
                     value = if (s.unitSystem == "kg/mmHg") "kg/mmHg" else "lb/mmHg",
-                    onClick = {}
+                    onClick = { showUnitDialog = true }
                 )
                 SettingsNavItem(
                     icon = { LanguageIcon() },
@@ -140,7 +167,7 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalBlue,
                     label = "语言",
                     value = if (s.language == "zh_CN") "简体中文" else "English",
-                    onClick = {}
+                    onClick = { showLanguageDialog = true }
                 )
             }
 
@@ -163,14 +190,14 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalIndigo,
                     label = "数据导出",
                     value = "PDF/Excel",
-                    onClick = {}
+                    onClick = { showExportDialog = true }
                 )
                 SettingsNavItem(
                     icon = { LockIcon() },
                     iconBg = LiquidGlassColors.TintOrangeBg,
                     iconFg = LiquidGlassColors.MedicalOrange,
                     label = "权限管理",
-                    onClick = {}
+                    onClick = { showPermissionDialog = true }
                 )
             }
 
@@ -185,7 +212,7 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalCyan,
                     label = "透析计划",
                     sublabel = s.dialysisPlan,
-                    onClick = {}
+                    onClick = { showDialysisPlanDialog = true }
                 )
                 SettingsNavItem(
                     icon = { WeightIcon() },
@@ -193,7 +220,7 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalGreen,
                     label = "干体重目标",
                     value = s.dryWeightTarget,
-                    onClick = {}
+                    onClick = { showDryWeightDialog = true }
                 )
                 ToggleItem(
                     icon = { WaterDropIcon() },
@@ -209,7 +236,7 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.MedicalRed,
                     label = "紧急联系人",
                     value = "${s.emergencyContactCount}位",
-                    onClick = {}
+                    onClick = { showEmergencyContactDialog = true }
                 )
             }
 
@@ -224,21 +251,21 @@ fun SettingsScreen(
                     iconFg = LiquidGlassColors.Text400,
                     label = "检查更新",
                     value = "v2.1.0",
-                    onClick = {}
+                    onClick = { Toast.makeText(context, "已是最新版本 v2.1.0", Toast.LENGTH_SHORT).show() }
                 )
                 SettingsNavItem(
                     icon = { DocIcon() },
                     iconBg = Color(0x14FFFFFF),
                     iconFg = LiquidGlassColors.Text400,
                     label = "用户协议与隐私政策",
-                    onClick = {}
+                    onClick = { showPrivacyDialog = true }
                 )
                 SettingsNavItem(
                     icon = { InfoIcon() },
                     iconBg = Color(0x14FFFFFF),
                     iconFg = LiquidGlassColors.Text400,
                     label = "关于清渡",
-                    onClick = {}
+                    onClick = { showAboutDialog = true }
                 )
             }
 
@@ -253,15 +280,122 @@ fun SettingsScreen(
                     label = "清除缓存",
                     labelColor = LiquidGlassColors.MedicalRed,
                     value = "2.3 MB",
-                    valueColor = LiquidGlassColors.MedicalRed
+                    valueColor = LiquidGlassColors.MedicalRed,
+                    onClick = { showClearCacheDialog = true }
                 )
             }
             SettingsCard {
                 SettingsCenterItem(
                     label = "退出登录",
-                    labelColor = LiquidGlassColors.MedicalRed
+                    labelColor = LiquidGlassColors.MedicalRed,
+                    onClick = { showLogoutDialog = true }
                 )
             }
+        }
+
+        // ===== Dialog invocations =====
+        if (showUnitDialog) {
+            UnitSettingsDialog(
+                current = s.unitSystem,
+                onConfirm = { unitSystem ->
+                    update { it.copy(unitSystem = unitSystem) }
+                    showUnitDialog = false
+                },
+                onDismiss = { showUnitDialog = false }
+            )
+        }
+        if (showLanguageDialog) {
+            LanguageDialog(
+                current = s.language,
+                onConfirm = { language ->
+                    update { it.copy(language = language) }
+                    showLanguageDialog = false
+                },
+                onDismiss = { showLanguageDialog = false }
+            )
+        }
+        if (showExportDialog) {
+            ExportDialog(
+                onDismiss = { showExportDialog = false }
+            )
+        }
+        if (showPermissionDialog) {
+            PermissionDialog(
+                onDismiss = { showPermissionDialog = false }
+            )
+        }
+        if (showDialysisPlanDialog) {
+            DialysisPlanDialog(
+                current = s.dialysisPlan,
+                onConfirm = { plan ->
+                    update { it.copy(dialysisPlan = plan) }
+                    showDialysisPlanDialog = false
+                },
+                onDismiss = { showDialysisPlanDialog = false }
+            )
+        }
+        if (showDryWeightDialog) {
+            DryWeightDialog(
+                value = dryWeightInput,
+                onValueChange = { dryWeightInput = it },
+                onConfirm = {
+                    val kg = dryWeightInput.toDoubleOrNull()
+                    if (kg != null && kg > 0) {
+                        update { it.copy(dryWeightTarget = "${dryWeightInput} kg") }
+                        showDryWeightDialog = false
+                    }
+                },
+                onDismiss = { showDryWeightDialog = false }
+            )
+        }
+        if (showEmergencyContactDialog) {
+            EmergencyContactDialog(
+                name = emergencyNameInput,
+                phone = emergencyPhoneInput,
+                onNameChange = { emergencyNameInput = it },
+                onPhoneChange = { emergencyPhoneInput = it },
+                onConfirm = {
+                    val count = if (emergencyNameInput.isNotBlank() && emergencyPhoneInput.isNotBlank()) 1 else 0
+                    update {
+                        it.copy(
+                            emergencyContactName = emergencyNameInput,
+                            emergencyContactPhone = emergencyPhoneInput,
+                            emergencyContactCount = count
+                        )
+                    }
+                    showEmergencyContactDialog = false
+                    Toast.makeText(context, "紧急联系人已保存", Toast.LENGTH_SHORT).show()
+                },
+                onDismiss = { showEmergencyContactDialog = false }
+            )
+        }
+        if (showPrivacyDialog) {
+            PrivacyPolicyDialog(
+                onDismiss = { showPrivacyDialog = false }
+            )
+        }
+        if (showAboutDialog) {
+            AboutDialog(
+                onDismiss = { showAboutDialog = false }
+            )
+        }
+        if (showClearCacheDialog) {
+            ClearCacheDialog(
+                onConfirm = {
+                    showClearCacheDialog = false
+                    Toast.makeText(context, "缓存已清除", Toast.LENGTH_SHORT).show()
+                },
+                onDismiss = { showClearCacheDialog = false }
+            )
+        }
+        if (showLogoutDialog) {
+            LogoutDialog(
+                onConfirm = {
+                    showLogoutDialog = false
+                    onNavigateToDashboard()
+                },
+                onDismiss = { showLogoutDialog = false }
+            )
         }
     }
 }
@@ -536,7 +670,8 @@ private fun SettingsTextItem(
     label: String,
     labelColor: Color = LiquidGlassColors.Foreground,
     value: String? = null,
-    valueColor: Color = LiquidGlassColors.Text400
+    valueColor: Color = LiquidGlassColors.Text400,
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -544,7 +679,7 @@ private fun SettingsTextItem(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) {}
+            ) { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -582,7 +717,8 @@ private fun SettingsTextItem(
 @Composable
 private fun SettingsCenterItem(
     label: String,
-    labelColor: Color = LiquidGlassColors.Foreground
+    labelColor: Color = LiquidGlassColors.Foreground,
+    onClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -590,7 +726,7 @@ private fun SettingsCenterItem(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) {}
+            ) { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -954,4 +1090,421 @@ private fun TrashIcon() {
         drawArc(color, 180f, 180f, false, topLeft = Offset(w * 0.375f, h * 0.0625f), size = Size(w * 0.25f, h * 0.375f),
             style = Stroke(width = 1.4f * density))
     }
+}
+
+// ===== Dialog Composables =====
+
+@Composable
+private fun UnitSettingsDialog(
+    current: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selected by remember { mutableStateOf(current) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("单位设置", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = selected == "kg/mmHg", onClick = { selected = "kg/mmHg" })
+                    Text("kg/mmHg（公制）", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = selected == "lb/mmHg", onClick = { selected = "lb/mmHg" })
+                    Text("lb/mmHg（英制）", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(selected) }) {
+                Text("确定", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun LanguageDialog(
+    current: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selected by remember { mutableStateOf(current) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("语言", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = selected == "zh_CN", onClick = { selected = "zh_CN" })
+                    Text("简体中文", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = selected == "en_US", onClick = { selected = "en_US" })
+                    Text("English", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(selected) }) {
+                Text("确定", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun ExportDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("数据导出", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Text(
+                "支持导出为 PDF 或 Excel 格式的数据报告。\n\n请在导出页面选择具体格式和日期范围。",
+                color = LiquidGlassColors.Text400,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun PermissionDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("权限管理", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Text(
+                "清渡需要以下权限以保证正常运行：\n\n" +
+                "• 通知权限 — 发送透析提醒和用药提醒\n" +
+                "• 日历权限 — 同步透析日程\n" +
+                "• 位置权限 — 紧急联系人定位\n\n" +
+                "您可以在系统设置中随时管理这些权限。",
+                color = LiquidGlassColors.Text400,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun DialysisPlanDialog(
+    current: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selected by remember { mutableStateOf(current) }
+    val plans = listOf(
+        "每周一三五 · 08:00",
+        "每周二四六 · 08:00",
+        "每周一三五 · 14:00",
+        "每周二四六 · 14:00"
+    )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("透析计划", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Column {
+                plans.forEach { plan ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = selected == plan, onClick = { selected = plan })
+                        Text(plan, color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(selected) }) {
+                Text("确定", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun DryWeightDialog(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("干体重目标", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Column {
+                Text(
+                    "请输入干体重目标值（kg）：",
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = { Text("体重 (kg)", color = LiquidGlassColors.Text400) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = LiquidGlassColors.Foreground,
+                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedBorderColor = LiquidGlassColors.MedicalBlue,
+                        unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
+                        cursorColor = LiquidGlassColors.MedicalBlue
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("确定", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun EmergencyContactDialog(
+    name: String,
+    phone: String,
+    onNameChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("紧急联系人", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = onNameChange,
+                    label = { Text("姓名", color = LiquidGlassColors.Text400) },
+                    singleLine = true,
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = LiquidGlassColors.Foreground,
+                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedBorderColor = LiquidGlassColors.MedicalBlue,
+                        unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
+                        cursorColor = LiquidGlassColors.MedicalBlue
+                    ),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = onPhoneChange,
+                    label = { Text("电话", color = LiquidGlassColors.Text400) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    singleLine = true,
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = LiquidGlassColors.Foreground,
+                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedBorderColor = LiquidGlassColors.MedicalBlue,
+                        unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
+                        cursorColor = LiquidGlassColors.MedicalBlue
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("保存", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("用户协议与隐私政策", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Text(
+                "感谢您使用清渡。\n\n" +
+                "我们重视您的隐私和数据安全。使用本应用即表示您同意以下条款：\n\n" +
+                "1. 数据收集：我们仅收集您主动录入的健康数据，包括透析记录、用药记录等。\n\n" +
+                "2. 数据使用：您的数据仅用于为您提供健康管理服务，不会用于其他目的。\n\n" +
+                "3. 数据安全：所有数据采用加密存储，保障您的隐私安全。\n\n" +
+                "4. 数据共享：未经您的明确同意，我们不会将您的数据分享给任何第三方。\n\n" +
+                "5. 免责声明：本应用提供的健康管理建议仅供参考，不能替代专业医疗诊断。",
+                color = LiquidGlassColors.Text400,
+                fontSize = 13.sp,
+                lineHeight = 20.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("我已阅读", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun AboutDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(LiquidGlassColors.MedicalCyan, LiquidGlassColors.MedicalBlue)
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("清", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+                Spacer(Modifier.width(12.dp))
+                Text("关于清渡", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+            }
+        },
+        text = {
+            Column {
+                Text(
+                    "清渡 — 透析患者健康管理助手",
+                    color = LiquidGlassColors.Foreground,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    "版本：v2.1.0\n" +
+                    "构建号：2026.08.06\n\n" +
+                    "清渡是一款专为透析患者设计的健康管理应用，帮助您轻松记录透析数据、管理用药、设置提醒，让健康管理更简单、更安心。\n\n" +
+                    "© 2026 清渡团队",
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 13.sp,
+                    lineHeight = 20.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("关闭", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun ClearCacheDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("清除缓存", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Text(
+                "确定要清除应用缓存数据吗？\n\n这将清除临时文件和不必要的缓存数据，不会影响您的健康记录和设置。",
+                color = LiquidGlassColors.Text400,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("确定清除", color = LiquidGlassColors.MedicalRed)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun LogoutDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("退出登录", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        text = {
+            Text(
+                "确定要退出登录吗？\n\n退出后您将返回首页，但您的健康数据仍会安全保存在本地。",
+                color = LiquidGlassColors.Text400,
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("退出登录", color = LiquidGlassColors.MedicalRed)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = LiquidGlassColors.Text400)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
 }
