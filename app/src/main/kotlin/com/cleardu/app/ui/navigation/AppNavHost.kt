@@ -15,11 +15,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.ui.screens.BackupScreen
 import com.cleardu.app.ui.screens.DashboardScreen
 import com.cleardu.app.ui.screens.DataRecordScreen
 import com.cleardu.app.ui.screens.HealthDataScreen
 import com.cleardu.app.ui.screens.MedicationScreen
+import com.cleardu.app.ui.screens.NotificationScreen
+import com.cleardu.app.ui.screens.ProfileScreen
 import com.cleardu.app.ui.screens.ReminderScreen
+import com.cleardu.app.ui.screens.SettingsScreen
 
 /**
  * 全局路由常量。
@@ -32,6 +36,12 @@ object Routes {
     const val HEALTH_DATA = "health_data"
     const val MEDICATION = "medication"
     const val REMINDER = "reminder"
+
+    // Secondary pages (settings & sub-pages)
+    const val SETTINGS = "settings"
+    const val PROFILE = "profile"
+    const val BACKUP = "backup"
+    const val NOTIFICATION = "notification"
 }
 
 /** 导航栏索引 → 路由映射 */
@@ -122,6 +132,7 @@ fun AppNavHost(
                     }
                 },
                 onNavItemSelected = navigateToTab,
+                onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -159,6 +170,60 @@ fun AppNavHost(
             ReminderScreen(
                 healthDataManager = healthDataManager,
                 onNavItemSelected = navigateToTab,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // ===== 设置 =====
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
+                onNavigateToNotification = { navController.navigate(Routes.NOTIFICATION) },
+                onNavigateToBackup = { navController.navigate(Routes.BACKUP) },
+                onNavigateToDashboard = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.DASHBOARD) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // ===== 个人资料 =====
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDashboard = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.DASHBOARD) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // ===== 数据备份 =====
+        composable(Routes.BACKUP) {
+            BackupScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDashboard = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.DASHBOARD) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // ===== 通知与提醒 =====
+        composable(Routes.NOTIFICATION) {
+            NotificationScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDashboard = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.DASHBOARD) { inclusive = true }
+                    }
+                },
                 modifier = Modifier.fillMaxSize()
             )
         }

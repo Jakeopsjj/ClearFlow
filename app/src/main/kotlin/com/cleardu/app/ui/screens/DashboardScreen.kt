@@ -1,5 +1,10 @@
 package com.cleardu.app.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -20,15 +27,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.data.DashboardVitals
@@ -68,6 +80,7 @@ fun DashboardScreen(
     onMedRemind: () -> Unit = {},
     onQuickAction: (String) -> Unit = {},
     onNavItemSelected: (Int) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedNavIndex by remember { mutableIntStateOf(0) }
@@ -123,11 +136,19 @@ fun DashboardScreen(
                         end = ClearDuDimens.DashboardContentHorizontal
                     )
             ) {
-                // === Greeting ===
-                GreetingSection(
-                    greeting = greeting,
-                    subtitle = greetingSub
-                )
+                // === Greeting with Settings ===
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    GreetingSection(
+                        greeting = greeting,
+                        subtitle = greetingSub,
+                        modifier = Modifier.weight(1f)
+                    )
+                    // Settings gear icon
+                    SettingsGearButton(onClick = onNavigateToSettings)
+                }
 
                 Spacer(Modifier.height(ClearDuDimens.GreetingBottomMargin))
 
@@ -311,6 +332,51 @@ private fun GreetingSection(
             color = LiquidGlassColors.Text400,
             textAlign = TextAlign.Start
         )
+    }
+}
+
+@Composable
+private fun SettingsGearButton(onClick: () -> Unit) {
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        animationSpec = tween(200),
+        label = "gearScale"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .scale(scale)
+            .clip(RoundedCornerShape(12.dp))
+            .background(LiquidGlassColors.GlassBgLight)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                isPressed = true
+                onClick()
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        androidx.compose.foundation.Canvas(modifier = Modifier.size(20.dp)) {
+            val w = size.width; val h = size.height
+            val color = LiquidGlassColors.Text400
+            val cx = w * 0.5f; val cy = h * 0.5f
+            drawCircle(color, radius = w * 0.2f, center = Offset(cx, cy), style = Stroke(width = 1.5f * density))
+            drawCircle(color, radius = w * 0.06f, center = Offset(cx, cy))
+            // Gear teeth
+            for (i in 0 until 8) {
+                val angle = (i * 45f) * (Math.PI / 180).toFloat()
+                val innerR = w * 0.2f; val outerR = w * 0.28f
+                drawLine(
+                    color,
+                    Offset(cx + innerR * kotlin.math.cos(angle), cy + innerR * kotlin.math.sin(angle)),
+                    Offset(cx + outerR * kotlin.math.cos(angle), cy + outerR * kotlin.math.sin(angle)),
+                    strokeWidth = 1.5f * density
+                )
+            }
+        }
     }
 }
 
