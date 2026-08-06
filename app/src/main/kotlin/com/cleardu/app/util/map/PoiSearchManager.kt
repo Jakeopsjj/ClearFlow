@@ -165,7 +165,7 @@ object PoiSearchManager {
             })
 
             val option = com.baidu.mapapi.search.poi.PoiNearbySearchOption()
-                .keyword("透析医院")
+                .keyword("医院")
                 .location(com.baidu.mapapi.model.LatLng(bdLat, bdLng))
                 .radius(radius)
                 .pageNum(0)
@@ -191,7 +191,7 @@ object PoiSearchManager {
         radius: Int
     ): List<NearbyHospital>? = suspendCancellableCoroutine { cont ->
         try {
-            val query = com.amap.api.services.poisearch.PoiSearch.Query("透析医院", "", "")
+            val query = com.amap.api.services.poisearch.PoiSearch.Query("医院", "", "")
             query.pageSize = 30
             query.pageNum = 0
 

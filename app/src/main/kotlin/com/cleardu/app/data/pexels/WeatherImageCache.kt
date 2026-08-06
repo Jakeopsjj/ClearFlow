@@ -92,7 +92,7 @@ class WeatherImageCache(private val context: Context) {
         Log.d(TAG, "Weather image cache cleared")
     }
 
-    private fun getCacheFile(weatherCode: String, isDayTime: Boolean): File {
+    fun getCacheFile(weatherCode: String, isDayTime: Boolean): File {
         val dayNight = if (isDayTime) "day" else "night"
         return File(cacheDir, "${weatherCode}_${dayNight}.jpg")
     }

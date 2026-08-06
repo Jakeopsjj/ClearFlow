@@ -82,8 +82,7 @@ fun getLocalWeatherDrawable(type: LocalBackgroundType): Int = when (type) {
  * 层级（从底到顶）：
  * 1. 本地内置天气背景（真实 4K 图片素材）
  * 2. 网络 Pexels 天气背景图 — 过渡期间由扩展圆形裁剪，动画完成后完整显示
- * 3. 暗色遮罩层（保证文字可读性）
- * 4. 前景内容
+ * 3. 前景内容
  *
  * 多波纹扩散动画：
  * - 随机生成 1-3 个圆形圆心
@@ -200,15 +199,6 @@ fun WeatherBackground(
                                 size.height.toInt()
                             )
                         )
-                        // 暗色遮罩
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.45f),
-                                    Color.Black.copy(alpha = 0.65f)
-                                )
-                            )
-                        )
                     }
                 }
             } else {
@@ -222,21 +212,6 @@ fun WeatherBackground(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .drawWithContent {
-                            drawRect(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Black.copy(alpha = 0.45f),
-                                        Color.Black.copy(alpha = 0.65f)
-                                    )
-                                )
-                            )
-                            drawContent()
-                        }
-                )
             }
         } else {
             // === 无网络图片：显示本地内置背景 ===
@@ -245,21 +220,6 @@ fun WeatherBackground(
                 contentDescription = "Local weather background",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.45f),
-                                    Color.Black.copy(alpha = 0.65f)
-                                )
-                            )
-                        )
-                        drawContent()
-                    }
             )
         }
 

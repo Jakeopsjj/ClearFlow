@@ -291,7 +291,7 @@ fun SettingsScreen(
                     iconBg = Color(0x14FFFFFF),
                     iconFg = LiquidGlassColors.Text400,
                     label = "检查更新",
-                    value = if (isCheckingUpdate) "检查中..." else "v${BuildConfig.VERSION_NAME}",
+                    value = if (isCheckingUpdate) "检查中..." else BuildConfig.VERSION_NAME,
                     onClick = {
                         if (isCheckingUpdate) return@SettingsNavItem
                         isCheckingUpdate = true
@@ -306,7 +306,7 @@ fun SettingsScreen(
                                 if (GitHubReleaseChecker.isNewerVersion(latestVer, BuildConfig.VERSION_NAME)) {
                                     showUpdateDialog = true
                                 } else {
-                                    Toast.makeText(context, "已是最新版本 v${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "已是最新版本 ${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(context, "检查失败，请检查网络连接", Toast.LENGTH_SHORT).show()
@@ -1770,8 +1770,8 @@ private fun UpdateAvailableDialog(
         text = {
             Column {
                 Text(
-                    "当前版本：v$currentVersion\n最新版本：v${release.versionName}\n\n" +
-                    "更新内容：\n${release.body.take(500)}",
+                    "当前版本：$currentVersion\n最新版本：${release.versionName}\n\n" +
+                    "更新内容：\n${release.body}",
                     color = LiquidGlassColors.Text400,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -1817,7 +1817,7 @@ private fun UpdateLogDialog(
                     Text("清", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Spacer(Modifier.width(12.dp))
-                Text("v$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+                Text("$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
             }
         },
         text = {

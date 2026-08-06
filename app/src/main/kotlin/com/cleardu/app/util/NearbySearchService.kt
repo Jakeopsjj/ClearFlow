@@ -90,8 +90,8 @@ object NearbySearchService {
 
         val allResults = mutableListOf<Address>()
         try {
-            // 搜索多种关键词，覆盖透析医院
-            for (keyword in listOf("透析医院", "透析中心", "血液透析", "肾病医院", "医院")) {
+            // 搜索医院
+            for (keyword in listOf("医院")) {
                 try {
                     val results = geocoder.getFromLocationName(
                         keyword, 20,
