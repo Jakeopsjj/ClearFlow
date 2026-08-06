@@ -41,6 +41,7 @@ import com.cleardu.app.ui.components.MedicationTimeline
 import com.cleardu.app.ui.components.MedicationWarningBanner
 import com.cleardu.app.ui.components.MedDoseStatus
 import com.cleardu.app.ui.components.RefillRequestDialog
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.MedicationDose as TimelineMedDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -102,7 +103,7 @@ fun MedicationScreen(
     val nextMedName = nextMed?.name ?: "无"
     val nextMedTime = nextMed?.time ?: "--:--"
 
-    LightMeshGradientBackground(
+    WeatherBackground(
         modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -242,69 +243,7 @@ fun MedicationScreen(
     }
 }
 
-/**
- * 浅色模式网格渐变背景 — 复刻参考 HTML 的浅色 mesh-bg。
- * 5 层 radialGradient 叠加在 #f2f2f7 底色上。
- */
-@Composable
-private fun LightMeshGradientBackground(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .background(LiquidGlassColors.LightBackground)
-            .drawBehind {
-                // 1. 左下角紫色光斑
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(LiquidGlassColors.LightMeshPurple, Color.Transparent),
-                        center = Offset(size.width * 0.10f, size.height * 0.90f),
-                        radius = 320.dp.toPx(),
-                        tileMode = TileMode.Clamp
-                    )
-                )
-                // 2. 顶部中间青色光斑
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(LiquidGlassColors.LightMeshCyan, Color.Transparent),
-                        center = Offset(size.width * 0.50f, size.height * 0.05f),
-                        radius = 280.dp.toPx(),
-                        tileMode = TileMode.Clamp
-                    )
-                )
-                // 3. 右下角深紫色光斑
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(LiquidGlassColors.LightMeshDeepPurple, Color.Transparent),
-                        center = Offset(size.width * 0.90f, size.height * 0.85f),
-                        radius = 300.dp.toPx(),
-                        tileMode = TileMode.Clamp
-                    )
-                )
-                // 4. 右上角蓝色光斑
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(LiquidGlassColors.LightMeshBlue, Color.Transparent),
-                        center = Offset(size.width * 0.95f, size.height * 0.10f),
-                        radius = 260.dp.toPx(),
-                        tileMode = TileMode.Clamp
-                    )
-                )
-                // 5. 左中区域青色补充
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(LiquidGlassColors.LightMeshCyanExtra, Color.Transparent),
-                        center = Offset(size.width * 0.20f, size.height * 0.40f),
-                        radius = 200.dp.toPx(),
-                        tileMode = TileMode.Clamp
-                    )
-                )
-            }
-            .padding(0.dp),
-        content = { content() }
-    )
-}
+
 
 /**
  * 浅色模式底部导航渐隐。
