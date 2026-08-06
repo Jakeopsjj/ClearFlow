@@ -16,8 +16,8 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 31
-        versionName = "1.9.0"
+        versionCode = 32
+        versionName = "1.9.1"
 
         // === Native 库过滤：仅保留 armeabi-v7a 和 arm64-v8a，去除 x86/x86_64 减小包体积 ===
         // 同时解决三家地图 SDK 的 so 库冲突
@@ -37,8 +37,8 @@ android {
             if (f.exists()) load(FileInputStream(f))
         }
         buildConfigField("String", "WEATHER_API_KEY", "\"${localProps.getProperty("WEATHER_API_KEY", "")}\"")
-        buildConfigField("String", "PEXELS_PROXY_KOYEB_URL", "\"${localProps.getProperty("PEXELS_PROXY_KOYEB_URL", "https://cleardu-pexels-proxy.koyeb.app")}\"")
-        buildConfigField("String", "PEXELS_PROXY_RENDER_URL", "\"${localProps.getProperty("PEXELS_PROXY_RENDER_URL", "https://cleardu-pexels-proxy.onrender.com")}\"")
+        buildConfigField("String", "PEXELS_PROXY_KOYEB_URL", "\"${localProps.getProperty("PEXELS_PROXY_KOYEB_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
+        buildConfigField("String", "PEXELS_PROXY_RENDER_URL", "\"${localProps.getProperty("PEXELS_PROXY_RENDER_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
     }
 
     // === Signing configurations ===

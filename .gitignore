@@ -60,3 +60,5 @@ compose-metrics/
 # Node.js (pexels-proxy)
 node_modules/
 pexels-proxy/node_modules/
+pexels-proxy/.wrangler/
+pexels-proxy/.dev.vars
