@@ -67,26 +67,16 @@ fun EmergencyCallCard(
     val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
     val displayPhone = contactPhone.ifBlank { "" }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .drawBehind {
-                drawRect(LiquidGlassColors.LightTintRedBg)
-                val specBrush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.65f),
-                        LiquidGlassColors.LightGlassSpecularTop.copy(alpha = 0.1f),
-                        Color.Transparent
-                    ),
-                    startY = 0f,
-                    endY = size.height * 0.5f
-                )
-                drawRect(specBrush)
-            }
-            .border(1.dp, LiquidGlassColors.LightTintRedBorder, cardShape)
-            .padding(ClearDuDimens.ReminderEmergencyCardPadding)
+    GlassCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = cardShape,
+        background = LiquidGlassColors.LightTintRedBg,
+        border = LiquidGlassColors.LightTintRedBorder,
+        shadowColor = LiquidGlassColors.GlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
+        Box(modifier = Modifier.padding(ClearDuDimens.ReminderEmergencyCardPadding)) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // 1. 标题行
             Row(
@@ -156,6 +146,7 @@ fun EmergencyCallCard(
             // 5. 家人联系
             FamilyContactLink(onClick = onFamilyContact)
         }
+    }
     }
 }
 

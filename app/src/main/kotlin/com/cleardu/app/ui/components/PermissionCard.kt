@@ -90,31 +90,10 @@ fun PermissionCard(
 
     val cardShape: Shape = RoundedCornerShape(ClearDuDimens.PermissionCardRadius)
 
-    val backgroundBrush: Brush = when {
-        granted && item.critical -> Brush.linearGradient(
-            colors = listOf(
-                LiquidGlassColors.TintGreenBg,
-                LiquidGlassColors.GlassBgLight
-            )
-        )
-        granted -> Brush.linearGradient(
-            colors = listOf(
-                LiquidGlassColors.GlassBgLight,
-                LiquidGlassColors.GlassBgLight
-            )
-        )
-        item.critical -> Brush.linearGradient(
-            colors = listOf(
-                LiquidGlassColors.CriticalRedTint,
-                LiquidGlassColors.CriticalOrangeTint
-            )
-        )
-        else -> Brush.linearGradient(
-            colors = listOf(
-                LiquidGlassColors.GlassBg,
-                LiquidGlassColors.GlassBg
-            )
-        )
+    val background = when {
+        granted && item.critical -> LiquidGlassColors.TintGreenBg
+        item.critical -> LiquidGlassColors.CriticalRedTint
+        else -> LiquidGlassColors.GlassBg
     }
 
     val borderColor by animateColorAsState(
@@ -127,27 +106,26 @@ fun PermissionCard(
         label = "cardBorderColor"
     )
 
-    Box(
+    GlassCard(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .graphicsLayer { scaleX = pressScale; scaleY = pressScale }
-            .clip(cardShape)
             .clickable(
                 interactionSource = cardInteraction,
                 indication = ripple(bounded = true, color = LiquidGlassColors.MedicalCyan)
-            ) { onAllow() }
-            .drawWithContent {
-                drawRect(brush = backgroundBrush)
-                drawContent()
-                drawSpecularOverlay()
-            }
-            .border(BorderStroke(ClearDuDimens.GlassBorderWidth, borderColor), cardShape)
-            .padding(
-                horizontal = ClearDuDimens.PermissionCardPaddingHorizontal,
-                vertical = ClearDuDimens.PermissionCardPaddingVertical
-            )
+            ) { onAllow() },
+        shape = cardShape,
+        background = background,
+        border = borderColor,
+        shadowColor = LiquidGlassColors.GlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
+        Box(modifier = Modifier.padding(
+            horizontal = ClearDuDimens.PermissionCardPaddingHorizontal,
+            vertical = ClearDuDimens.PermissionCardPaddingVertical
+        )) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             PermissionIcon(item.icon, item.tone)
             Spacer(Modifier.width(ClearDuDimens.PermissionCardGap))
@@ -165,6 +143,7 @@ fun PermissionCard(
                 modifier = Modifier.align(Alignment.TopEnd)
             )
         }
+    }
     }
 }
 
@@ -310,23 +289,4 @@ private fun CriticalBadge(modifier: Modifier = Modifier) {
             color = LiquidGlassColors.MedicalRed
         )
     }
-}
-
-/**
- * Specular highlight overlay (top-half gradient) drawn over the card content.
- * Mirrors `.glass::after`:
- *   linear-gradient(180deg, glass-specular-top 0%, glass-specular-mid-low 50%, transparent 100%)
- */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpecularOverlay() {
-    val brush = Brush.verticalGradient(
-        colors = listOf(
-            LiquidGlassColors.GlassSpecularTop.copy(alpha = 0.55f),
-            LiquidGlassColors.GlassSpecularMidLow.copy(alpha = 0.10f),
-            Color.Transparent
-        ),
-        startY = 0f,
-        endY = size.height * ClearDuDimens.GlassSpecularHeightFraction,
-        tileMode = TileMode.Clamp
-    )
-    drawRect(brush = brush)
 }

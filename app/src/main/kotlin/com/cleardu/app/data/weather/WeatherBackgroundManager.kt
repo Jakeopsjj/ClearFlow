@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +42,6 @@ data class WeatherBackgroundState(
 object WeatherBackgroundManager {
 
     private const val TAG = "WeatherBgManager"
-    private const val REFRESH_INTERVAL_MS = 30L * 60 * 1000 // 30 minutes
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var observeJob: Job? = null
@@ -53,8 +52,12 @@ object WeatherBackgroundManager {
     private val _state = MutableStateFlow(WeatherBackgroundState())
     val state: StateFlow<WeatherBackgroundState> = _state.asStateFlow()
 
+    private var hasFetched = false
+
     /**
      * Initialize the manager. Call once from Application or MainActivity.
+     * Weather logic runs only once when the app opens (and when weather is enabled).
+     * No periodic refresh is performed.
      */
     fun initialize(context: Context, healthDataManager: HealthDataManager) {
         if (weatherRepository != null) return // already initialized
@@ -68,32 +71,16 @@ object WeatherBackgroundManager {
             healthDataManager.settings.collectLatest { settings ->
                 if (settings.weatherBackgroundEnabled) {
                     _state.value = _state.value.copy(enabled = true)
-                    fetchWeatherAndImage()
-                    startPeriodicRefresh(healthDataManager)
+                    if (!hasFetched) {
+                        hasFetched = true
+                        fetchWeatherAndImage()
+                    }
                 } else {
-                    stopPeriodicRefresh()
                     _state.value = WeatherBackgroundState(enabled = false)
                     Log.d(TAG, "Weather background disabled, all network stopped")
                 }
             }
         }
-    }
-
-    private var refreshJob: Job? = null
-
-    private fun startPeriodicRefresh(healthDataManager: HealthDataManager) {
-        refreshJob?.cancel()
-        refreshJob = scope.launch {
-            while (true) {
-                delay(REFRESH_INTERVAL_MS)
-                fetchWeatherAndImage()
-            }
-        }
-    }
-
-    private fun stopPeriodicRefresh() {
-        refreshJob?.cancel()
-        refreshJob = null
     }
 
     /**
