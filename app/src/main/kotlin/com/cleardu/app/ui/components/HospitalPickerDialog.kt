@@ -60,18 +60,23 @@ private sealed class HospitalSearchState {
  * 使用 OSMDroid 地图展示用户位置和附近医院标记，
  * 下方列表显示医院名称和距离，点击地图标记或列表项即可选中。
  *
+ * [修改点] 接受外部 LocationHelper，生命周期由 Activity 管理，避免内部创建导致泄漏。
+ *
  * @param currentSettings current app settings
+ * @param locationHelper [修改点] 外部传入的定位工具实例（可选，由 Activity 管理生命周期）
  * @param onSave callback with updated settings
  * @param onDismiss dismiss callback
  */
 @Composable
 fun HospitalPickerDialog(
     currentSettings: AppSettings,
+    locationHelper: LocationHelper? = null,
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val locationHelper = remember { LocationHelper.create(context) }
+    // [修改点] 优先使用外部传入的 locationHelper（由 Activity 管理生命周期），否则自行创建
+    val locHelper = locationHelper ?: remember { LocationHelper.create(context) }
     val scope = rememberCoroutineScope()
 
     var customName by remember { mutableStateOf("") }
@@ -88,7 +93,7 @@ fun HospitalPickerDialog(
             userLocationState = UserLocationState.Error("定位权限未授予，无法获取附近医院")
             return@LaunchedEffect
         }
-        locationHelper.requestSingleUpdate { result ->
+        locHelper.requestSingleUpdate { result ->
             userLocationState = when (result) {
                 is LocationHelper.Result.Success -> {
                     if (hospitalSearchState is HospitalSearchState.Idle) {

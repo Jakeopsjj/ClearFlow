@@ -12,6 +12,7 @@ import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.ui.screens.ReminderScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
+import com.cleardu.app.util.LocationHelper
 
 /**
  * 提醒中心 Activity — "提醒" tab 页面。
@@ -29,12 +30,21 @@ import com.cleardu.app.ui.theme.ClearDuTheme
  *  - 导航栏"记录" → DataRecordActivity
  *  - 导航栏"数据" → HealthDataActivity
  *  - 导航栏"用药" → MedicationActivity
+ *
+ * [修改点] 集成 LocationHelper 用于附近医院定位，生命周期由 Activity 管理。
  */
 class ReminderActivity : ComponentActivity() {
+
+    /** [修改点] 定位工具实例，生命周期跟随 Activity。 */
+    private lateinit var locationHelper: LocationHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // [修改点] 创建 LocationHelper，使用 applicationContext 避免泄漏
+        locationHelper = LocationHelper.create(this)
+
         setContent {
             ClearDuTheme {
                 val healthDataManager = remember {
@@ -42,6 +52,7 @@ class ReminderActivity : ComponentActivity() {
                 }
                 ReminderScreen(
                     healthDataManager = healthDataManager,
+                    locationHelper = locationHelper,
                     onNavItemSelected = { index ->
                         when (index) {
                             0 -> startMainActivity()
@@ -57,6 +68,14 @@ class ReminderActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 )
             }
+        }
+    }
+
+    /** [修改点] 严格注销定位监听，Android 14+ 不注销会被系统永久冻结。 */
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::locationHelper.isInitialized) {
+            locationHelper.destroy()
         }
     }
 

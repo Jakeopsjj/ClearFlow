@@ -45,6 +45,7 @@ import com.cleardu.app.ui.components.TodayReminder
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.util.LocationHelper
 import kotlinx.coroutines.launch
 
 /**
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
  * automatically.
  *
  * @param healthDataManager shared data manager for cross-page real-time sync
+ * @param locationHelper [修改点] 定位工具实例，用于附近医院真实定位
  * @param onNavItemSelected 导航栏点击回调
  * @param onNavigate 导航到医院回调
  * @param onCall 紧急拨打回调
@@ -64,6 +66,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ReminderScreen(
     healthDataManager: HealthDataManager,
+    locationHelper: LocationHelper? = null,
     onNavItemSelected: (Int) -> Unit = {},
     onNavigate: () -> Unit = {},
     onCall: () -> Unit = {},
@@ -215,6 +218,7 @@ fun ReminderScreen(
     if (showHospitalPicker) {
         HospitalPickerDialog(
             currentSettings = appSettings,
+            locationHelper = locationHelper,
             onSave = { newSettings ->
                 scope.launch {
                     healthDataManager.saveSettings(newSettings)
