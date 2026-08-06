@@ -38,7 +38,7 @@ import com.cleardu.app.ui.components.BpHrPanel
 import com.cleardu.app.ui.components.ElementsPanel
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.MedicationPanel
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.NoteTextArea
 import com.cleardu.app.ui.components.QuickNoteChips
 import com.cleardu.app.ui.components.SaveRecordButton
@@ -96,7 +96,7 @@ fun DataRecordScreen(
         recordData = recordData.transform()
     }
 
-    MeshGradientBackground(
+    WeatherBackground(
         modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

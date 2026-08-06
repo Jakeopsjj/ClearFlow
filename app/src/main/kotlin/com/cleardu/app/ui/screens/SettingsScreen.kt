@@ -3,6 +3,7 @@ package com.cleardu.app.ui.screens
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -67,7 +68,7 @@ import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.toJson
 import com.cleardu.app.ui.components.GlassCard
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -126,7 +127,7 @@ fun SettingsScreen(
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    MeshGradientBackground(modifier = modifier.fillMaxSize()) {
+    WeatherBackground(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -178,6 +179,12 @@ fun SettingsScreen(
                     label = "语言",
                     value = if (s.language == "zh_CN") "简体中文" else "English",
                     onClick = { showLanguageDialog = true }
+                )
+                WeatherBackgroundToggleItem(
+                    checked = s.weatherBackgroundEnabled,
+                    onCheckedChange = { enabled ->
+                        update { it.copy(weatherBackgroundEnabled = enabled) }
+                    }
                 )
             }
 
@@ -785,6 +792,85 @@ private fun DarkModeToggleItem(
         IosToggle(
             checked = checked,
             onCheckedChange = onCheckedChange
+        )
+    }
+}
+
+@Composable
+private fun WeatherBackgroundToggleItem(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(29.dp)
+                .clip(RoundedCornerShape(7.dp))
+                .background(LiquidGlassColors.TintCyanBg),
+            contentAlignment = Alignment.Center
+        ) {
+            WeatherIcon()
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "天气背景",
+                fontSize = 16.sp,
+                color = LiquidGlassColors.Foreground,
+                letterSpacing = (-0.01).sp
+            )
+            Text(
+                text = "根据实时天气切换背景",
+                fontSize = 12.sp,
+                color = LiquidGlassColors.Text400,
+                letterSpacing = (-0.01).sp
+            )
+        }
+
+        IosToggle(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
+
+@Composable
+private fun WeatherIcon() {
+    Canvas(modifier = Modifier.size(18.dp)) {
+        val w = size.width
+        val h = size.height
+        val sunColor = Color(0xFFFFB74D)
+        val cloudColor = Color(0xFFE0E0E0)
+
+        // Sun circle
+        drawCircle(
+            color = sunColor,
+            radius = w * 0.2f,
+            center = Offset(w * 0.35f, h * 0.35f)
+        )
+
+        // Cloud shape (simplified with overlapping circles)
+        drawCircle(
+            color = cloudColor,
+            radius = w * 0.15f,
+            center = Offset(w * 0.55f, h * 0.55f)
+        )
+        drawCircle(
+            color = cloudColor,
+            radius = w * 0.18f,
+            center = Offset(w * 0.7f, h * 0.5f)
+        )
+        drawCircle(
+            color = cloudColor,
+            radius = w * 0.15f,
+            center = Offset(w * 0.85f, h * 0.58f)
         )
     }
 }

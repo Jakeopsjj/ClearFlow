@@ -10,14 +10,14 @@ plugins {
 
 android {
     namespace = "com.cleardu.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.cleardu.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 30
-        versionName = "1.8.2"
+        targetSdk = 36
+        versionCode = 31
+        versionName = "1.9.0"
 
         // === Native 库过滤：仅保留 armeabi-v7a 和 arm64-v8a，去除 x86/x86_64 减小包体积 ===
         // 同时解决三家地图 SDK 的 so 库冲突
@@ -29,6 +29,16 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // === API keys from local.properties (gitignored) ===
+        // Keys are never hardcoded in source or committed to Git.
+        val localProps = Properties().apply {
+            val f = File(rootDir, "local.properties")
+            if (f.exists()) load(FileInputStream(f))
+        }
+        buildConfigField("String", "WEATHER_API_KEY", "\"${localProps.getProperty("WEATHER_API_KEY", "")}\"")
+        buildConfigField("String", "PEXELS_PROXY_KOYEB_URL", "\"${localProps.getProperty("PEXELS_PROXY_KOYEB_URL", "https://cleardu-pexels-proxy.koyeb.app")}\"")
+        buildConfigField("String", "PEXELS_PROXY_RENDER_URL", "\"${localProps.getProperty("PEXELS_PROXY_RENDER_URL", "https://cleardu-pexels-proxy.onrender.com")}\"")
     }
 
     // === Signing configurations ===
@@ -205,6 +215,16 @@ dependencies {
 
     // OSMDroid — 保留作为无 SDK 环境的备用方案（仅瓦片显示，不参与三家降级链）
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+    // ============================================================
+    // 天气背景功能依赖
+    // ============================================================
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.gson)
+    implementation(libs.coil.compose)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

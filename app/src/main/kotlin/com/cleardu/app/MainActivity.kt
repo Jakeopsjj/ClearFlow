@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.data.weather.WeatherBackgroundManager
 import com.cleardu.app.ui.navigation.AppNavHost
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -30,6 +31,12 @@ class MainActivity : ComponentActivity() {
             // 全局共享数据层（单 Activity 作用域）
             val healthDataManager = remember {
                 HealthDataManager(RecordRepository(applicationContext))
+            }
+
+            // 初始化天气背景管理器（观察 settings 开关，自动启停网络请求）
+            remember {
+                WeatherBackgroundManager.initialize(applicationContext, healthDataManager)
+                true
             }
 
             // 观察 darkMode 设置，实现实时主题切换

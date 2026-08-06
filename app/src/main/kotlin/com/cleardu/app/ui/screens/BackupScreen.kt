@@ -60,7 +60,7 @@ import com.cleardu.app.data.BackupHistoryItem
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.toJson
 import com.cleardu.app.ui.components.GlassCard
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -179,7 +179,7 @@ fun BackupScreen(
         }
     }
 
-    MeshGradientBackground(modifier = modifier.fillMaxSize()) {
+    WeatherBackground(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -102,7 +102,10 @@ data class AppSettings(
     val medicationReminderAdvanceMinutes: Int = 15,
 
     // ===== 用药管理 - 续药申请列表 =====
-    val refillRequests: List<RefillRequest> = emptyList()
+    val refillRequests: List<RefillRequest> = emptyList(),
+
+    // ===== 天气背景 =====
+    val weatherBackgroundEnabled: Boolean = false  // 天气背景总开关，关闭时不调用任何网络
 ) {
     companion object {
         fun fromJson(obj: JSONObject): AppSettings = AppSettings(
@@ -180,7 +183,9 @@ data class AppSettings(
             customMedications = parseCustomMeds(obj.optJSONArray("customMedications")),
             medicationReminderEnabled = obj.optBoolean("medicationReminderEnabled", true),
             medicationReminderAdvanceMinutes = obj.optInt("medicationReminderAdvanceMinutes", 15),
-            refillRequests = parseRefillRequests(obj.optJSONArray("refillRequests"))
+            refillRequests = parseRefillRequests(obj.optJSONArray("refillRequests")),
+            // 天气背景
+            weatherBackgroundEnabled = obj.optBoolean("weatherBackgroundEnabled", false)
         )
     }
 }
@@ -267,6 +272,8 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     put("refillRequests", JSONArray().apply {
         refillRequests.forEach { put(it.toJson()) }
     })
+    // 天气背景
+    put("weatherBackgroundEnabled", weatherBackgroundEnabled)
 }
 
 /** Backup history record. */

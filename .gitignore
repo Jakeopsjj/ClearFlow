@@ -56,3 +56,7 @@ Thumbs.db
 
 # Compose compiler metrics (local only)
 compose-metrics/
+
+# Node.js (pexels-proxy)
+node_modules/
+pexels-proxy/node_modules/

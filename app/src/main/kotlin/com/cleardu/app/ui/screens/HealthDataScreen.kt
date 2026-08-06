@@ -34,7 +34,7 @@ import com.cleardu.app.ui.components.HealthExportButtons
 import com.cleardu.app.ui.components.HealthUfTrendCard
 import com.cleardu.app.ui.components.HealthWarningBanner
 import com.cleardu.app.ui.components.HealthWeightCard
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.SegmentedControl
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -96,7 +96,7 @@ fun HealthDataScreen(
     } else 0
     val ufDays = ufTrendData.size
 
-    MeshGradientBackground(
+    WeatherBackground(
         modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

@@ -57,7 +57,7 @@ import androidx.core.content.ContextCompat
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
 import kotlinx.coroutines.launch
 
@@ -125,7 +125,7 @@ fun NotificationScreen(
     // Time period options
     val timePeriodOptions = listOf("全天", "白天(08:00-20:00)", "夜间(20:00-08:00)", "自定义")
 
-    MeshGradientBackground(modifier = modifier.fillMaxSize()) {
+    WeatherBackground(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

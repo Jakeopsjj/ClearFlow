@@ -52,7 +52,7 @@ import com.cleardu.app.data.VitalStatus
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.FluidBalanceRing
 import com.cleardu.app.ui.components.MedicationReminderCard
-import com.cleardu.app.ui.components.MeshGradientBackground
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.QuickActionsRow
 import com.cleardu.app.ui.components.VitalCard
 import com.cleardu.app.ui.theme.ClearDuDimens
@@ -121,7 +121,7 @@ fun DashboardScreen(
         QuickAction(id = "water", label = "喝了水", accentColor = LiquidGlassColors.MedicalCyan)
     )
 
-    MeshGradientBackground(
+    WeatherBackground(
         modifier = modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
