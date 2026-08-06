@@ -17,6 +17,17 @@ data class AppSettings(
     val unitSystem: String = "kg/mmHg",       // kg/mmHg | lb/mmHg
     val language: String = "zh_CN",            // zh_CN | en_US
 
+    // ===== 个人资料 =====
+    val profileName: String = "张先生",
+    val profileGender: String = "男",
+    val profileBirthDate: String = "1968-05-12",
+    val profileHeight: String = "172 cm",
+    val profileBloodType: String = "A型 Rh阳性",
+    val profileDialysisType: String = "血液透析",
+    val profileFirstDialysisDate: String = "2023-03-15",
+    val profileVascularAccess: String = "左前臂动静脉内瘘",
+    val profilePatientId: String = "DC202403001",
+
     // ===== 设置 - 健康管理 =====
     val waterRestrictionReminder: Boolean = true,
     val dialysisPlan: String = "每周一三五 · 08:00",
@@ -29,6 +40,8 @@ data class AppSettings(
     val backupFrequency: String = "每天",
     val backupContent: String = "全部数据",
     val backupEncryption: Boolean = true,
+    val lastBackupTime: Long = 0L,  // epoch millis
+    val backupHistory: List<BackupHistoryItem> = emptyList(),
 
     // ===== 通知 - 强提醒 =====
     val strongReminder: Boolean = true,
@@ -78,6 +91,7 @@ data class AppSettings(
     // ===== 提醒中心 - 紧急联系人 =====
     val emergencyContactName: String = "",
     val emergencyContactPhone: String = "",
+    val emergencyContactRelation: String = "配偶",
     val emergencyContactIsCustom: Boolean = false,
 
     // ===== 用药管理 - 自定义药物列表 =====
@@ -96,6 +110,16 @@ data class AppSettings(
             darkMode = obj.optBoolean("darkMode", true),
             unitSystem = obj.optString("unitSystem", "kg/mmHg"),
             language = obj.optString("language", "zh_CN"),
+            // 个人资料
+            profileName = obj.optString("profileName", "张先生"),
+            profileGender = obj.optString("profileGender", "男"),
+            profileBirthDate = obj.optString("profileBirthDate", "1968-05-12"),
+            profileHeight = obj.optString("profileHeight", "172 cm"),
+            profileBloodType = obj.optString("profileBloodType", "A型 Rh阳性"),
+            profileDialysisType = obj.optString("profileDialysisType", "血液透析"),
+            profileFirstDialysisDate = obj.optString("profileFirstDialysisDate", "2023-03-15"),
+            profileVascularAccess = obj.optString("profileVascularAccess", "左前臂动静脉内瘘"),
+            profilePatientId = obj.optString("profilePatientId", "DC202403001"),
             // 设置 - 健康管理
             waterRestrictionReminder = obj.optBoolean("waterRestrictionReminder", true),
             dialysisPlan = obj.optString("dialysisPlan", "每周一三五 · 08:00"),
@@ -107,6 +131,8 @@ data class AppSettings(
             backupFrequency = obj.optString("backupFrequency", "每天"),
             backupContent = obj.optString("backupContent", "全部数据"),
             backupEncryption = obj.optBoolean("backupEncryption", true),
+            lastBackupTime = obj.optLong("lastBackupTime", 0L),
+            backupHistory = parseBackupHistory(obj.optJSONArray("backupHistory")),
             // 通知 - 强提醒
             strongReminder = obj.optBoolean("strongReminder", true),
             // 通知 - 透析相关
@@ -148,6 +174,7 @@ data class AppSettings(
             // 提醒中心 - 紧急联系人
             emergencyContactName = obj.optString("emergencyContactName", ""),
             emergencyContactPhone = obj.optString("emergencyContactPhone", ""),
+            emergencyContactRelation = obj.optString("emergencyContactRelation", "配偶"),
             emergencyContactIsCustom = obj.optBoolean("emergencyContactIsCustom", false),
             // 用药管理
             customMedications = parseCustomMeds(obj.optJSONArray("customMedications")),
@@ -163,6 +190,16 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     put("darkMode", darkMode)
     put("unitSystem", unitSystem)
     put("language", language)
+    // 个人资料
+    put("profileName", profileName)
+    put("profileGender", profileGender)
+    put("profileBirthDate", profileBirthDate)
+    put("profileHeight", profileHeight)
+    put("profileBloodType", profileBloodType)
+    put("profileDialysisType", profileDialysisType)
+    put("profileFirstDialysisDate", profileFirstDialysisDate)
+    put("profileVascularAccess", profileVascularAccess)
+    put("profilePatientId", profilePatientId)
     // 设置 - 健康管理
     put("waterRestrictionReminder", waterRestrictionReminder)
     put("dialysisPlan", dialysisPlan)
@@ -174,6 +211,10 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     put("backupFrequency", backupFrequency)
     put("backupContent", backupContent)
     put("backupEncryption", backupEncryption)
+    put("lastBackupTime", lastBackupTime)
+    put("backupHistory", JSONArray().apply {
+        backupHistory.forEach { put(it.toJson()) }
+    })
     // 通知 - 强提醒
     put("strongReminder", strongReminder)
     // 通知 - 透析相关
@@ -215,6 +256,7 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     // 提醒中心 - 紧急联系人
     put("emergencyContactName", emergencyContactName)
     put("emergencyContactPhone", emergencyContactPhone)
+    put("emergencyContactRelation", emergencyContactRelation)
     put("emergencyContactIsCustom", emergencyContactIsCustom)
     // 用药管理
     put("customMedications", JSONArray().apply {
@@ -225,6 +267,34 @@ fun AppSettings.toJson(): JSONObject = JSONObject().apply {
     put("refillRequests", JSONArray().apply {
         refillRequests.forEach { put(it.toJson()) }
     })
+}
+
+/** Backup history record. */
+data class BackupHistoryItem(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val timestamp: Long = System.currentTimeMillis(),
+    val fileSize: String = "2.4 MB",
+    val success: Boolean = true
+) {
+    fun toJson(): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("timestamp", timestamp)
+        put("fileSize", fileSize)
+        put("success", success)
+    }
+}
+
+private fun parseBackupHistory(arr: JSONArray?): List<BackupHistoryItem> {
+    if (arr == null) return emptyList()
+    return (0 until arr.length()).map { i ->
+        val obj = arr.getJSONObject(i)
+        BackupHistoryItem(
+            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+            timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+            fileSize = obj.optString("fileSize", "2.4 MB"),
+            success = obj.optBoolean("success", true)
+        )
+    }
 }
 
 /** User-defined custom medication. */

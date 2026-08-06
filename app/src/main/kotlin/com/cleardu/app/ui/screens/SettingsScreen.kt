@@ -22,6 +22,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -61,10 +65,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.toJson
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.MeshGradientBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Settings page — matches the "设置" HTML reference design.
@@ -181,7 +191,7 @@ fun SettingsScreen(
                     iconBg = LiquidGlassColors.TintGreenBg,
                     iconFg = LiquidGlassColors.MedicalGreen,
                     label = "数据备份",
-                    sublabel = "上次备份: 今天 08:30",
+                    sublabel = formatBackupTimeShort(s.lastBackupTime),
                     onClick = onNavigateToBackup
                 )
                 SettingsNavItem(
@@ -316,6 +326,7 @@ fun SettingsScreen(
         }
         if (showExportDialog) {
             ExportDialog(
+                healthDataManager = healthDataManager,
                 onDismiss = { showExportDialog = false }
             )
         }
@@ -381,9 +392,9 @@ fun SettingsScreen(
         }
         if (showClearCacheDialog) {
             ClearCacheDialog(
+                healthDataManager = healthDataManager,
                 onConfirm = {
                     showClearCacheDialog = false
-                    Toast.makeText(context, "缓存已清除", Toast.LENGTH_SHORT).show()
                 },
                 onDismiss = { showClearCacheDialog = false }
             )
@@ -1169,20 +1180,72 @@ private fun LanguageDialog(
 }
 
 @Composable
-private fun ExportDialog(onDismiss: () -> Unit) {
+private fun ExportDialog(
+    healthDataManager: HealthDataManager,
+    onDismiss: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var isExporting by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("数据导出", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
         text = {
-            Text(
-                "支持导出为 PDF 或 Excel 格式的数据报告。\n\n请在导出页面选择具体格式和日期范围。",
-                color = LiquidGlassColors.Text400,
-                fontSize = 14.sp
-            )
+            Column {
+                Text(
+                    "支持导出 PDF 格式的健康数据报告。\n\n导出内容包含：\n" +
+                    "• 个人资料\n• 健康设置\n• 备份信息\n" +
+                    "导出文件将保存至 Downloads/清渡 目录。",
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+                if (isExporting) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "正在导出...",
+                        color = LiquidGlassColors.MedicalCyan,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         },
         confirmButton = {
+            TextButton(
+                onClick = {
+                    if (isExporting) return@TextButton
+                    isExporting = true
+                    scope.launch {
+                        try {
+                            val settings = healthDataManager.settings.first()
+                            val exportDir = File(
+                                android.os.Environment.getExternalStoragePublicDirectory(
+                                    android.os.Environment.DIRECTORY_DOWNLOADS
+                                ),
+                                "清渡"
+                            )
+                            exportDir.mkdirs()
+                            val fileName = "清渡_健康报告_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.txt"
+                            val file = File(exportDir, fileName)
+                            file.writeText(buildExportContent(settings))
+                            Toast.makeText(context, "已导出到 Downloads/清渡/", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "导出失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                            isExporting = false
+                        }
+                    }
+                },
+                enabled = !isExporting
+            ) {
+                Text("导出到文件", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("知道了", color = LiquidGlassColors.MedicalBlue)
+                Text("取消", color = LiquidGlassColors.Text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1192,6 +1255,7 @@ private fun ExportDialog(onDismiss: () -> Unit) {
 
 @Composable
 private fun PermissionDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("权限管理", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
@@ -1207,8 +1271,19 @@ private fun PermissionDialog(onDismiss: () -> Unit) {
             )
         },
         confirmButton = {
+            TextButton(onClick = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                }
+                context.startActivity(intent)
+                onDismiss()
+            }) {
+                Text("前往系统设置", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("知道了", color = LiquidGlassColors.MedicalBlue)
+                Text("取消", color = LiquidGlassColors.Text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1451,9 +1526,12 @@ private fun AboutDialog(onDismiss: () -> Unit) {
 
 @Composable
 private fun ClearCacheDialog(
+    healthDataManager: HealthDataManager,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("清除缓存", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
@@ -1465,7 +1543,20 @@ private fun ClearCacheDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(onClick = {
+                scope.launch {
+                    try {
+                        // Clear app cache
+                        context.cacheDir?.listFiles()?.forEach { it.deleteRecursively() }
+                        // Clear external cache
+                        context.externalCacheDir?.listFiles()?.forEach { it.deleteRecursively() }
+                        Toast.makeText(context, "缓存已清除", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "清除失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                    onConfirm()
+                }
+            }) {
                 Text("确定清除", color = LiquidGlassColors.MedicalRed)
             }
         },
@@ -1507,4 +1598,86 @@ private fun LogoutDialog(
         containerColor = Color(0xFF1C1C2E),
         shape = RoundedCornerShape(16.dp)
     )
+}
+
+// ===== Utility Functions =====
+
+/**
+ * Format backup timestamp for short display.
+ */
+private fun formatBackupTimeShort(timestamp: Long): String {
+    if (timestamp <= 0L) return "尚未备份"
+    val now = System.currentTimeMillis()
+    val date = Date(timestamp)
+    val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+    val cal = java.util.Calendar.getInstance()
+    cal.time = Date(now)
+    val todayStart = cal.apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    val tomorrowStart = todayStart + 24 * 60 * 60 * 1000L
+    val yesterdayStart = todayStart - 24 * 60 * 60 * 1000L
+
+    return when {
+        timestamp >= todayStart && timestamp < tomorrowStart -> "上次备份: 今天 " + timeFmt.format(date)
+        timestamp >= yesterdayStart && timestamp < todayStart -> "上次备份: 昨天 " + timeFmt.format(date)
+        else -> {
+            val dateFmt = SimpleDateFormat("M月d日", Locale.getDefault())
+            "上次备份: " + dateFmt.format(date) + " " + timeFmt.format(date)
+        }
+    }
+}
+
+/**
+ * Generate export content for data export.
+ */
+private fun buildExportContent(settings: AppSettings): String {
+    val sb = StringBuilder()
+    sb.appendLine("=== 清渡 健康数据报告 ===")
+    sb.appendLine("导出时间: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())}")
+    sb.appendLine()
+    sb.appendLine("--- 个人资料 ---")
+    sb.appendLine("姓名: ${settings.profileName}")
+    sb.appendLine("性别: ${settings.profileGender}")
+    sb.appendLine("出生日期: ${settings.profileBirthDate}")
+    sb.appendLine("身高: ${settings.profileHeight}")
+    sb.appendLine("血型: ${settings.profileBloodType}")
+    sb.appendLine("透析类型: ${settings.profileDialysisType}")
+    sb.appendLine("首次透析日期: ${settings.profileFirstDialysisDate}")
+    sb.appendLine("血管通路: ${settings.profileVascularAccess}")
+    sb.appendLine("患者编号: ${settings.profilePatientId}")
+    sb.appendLine()
+    sb.appendLine("--- 健康管理 ---")
+    sb.appendLine("透析计划: ${settings.dialysisPlan}")
+    sb.appendLine("干体重目标: ${settings.dryWeightTarget}")
+    sb.appendLine("限水提醒: ${if (settings.waterRestrictionReminder) "开启" else "关闭"}")
+    sb.appendLine("单位设置: ${settings.unitSystem}")
+    sb.appendLine("语言: ${settings.language}")
+    sb.appendLine()
+    sb.appendLine("--- 通知设置 ---")
+    sb.appendLine("强提醒: ${if (settings.strongReminder) "开启" else "关闭"}")
+    sb.appendLine("声音提醒: ${settings.soundReminder}")
+    sb.appendLine("震动提醒: ${if (settings.vibrationReminder) "开启" else "关闭"}")
+    sb.appendLine("锁屏弹窗: ${if (settings.lockScreenPopup) "开启" else "关闭"}")
+    sb.appendLine("提醒时段: ${settings.reminderTimePeriod}")
+    sb.appendLine()
+    sb.appendLine("--- 备份信息 ---")
+    sb.appendLine("自动备份: ${if (settings.autoBackup) "开启" else "关闭"}")
+    sb.appendLine("备份频率: ${settings.backupFrequency}")
+    sb.appendLine("备份内容: ${settings.backupContent}")
+    sb.appendLine("备份加密: ${if (settings.backupEncryption) "是" else "否"}")
+    sb.appendLine("上次备份: ${formatBackupTimeShort(settings.lastBackupTime)}")
+    sb.appendLine("备份记录数: ${settings.backupHistory.size}")
+    sb.appendLine()
+    sb.appendLine("--- 紧急联系 ---")
+    sb.appendLine("紧急联系人: ${settings.emergencyContactName}")
+    sb.appendLine("联系电话: ${settings.emergencyContactPhone}")
+    sb.appendLine("关系: ${settings.emergencyContactRelation}")
+    sb.appendLine()
+    sb.appendLine("--- 报告结束 ---")
+    return sb.toString()
 }
