@@ -16,8 +16,8 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 27
-        versionName = "1.7.15"
+        versionCode = 28
+        versionName = "1.8.0"
 
         // === Native 库过滤：仅保留 armeabi-v7a 和 arm64-v8a，去除 x86/x86_64 减小包体积 ===
         // 同时解决三家地图 SDK 的 so 库冲突
