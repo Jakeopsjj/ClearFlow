@@ -125,13 +125,12 @@ fun NotificationScreen(
     // Time period options
     val timePeriodOptions = listOf("全天", "白天(08:00-20:00)", "夜间(20:00-08:00)", "自定义")
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
+    ) {
             // === Page Nav ===
             NotifPageNav(
                 title = "通知与提醒",
@@ -316,7 +315,6 @@ fun NotificationScreen(
                     onClick = { showTimePeriodDialog = true }
                 )
             }
-        }
     }
 
     // === Dialogs ===

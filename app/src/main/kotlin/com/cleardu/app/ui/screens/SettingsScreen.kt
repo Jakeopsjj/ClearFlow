@@ -141,8 +141,8 @@ fun SettingsScreen(
     LaunchedEffect(Unit) {
         val currentVersion = BuildConfig.VERSION_NAME
         if (s.lastSeenVersion != currentVersion) {
-            // 首次启动此版本，尝试获取更新日志
-            val release = GitHubReleaseChecker.fetchLatestRelease()
+            // 首次启动此版本，尝试获取更新日志（按当前构建通道）
+            val release = GitHubReleaseChecker.fetchLatestRelease(isDebug = BuildConfig.DEBUG)
             if (release != null) {
                 updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }
             } else {
@@ -152,13 +152,12 @@ fun SettingsScreen(
         }
     }
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
+    ) {
             // === Page Header ===
             Text(
                 text = "设置",
@@ -297,12 +296,14 @@ fun SettingsScreen(
                         if (isCheckingUpdate) return@SettingsNavItem
                         isCheckingUpdate = true
                         scope.launch {
-                            val release = GitHubReleaseChecker.fetchLatestRelease()
+                            // 按当前构建通道（Debug/Release）获取最新版本
+                            val release = GitHubReleaseChecker.fetchLatestRelease(isDebug = BuildConfig.DEBUG)
                             latestRelease = release
                             isCheckingUpdate = false
                             if (release != null) {
                                 val latestVer = release.versionName
-                                if (latestVer != BuildConfig.VERSION_NAME) {
+                                // 语义化版本比较：仅当远端版本严格高于当前版本时提示更新
+                                if (GitHubReleaseChecker.isNewerVersion(latestVer, BuildConfig.VERSION_NAME)) {
                                     showUpdateDialog = true
                                 } else {
                                     Toast.makeText(context, "已是最新版本 v${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
@@ -482,7 +483,6 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
     }
 }
 

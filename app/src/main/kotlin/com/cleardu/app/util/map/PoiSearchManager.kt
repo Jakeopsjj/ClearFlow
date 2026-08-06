@@ -23,6 +23,7 @@ object PoiSearchManager {
 
     private const val TAG = "PoiSearchManager"
     private const val SEARCH_TIMEOUT_MS = 10_000L
+    private const val SEARCH_RADIUS_METERS = 50_000  // 50km 搜索半径
 
     /** 搜索 Job，用于取消 */
     @Volatile
@@ -45,7 +46,7 @@ object PoiSearchManager {
         context: Context,
         lat: Double,
         lng: Double,
-        radius: Int = 20_000
+        radius: Int = SEARCH_RADIUS_METERS
     ): List<NearbyHospital> = withContext(Dispatchers.IO) {
         Log.i(TAG, "===== 开始搜索附近医院: lat=$lat, lng=$lng, radius=$radius =====")
         _searching.value = true
@@ -164,7 +165,7 @@ object PoiSearchManager {
             })
 
             val option = com.baidu.mapapi.search.poi.PoiNearbySearchOption()
-                .keyword("医院")
+                .keyword("透析医院")
                 .location(com.baidu.mapapi.model.LatLng(bdLat, bdLng))
                 .radius(radius)
                 .pageNum(0)
@@ -190,7 +191,7 @@ object PoiSearchManager {
         radius: Int
     ): List<NearbyHospital>? = suspendCancellableCoroutine { cont ->
         try {
-            val query = com.amap.api.services.poisearch.PoiSearch.Query("医院", "", "")
+            val query = com.amap.api.services.poisearch.PoiSearch.Query("透析医院", "", "")
             query.pageSize = 30
             query.pageNum = 0
 

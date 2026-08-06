@@ -96,10 +96,7 @@ fun DataRecordScreen(
         recordData = recordData.transform()
     }
 
-    WeatherBackground(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === Scrollable content area ===
             Column(
                 modifier = Modifier
@@ -236,7 +233,6 @@ fun DataRecordScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
-        }
     }
 }
 

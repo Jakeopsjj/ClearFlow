@@ -179,16 +179,15 @@ fun BackupScreen(
         }
     }
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .onGloballyPositioned { coordinates ->
-                    scrollableTopY = coordinates.localToWindow(Offset.Zero).y
-                }
-                .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .onGloballyPositioned { coordinates ->
+                scrollableTopY = coordinates.localToWindow(Offset.Zero).y
+            }
+            .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
+    ) {
             // === Page Nav ===
             BackupPageNav(
                 title = "数据备份",
@@ -310,7 +309,6 @@ fun BackupScreen(
                     onClick = { showClearDialog = true }
                 )
             }
-        }
     }
 
     // === Dialogs ===

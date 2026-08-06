@@ -94,20 +94,19 @@ fun OnboardingScreen(
 ) {
     val allGranted = PermissionCatalog.items.all { grantedMap[it.id] == true }
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    start = ClearDuDimens.ScreenHorizontalPadding,
-                    end = ClearDuDimens.ScreenHorizontalPadding,
-                    top = ClearDuDimens.ScreenTopPadding,
-                    bottom = ClearDuDimens.ScreenBottomScrollPadding
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(
+                start = ClearDuDimens.ScreenHorizontalPadding,
+                end = ClearDuDimens.ScreenHorizontalPadding,
+                top = ClearDuDimens.ScreenTopPadding,
+                bottom = ClearDuDimens.ScreenBottomScrollPadding
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
             WelcomeSection()
             Spacer(Modifier.height(20.dp))
             PermissionSectionHeader()
@@ -128,7 +127,6 @@ fun OnboardingScreen(
                 allGranted = allGranted,
                 onStart = onStart
             )
-        }
     }
 }
 

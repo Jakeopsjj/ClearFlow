@@ -30,6 +30,8 @@ object WeatherSceneDrawer {
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.RAIN_NIGHT -> drawRainNight()
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.SNOW_DAY -> drawSnowDay()
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.SNOW_NIGHT -> drawSnowNight()
+            com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.HEAVY_RAIN_DAY -> drawRainDay()
+            com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.HEAVY_RAIN_NIGHT -> drawRainNight()
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.STORM -> drawStorm()
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.FOG -> drawFog()
             com.cleardu.app.data.weather.WeatherCodeMapper.LocalBackgroundType.SANDSTORM -> drawSandstorm()

@@ -103,10 +103,7 @@ fun MedicationScreen(
     val nextMedName = nextMed?.name ?: "无"
     val nextMedTime = nextMed?.time ?: "--:--"
 
-    WeatherBackground(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === 可滚动内容区 ===
             Column(
                 modifier = Modifier
@@ -196,7 +193,6 @@ fun MedicationScreen(
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset),
                 lightMode = true
             )
-        }
     }
 
     // === Dialogs ===

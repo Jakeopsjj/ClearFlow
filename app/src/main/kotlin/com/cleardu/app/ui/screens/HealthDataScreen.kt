@@ -96,10 +96,7 @@ fun HealthDataScreen(
     } else 0
     val ufDays = ufTrendData.size
 
-    WeatherBackground(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === 可滚动内容区 ===
             Column(
                 modifier = Modifier
@@ -193,7 +190,6 @@ fun HealthDataScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
-        }
     }
 }
 

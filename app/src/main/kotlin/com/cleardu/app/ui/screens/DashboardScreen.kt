@@ -121,10 +121,7 @@ fun DashboardScreen(
         QuickAction(id = "water", label = "喝了水", accentColor = LiquidGlassColors.MedicalCyan)
     )
 
-    WeatherBackground(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === Scrollable content area ===
             Column(
                 modifier = Modifier
@@ -229,7 +226,6 @@ fun DashboardScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
-        }
     }
 }
 

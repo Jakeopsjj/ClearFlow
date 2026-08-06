@@ -70,8 +70,10 @@ object WeatherBackgroundManager {
         observeJob = scope.launch {
             healthDataManager.settings.collectLatest { settings ->
                 if (settings.weatherBackgroundEnabled) {
+                    val wasDisabled = !_state.value.enabled
                     _state.value = _state.value.copy(enabled = true)
-                    if (!hasFetched) {
+                    // 首次打开 App 或开关从关闭变为开启时，重新获取天气
+                    if (!hasFetched || wasDisabled) {
                         hasFetched = true
                         fetchWeatherAndImage()
                     }

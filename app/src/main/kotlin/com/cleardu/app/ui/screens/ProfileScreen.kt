@@ -251,13 +251,12 @@ fun ProfileScreen(
         }
     }
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 72.dp)
+    ) {
             // === Page Nav ===
             PageNav(
                 title = "个人资料",
@@ -386,7 +385,6 @@ fun ProfileScreen(
 
             // === Save Button ===
             SaveButton(onClick = { saveAll() })
-        }
     }
 
     // ===== Dialogs =====

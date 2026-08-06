@@ -23,7 +23,7 @@ object NearbySearchService {
 
     private const val TAG = "NearbySearchService"
     private const val OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-    private const val SEARCH_RADIUS_METERS = 20_000
+    private const val SEARCH_RADIUS_METERS = 50_000  // 50km
     private const val CONNECT_TIMEOUT_MS = 10_000
     private const val READ_TIMEOUT_MS = 15_000
 
@@ -90,8 +90,8 @@ object NearbySearchService {
 
         val allResults = mutableListOf<Address>()
         try {
-            // 搜索多种关键词，覆盖不同类型的医院
-            for (keyword in listOf("医院", "人民医院", "中医院", "中心医院", "附属医院")) {
+            // 搜索多种关键词，覆盖透析医院
+            for (keyword in listOf("透析医院", "透析中心", "血液透析", "肾病医院", "医院")) {
                 try {
                     val results = geocoder.getFromLocationName(
                         keyword, 20,

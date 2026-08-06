@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
 import com.cleardu.app.data.weather.WeatherBackgroundManager
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.navigation.AppNavHost
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -46,10 +47,13 @@ class MainActivity : ComponentActivity() {
             // 观察深色模式设置变化时，使用 key 触发 ClearDuTheme 重组
             androidx.compose.runtime.key(darkMode) {
                 ClearDuTheme(darkTheme = darkMode) {
-                    AppNavHost(
-                        healthDataManager = healthDataManager,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    // WeatherBackground 放在根层级，确保跨页面切换时背景不重新加载
+                    WeatherBackground(modifier = Modifier.fillMaxSize()) {
+                        AppNavHost(
+                            healthDataManager = healthDataManager,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }

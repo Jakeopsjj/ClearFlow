@@ -91,8 +91,7 @@ fun ReminderScreen(
         deriveTodayReminders(latestRecord)
     }
 
-    WeatherBackground(modifier = modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === 可滚动内容区 ===
             Column(
                 modifier = Modifier
@@ -212,7 +211,6 @@ fun ReminderScreen(
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset),
                 lightMode = true
             )
-        }
     }
 
     // === Dialogs ===

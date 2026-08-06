@@ -11,7 +11,7 @@ import java.util.Calendar
  */
 object WeatherCodeMapper {
 
-    /** Local fallback background types (drawn with Compose Canvas). */
+    /** Local background types mapped to built-in 4K real weather photo resources. */
     enum class LocalBackgroundType {
         SUNNY_DAY,
         SUNNY_NIGHT,
@@ -20,6 +20,8 @@ object WeatherCodeMapper {
         OVERCAST,
         RAIN_DAY,
         RAIN_NIGHT,
+        HEAVY_RAIN_DAY,
+        HEAVY_RAIN_NIGHT,
         SNOW_DAY,
         SNOW_NIGHT,
         STORM,
@@ -133,8 +135,9 @@ object WeatherCodeMapper {
             "00" -> if (isDayTime) LocalBackgroundType.SUNNY_DAY else LocalBackgroundType.SUNNY_NIGHT
             "01" -> if (isDayTime) LocalBackgroundType.CLOUDY_DAY else LocalBackgroundType.CLOUDY_NIGHT
             "02" -> LocalBackgroundType.OVERCAST
-            "03", "07", "08", "09", "21", "22", "23" ->
+            "03", "07", "08", "21", "22", "23" ->
                 if (isDayTime) LocalBackgroundType.RAIN_DAY else LocalBackgroundType.RAIN_NIGHT
+            "09" -> if (isDayTime) LocalBackgroundType.HEAVY_RAIN_DAY else LocalBackgroundType.HEAVY_RAIN_NIGHT
             "04", "05", "10", "11", "12", "24", "25" -> LocalBackgroundType.STORM
             "06", "13", "14", "15", "16", "17", "26", "27", "28" ->
                 if (isDayTime) LocalBackgroundType.SNOW_DAY else LocalBackgroundType.SNOW_NIGHT
