@@ -4,9 +4,13 @@
     <string name="app_name_latin">ClearDu</string>
 
     <!-- Onboarding welcome -->
-    <string name="onboarding_title">清渡</string>
+    <string name="onboarding_title">欢迎使用清渡</string>
     <string name="onboarding_subtitle">您的专属透析健康伴侣</string>
     <string name="onboarding_desc">科学记录超滤量、血压、心率、用药等数据，守护您的每一天</string>
+    <string name="onboarding_welcome_line1">您好，很高兴认识您</string>
+    <string name="onboarding_welcome_line2">清渡将全程陪伴您的透析旅程</string>
+    <string name="onboarding_perm_title">为了更好的体验，请授予以下权限</string>
+    <string name="onboarding_perm_subtitle">部分权限可稍后在设置中开启</string>
 
     <!-- Permission cards -->
     <string name="perm_location_name">位置与导航</string>
@@ -20,6 +24,9 @@
 
     <string name="perm_phone_name">电话权限</string>
     <string name="perm_phone_desc">一键拨打主治医生/紧急联系人</string>
+
+    <string name="perm_contacts_name">通讯录权限</string>
+    <string name="perm_contacts_desc">读取联系人信息、设置紧急联系人</string>
 
     <string name="perm_apps_name">应用列表读取</string>
     <string name="perm_apps_desc">健康数据导入、与其他健康App联动</string>
@@ -37,8 +44,34 @@
     <string name="agreement_and">和</string>
     <string name="agreement_privacy">《隐私政策》</string>
     <string name="action_start">开始使用</string>
+    <string name="action_grant_all">一键授予全部权限</string>
+    <string name="action_granting">正在授权中…</string>
+
+    <!-- Splash screen -->
+    <string name="splash_title">清渡</string>
+    <string name="splash_subtitle">守护您的透析生活</string>
 
     <!-- MainActivity placeholder -->
     <string name="main_placeholder">清渡 · 主页</string>
     <string name="main_placeholder_hint">引导页已完成，主功能待接入</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">早上好，张先生</string>
+    <string name="dashboard_greeting_sub">今天是您透析后的第 2 天</string>
+    <string name="dashboard_fluid_target">今日目标 2,500ml</string>
+    <string name="dashboard_fluid_good">体液平衡良好</string>
+    <string name="dashboard_vital_normal">正常</string>
+    <string name="dashboard_med_title">下次用药：降压药</string>
+    <string name="dashboard_med_detail">14:00 - 还有 4 小时</string>
+    <string name="dashboard_remind_btn">提醒我</string>
+    <string name="dashboard_quick_uf">记录超滤</string>
+    <string name="dashboard_quick_bp">测血压</string>
+    <string name="dashboard_quick_med">记用药</string>
+    <string name="dashboard_quick_water">喝了水</string>
+    <string name="dashboard_weight_change">较昨日 </string>
+    <string name="dashboard_nav_home">首页</string>
+    <string name="dashboard_nav_record">记录</string>
+    <string name="dashboard_nav_data">数据</string>
+    <string name="dashboard_nav_meds">用药</string>
+    <string name="dashboard_nav_reminders">提醒</string>
 </resources>

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "cleardu-pexels-proxy",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 15
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "*/45 * * * *"
+    }
+  ]
+}

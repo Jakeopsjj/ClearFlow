@@ -4,65 +4,53 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import com.cleardu.app.data.HealthDataManager
+import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.data.weather.WeatherBackgroundManager
+import com.cleardu.app.ui.navigation.AppNavHost
 import com.cleardu.app.ui.theme.ClearDuTheme
-import com.cleardu.app.ui.theme.ClearDuTypography
-import com.cleardu.app.ui.theme.LiquidGlassColors
 
 /**
- * Placeholder main Activity reached after onboarding.
+ * 主 Activity — 单 Activity + NavHost 架构入口。
  *
- * Real ClearDu modules (dashboard, health-data, reminders, medications, etc.)
- * will hang off this entry point. For the onboarding prototype it shows a
- * confirmation surface so the navigation handoff is verifiable end-to-end.
+ * 在顶层创建 [HealthDataManager] 单例，同时用于：
+ * 1. 主题联动 — 观察 darkMode 设置，传递给 [ClearDuTheme]
+ * 2. 全局配置 — 所有页面通过同一个 manager 读写 AppSettings，
+ *    保证任意页面修改设置后其他页面立即同步刷新
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ClearDuTheme {
-                MainPlaceholder()
+            // 全局共享数据层（单 Activity 作用域）
+            val healthDataManager = remember {
+                HealthDataManager(RecordRepository(applicationContext))
             }
-        }
-    }
-}
 
-@Composable
-private fun MainPlaceholder() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.foundation.layout.Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.main_placeholder),
-                    style = ClearDuTypography.WelcomeTitle,
-                    color = LiquidGlassColors.Foreground,
-                    textAlign = TextAlign.Center
-                )
-                androidx.compose.foundation.layout.Spacer(Modifier.fillMaxSize(0.02f))
-                Text(
-                    text = stringResource(R.string.main_placeholder_hint),
-                    style = ClearDuTypography.WelcomeDesc,
-                    color = LiquidGlassColors.Text400,
-                    textAlign = TextAlign.Center
-                )
+            // 初始化天气背景管理器（观察 settings 开关，自动启停网络请求）
+            remember {
+                WeatherBackgroundManager.initialize(applicationContext, healthDataManager)
+                true
+            }
+
+            // 观察 darkMode 设置，实现实时主题切换
+            val settings by healthDataManager.settings.collectAsState(initial = null)
+            val darkMode = settings?.darkMode ?: true
+
+            // 观察深色模式设置变化时，使用 key 触发 ClearDuTheme 重组
+            androidx.compose.runtime.key(darkMode) {
+                ClearDuTheme(darkTheme = darkMode) {
+                    AppNavHost(
+                        healthDataManager = healthDataManager,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

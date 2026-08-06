@@ -3,6 +3,7 @@ package com.cleardu.app.data
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.PhoneInTalk
@@ -106,6 +107,13 @@ object PermissionCatalog {
             descRes = com.cleardu.app.R.string.perm_phone_desc,
             icon = Icons.Outlined.PhoneInTalk,
             tone = PermissionTone.Green
+        ),
+        PermissionItem(
+            id = "contacts",
+            nameRes = com.cleardu.app.R.string.perm_contacts_name,
+            descRes = com.cleardu.app.R.string.perm_contacts_desc,
+            icon = Icons.Outlined.Contacts,
+            tone = PermissionTone.Purple
         ),
         PermissionItem(
             id = "apps",

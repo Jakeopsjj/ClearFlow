@@ -1,0 +1,15 @@
+name = "cleardu-pexels-proxy"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+# Workers free plan: 100,000 requests/day, more than enough for personal demo.
+# No cron trigger needed — Workers have no cold start (unlike Koyeb/Render),
+# the runtime is always responsive. /health endpoint still available for manual checks.
+
+# Secret PEXELS_API_KEY must be set via:
+#   wrangler secret put PEXELS_API_KEY
+# (will prompt for the value; not stored in this file)
+
+# Observability (optional, free tier includes logs)
+[observability]
+enabled = true

@@ -4,9 +4,27 @@
 
     <!-- ===== Onboarding-listed permissions (each declared with explicit purpose) ===== -->
 
-    <!-- 位置与导航：导航到透析中心、附近医院定位 -->
+    <!-- 网络权限：搜索附近医院、同步健康数据 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ====== 定位权限（仅前台定位） ====== -->
+    <!-- 粗略定位：基于基站/WiFi/IP，室内可用，Android 12+ 必须同时声明 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 精确定位：基于 GPS，室外可用 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- [修改点] 明确声明：不使用后台定位。
+         国产 ROM（HyperOS/ColorOS/OriginOS/MagicOS）申请 ACCESS_BACKGROUND_LOCATION
+         会连带限制前台定位回调，故严禁声明。仅做前台定位。 -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+
+    <!-- [修改点] 定位硬件特性声明（required=false，允许无 GPS 设备安装）。
+         GPS_PROVIDER 依赖 android.hardware.location.gps；
+         NETWORK_PROVIDER 依赖 android.hardware.location.network。 -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+
+    <!-- 通讯录权限：读取紧急联系人 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- 闹钟与提醒：服药提醒、透析时间闹钟 (Android 12+) -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -37,7 +55,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ClearDu"
+        tools:replace="android:allowBackup"
         tools:targetApi="34">
+
+        <!-- ===== 高德地图 SDK Key ===== -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="7d77f94ed5a6df1706b7737300caff08" />
+
+        <!-- ===== 百度地图 SDK AK ===== -->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="AjsnmGdq1Y7kGMCNI7JM7P8vcWjV7Az0" />
+
+        <!-- ===== 腾讯地图 SDK Key ===== -->
+        <meta-data
+            android:name="TencentMapSDK"
+            android:value="4ECBZ-STU33-UBQ3T-OATOO-CZPYH-PXFEW" />
+
+        <!-- 百度定位 Service -->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
 
         <activity
             android:name=".OnboardingActivity"
@@ -55,6 +95,34 @@
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.ClearDu" />
+
+        <activity
+            android:name=".DataRecordActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClearDu"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".HealthDataActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClearDu"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".MedicationActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClearDu"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ReminderActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ClearDu"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

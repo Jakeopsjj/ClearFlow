@@ -40,12 +40,11 @@ captures/
 *.iml
 .idea/
 
-# Keystore files — NEVER commit
+# Keystore files — 仅允许提交 app/keystore/ 下的固化签名文件
 *.jks
 *.keystore
+!app/keystore/*.keystore
 keystore.properties
-debug.keystore
-release.keystore
 
 # Secrets
 *.env
@@ -57,3 +56,9 @@ Thumbs.db
 
 # Compose compiler metrics (local only)
 compose-metrics/
+
+# Node.js (pexels-proxy)
+node_modules/
+pexels-proxy/node_modules/
+pexels-proxy/.wrangler/
+pexels-proxy/.dev.vars
