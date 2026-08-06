@@ -26,14 +26,18 @@ android {
     }
 
     // === Signing configurations ===
-    // Debug and Release use separate, dedicated keystores so the two APK variants
-    // never share a signature. Keystores are generated on demand by the
-    // `ensureDebugKeystore` / `ensureReleaseKeystore` tasks below; a real
-    // production release keystore can be injected via environment variables
-    // (CLEARDU_RELEASE_KEYSTORE_*) without changing the build script.
+    // 签名永久固化：Debug 和 Release 分别使用 app/keystore/ 下的固定 keystore。
+    // 自 v1.7.14 起，所有后续版本的签名指纹锁定不变，SHA1/SHA256 禁止更改。
+    // 环境变量 CLEARDU_RELEASE_KEYSTORE_PATH / CLEARDU_RELEASE_KEYSTORE_BASE64
+    // 仅在正式发布时注入真实生产签名，覆盖默认的固化 keystore。
+    //
+    // 固化签名指纹（自 v1.7.14 锁定）：
+    //   Debug  SHA1: CE:55:41:52:05:48:5C:0A:58:DF:AC:1C:36:22:38:BB:15:2F:26:42
+    //   Debug  SHA256: 9A:70:79:8D:E3:BF:71:EF:0E:E8:C7:18:C6:38:B1:ED:33:50:D2:A1:44:CC:0E:7D:F7:B4:5A:BD:C0:E1:04:3B
+    //   Release SHA1: 0F:06:9A:DC:BC:09:66:E9:9A:DC:00:31:EB:15:84:CB:4F:81:D9:66
+    //   Release SHA256: 5C:0D:51:26:7E:E9:A8:F2:EA:9F:F0:58:B4:F7:E6:68:65:1C:19:8F:56:EC:95:8C:38:AD:51:7B:6C:A4:05:B2
     signingConfigs {
         create("release") {
-            // Production path: inject a real release keystore via env vars.
             val keystorePath = System.getenv("CLEARDU_RELEASE_KEYSTORE_PATH")
             val keystoreBase64 = System.getenv("CLEARDU_RELEASE_KEYSTORE_BASE64")
             val resolvedPath = when {
@@ -44,20 +48,15 @@ android {
                     tmpFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
                     tmpFile.absolutePath
                 }
-                else -> File(rootDir, "build/tmp/release.keystore").absolutePath
+                else -> File(projectDir, "keystore/release.keystore").absolutePath
             }
             storeFile = file(resolvedPath)
-            // PKCS12 keystores (Java 17+ default) require store & key passwords to be
-            // identical, so we use a single secret for both.
             storePassword = System.getenv("CLEARDU_RELEASE_STORE_PASSWORD") ?: "cleardu-release"
             keyAlias = System.getenv("CLEARDU_RELEASE_KEY_ALIAS") ?: "cleardu-release"
             keyPassword = System.getenv("CLEARDU_RELEASE_KEY_PASSWORD") ?: "cleardu-release"
         }
         getByName("debug") {
-            // Force a project-local debug keystore so debug builds always use a
-            // dedicated signature that differs from release. The keystore is
-            // generated on demand by the `ensureDebugKeystore` task below.
-            val debugKeystore = File(rootDir, "build/tmp/debug.keystore")
+            val debugKeystore = File(projectDir, "keystore/debug.keystore")
             storeFile = debugKeystore
             storePassword = "android"
             keyAlias = "cleardu-debug"
@@ -115,74 +114,36 @@ android {
     }
 }
 
-// === Auto-generate the dedicated debug keystore on first build ===
-// Uses keytool (bundled with the JDK) so the build is self-contained: a fresh
-// checkout in Android Studio will produce build/tmp/debug.keystore automatically
-// before validateSigningDebug runs. No manual keytool invocation required.
+// === 签名固化检查：确保永久 keystore 存在，不存在则报错 ===
+// 自 v1.7.14 起，签名永久锁定。不再自动生成 keystore。
+// 如果 app/keystore/ 下的 keystore 丢失，请从备份恢复，或联系管理员。
 val ensureDebugKeystore by tasks.registering {
-    val debugKeystore = File(rootDir, "build/tmp/debug.keystore")
-    outputs.file(debugKeystore)
+    val debugKeystore = File(projectDir, "keystore/debug.keystore")
     doLast {
         if (!debugKeystore.exists()) {
-            debugKeystore.parentFile.mkdirs()
-            generateKeystore(
-                target = debugKeystore,
-                alias = "cleardu-debug",
-                storePass = "android",
-                keyPass = "android",
-                dname = "CN=ClearDu Debug, OU=Mobile, O=ClearDu, L=Beijing, ST=Beijing, C=CN"
+            throw GradleException(
+                "Debug keystore 缺失: ${debugKeystore.absolutePath}\n" +
+                "签名自 v1.7.14 起已永久固化，禁止自动生成新 keystore。\n" +
+                "请从备份恢复 app/keystore/debug.keystore 文件。"
             )
-            logger.lifecycle("Generated dedicated debug keystore at ${debugKeystore.absolutePath}")
         }
     }
 }
 
-// === Auto-generate the dedicated release keystore on first build ===
-// Only used when no real release keystore is injected via CLEARDU_RELEASE_* env
-// vars. Produces a separate self-signed keystore so debug and release APKs
-// always carry different signatures. Replace with a real code-signing cert for
-// Play Store distribution.
 val ensureReleaseKeystore by tasks.registering {
-    val releaseKeystore = File(rootDir, "build/tmp/release.keystore")
-    outputs.file(releaseKeystore)
+    val releaseKeystore = File(projectDir, "keystore/release.keystore")
     doLast {
         if (!releaseKeystore.exists() &&
             System.getenv("CLEARDU_RELEASE_KEYSTORE_PATH").isNullOrEmpty() &&
             System.getenv("CLEARDU_RELEASE_KEYSTORE_BASE64").isNullOrEmpty()
         ) {
-            releaseKeystore.parentFile.mkdirs()
-            generateKeystore(
-                target = releaseKeystore,
-                alias = "cleardu-release",
-                storePass = "cleardu-release",
-                keyPass = "cleardu-release",
-                dname = "CN=ClearDu Release, OU=Mobile, O=ClearDu, L=Beijing, ST=Beijing, C=CN"
+            throw GradleException(
+                "Release keystore 缺失: ${releaseKeystore.absolutePath}\n" +
+                "签名自 v1.7.14 起已永久固化，禁止自动生成新 keystore。\n" +
+                "请从备份恢复 app/keystore/release.keystore 文件，\n" +
+                "或设置 CLEARDU_RELEASE_KEYSTORE_PATH / CLEARDU_RELEASE_KEYSTORE_BASE64 环境变量。"
             )
-            logger.lifecycle("Generated dedicated release keystore at ${releaseKeystore.absolutePath}")
         }
-    }
-}
-
-fun generateKeystore(
-    target: File,
-    alias: String,
-    storePass: String,
-    keyPass: String,
-    dname: String
-) {
-    val toolHome = System.getProperty("java.home")
-    val keytool = File(toolHome, "bin/keytool").let { if (it.exists()) it else File(toolHome, "keytool") }
-    val keytoolBin = if (keytool.exists()) keytool.absolutePath else "keytool"
-    exec {
-        commandLine(
-            keytoolBin, "-genkeypair", "-v",
-            "-keystore", target.absolutePath,
-            "-alias", alias,
-            "-storepass", storePass,
-            "-keypass", keyPass,
-            "-keyalg", "RSA", "-keysize", "2048", "-validity", "10000",
-            "-dname", dname
-        )
     }
 }
 
