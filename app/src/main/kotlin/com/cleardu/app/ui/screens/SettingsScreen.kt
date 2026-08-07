@@ -142,7 +142,8 @@ fun SettingsScreen(
         val currentVersion = BuildConfig.VERSION_NAME
         if (s.lastSeenVersion != currentVersion) {
             // 获取当前版本对应的 GitHub Release 更新日志
-            val tagName = "v$currentVersion"
+            // tag 不含 -debug 后缀，如 v1.12.1
+            val tagName = "v${currentVersion.substringBefore("-")}"
             val release = GitHubReleaseChecker.fetchReleaseByTag(tagName)
             if (release != null) {
                 updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }

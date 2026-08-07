@@ -14,8 +14,9 @@ import java.net.URL
  * 通过 GitHub API 获取仓库 Release 列表，支持语义化版本比较和
  * Debug / Release 双通道更新检查。
  *
- * - Debug 通道：仅匹配包含 "-debug" 后缀的 Release
- * - Release 通道：仅匹配不含 "-debug" 后缀的 Release
+ * 每个版本只创建一个 Release（tag 如 v1.12.1），同时包含 Debug 和 Release 两个 APK 资产。
+ * - Debug 通道：匹配资产名包含 "-debug.apk" 的 APK
+ * - Release 通道：匹配资产名包含 "-release.apk" 的 APK
  * - 版本比较：使用语义化版本（major.minor.patch）比较，仅当远端版本严格高于当前版本时提示更新
  */
 object GitHubReleaseChecker {
@@ -28,6 +29,8 @@ object GitHubReleaseChecker {
     /**
      * 获取最新 Release 信息（匹配当前构建类型通道）。
      *
+     * 不再按 tag 名称区分通道，而是获取最新 Release 后按资产名匹配对应的 APK。
+     *
      * @param isDebug 当前是否为 Debug 构建
      * @return 匹配通道的最新 [ReleaseInfo]，或 null
      */
@@ -36,25 +39,24 @@ object GitHubReleaseChecker {
             val releases = fetchReleases()
             if (releases.isEmpty()) return@withContext null
 
-            // 按通道过滤：Debug 通道匹配包含 "-debug" 的版本，Release 通道匹配不含 "-debug" 的版本
-            val channelReleases = releases.filter { release ->
-                val isDebugRelease = release.versionName.contains("-debug") ||
-                        release.tagName.contains("-debug")
-                if (isDebug) isDebugRelease else !isDebugRelease
-            }
-
-            if (channelReleases.isEmpty()) {
-                Log.w(TAG, "No releases found for ${if (isDebug) "Debug" else "Release"} channel")
-                return@withContext null
-            }
-
-            // 返回版本号最高的 Release（按解析后的版本号排序）
-            channelReleases.maxByOrNull { release ->
+            // 取版本号最高的 Release
+            val latest = releases.maxByOrNull { release ->
                 val parts = release.parsedVersion
                 (parts.getOrElse(0) { 0 }) * 1_000_000L +
                     (parts.getOrElse(1) { 0 }) * 1_000L +
                     (parts.getOrElse(2) { 0 })
+            } ?: return@withContext null
+
+            // 按构建类型匹配对应的 APK 资产
+            val apkSuffix = if (isDebug) "-debug.apk" else "-release.apk"
+            val apkAsset = latest.assets.firstOrNull { it.name.endsWith(apkSuffix) }
+
+            if (apkAsset == null) {
+                Log.w(TAG, "No ${if (isDebug) "debug" else "release"} APK in release ${latest.tagName}")
+                return@withContext null
             }
+
+            latest.copy(apkUrl = apkAsset.url)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch latest release: ${e.message}", e)
             null
@@ -127,18 +129,25 @@ object GitHubReleaseChecker {
 
         return (0 until jsonArray.length()).map { i ->
             val json = jsonArray.getJSONObject(i)
+            val assets = json.optJSONArray("assets")?.let { assetsArray ->
+                (0 until assetsArray.length()).map { j ->
+                    val asset = assetsArray.getJSONObject(j)
+                    ReleaseAsset(
+                        name = asset.optString("name", ""),
+                        url = asset.optString("browser_download_url", ""),
+                        size = asset.optLong("size", 0)
+                    )
+                }
+            } ?: emptyList()
+
             ReleaseInfo(
                 tagName = json.optString("tag_name", ""),
                 versionName = json.optString("tag_name", "").removePrefix("v"),
                 body = json.optString("body", ""),
                 publishedAt = json.optString("published_at", ""),
                 htmlUrl = json.optString("html_url", ""),
-                apkUrl = json.optJSONArray("assets")?.let { assets ->
-                    (0 until assets.length()).mapNotNull { i ->
-                        val asset = assets.getJSONObject(i)
-                        asset.optString("browser_download_url", "")
-                    }.firstOrNull { it.endsWith(".apk") }
-                } ?: ""
+                apkUrl = assets.firstOrNull { it.name.endsWith(".apk") }?.url ?: "",
+                assets = assets
             )
         }
     }
@@ -165,6 +174,15 @@ object GitHubReleaseChecker {
 }
 
 /**
+ * GitHub Release 资产信息。
+ */
+data class ReleaseAsset(
+    val name: String,   // 文件名，如 "cleardu-v1.12.1-release.apk"
+    val url: String,    // 下载 URL
+    val size: Long      // 文件大小（字节）
+)
+
+/**
  * GitHub Release 信息。
  */
 data class ReleaseInfo(
@@ -173,5 +191,6 @@ data class ReleaseInfo(
     val body: String,          // release notes (markdown)
     val publishedAt: String,   // ISO 8601 timestamp
     val htmlUrl: String,       // GitHub release page URL
-    val apkUrl: String         // APK download URL
+    val apkUrl: String,        // APK download URL（当前通道匹配的）
+    val assets: List<ReleaseAsset> = emptyList()  // 所有资产列表
 )

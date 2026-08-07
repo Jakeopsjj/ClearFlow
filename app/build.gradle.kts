@@ -98,6 +98,17 @@ android {
         }
     }
 
+    // APK 输出文件名：cleardu-v{versionName}-{debug/release}.apk
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val type = variant.buildType.name
+            val baseVersion = defaultConfig.versionName
+            output.outputFileName = "cleardu-v$baseVersion-$type.apk"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
