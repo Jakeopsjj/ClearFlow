@@ -113,9 +113,7 @@ object GitHubReleaseChecker {
             val json = jsonArray.getJSONObject(i)
             ReleaseInfo(
                 tagName = json.optString("tag_name", ""),
-                versionName = json.optString("name", "").ifBlank {
-                    json.optString("tag_name", "").removePrefix("v")
-                },
+                versionName = json.optString("tag_name", "").removePrefix("v"),
                 body = json.optString("body", ""),
                 publishedAt = json.optString("published_at", ""),
                 htmlUrl = json.optString("html_url", ""),

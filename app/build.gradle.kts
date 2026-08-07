@@ -37,6 +37,7 @@ android {
             if (f.exists()) load(FileInputStream(f))
         }
         buildConfigField("String", "WEATHER_API_KEY", "\"${localProps.getProperty("WEATHER_API_KEY", "")}\"")
+        buildConfigField("String", "PEXELS_API_KEY", "\"${localProps.getProperty("PEXELS_API_KEY", "")}\"")
         buildConfigField("String", "PEXELS_PROXY_KOYEB_URL", "\"${localProps.getProperty("PEXELS_PROXY_KOYEB_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
         buildConfigField("String", "PEXELS_PROXY_RENDER_URL", "\"${localProps.getProperty("PEXELS_PROXY_RENDER_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
     }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -22,10 +23,12 @@ import java.util.concurrent.TimeUnit
  * 1. Check local disk cache (2hr TTL) → if hit, return cached file
  * 2. Try Koyeb proxy → get image URL → download via proxy → cache → return file
  * 3. Try Render proxy → get image URL → download via proxy → cache → return file
- * 4. All failed → return null (caller uses local built-in fallback)
+ * 4. Try direct Pexels API (if PEXELS_API_KEY configured) → get URL → download → cache
+ * 5. All failed → return null (caller uses local built-in fallback)
  *
- * Image download also goes through the proxy server to avoid
- * Pexels CDN being blocked in certain regions.
+ * Image download goes through the proxy or direct Pexels CDN.
+ * Direct Pexels API is the last fallback to avoid Cloudflare Workers domain
+ * being blocked in certain regions.
  *
  * @param context Application context for cache directory
  */
@@ -96,7 +99,11 @@ class PexelsImageRepository(context: android.content.Context) {
         file = tryFetchAndDownload(renderApi, renderBaseUrl, keyword, weatherCode, isDayTime, "Render")
         if (file != null) return@withContext file
 
-        Log.w(TAG, "All proxies failed, using local fallback")
+        // Step 4: Try direct Pexels API (last fallback, bypasses proxy)
+        file = tryDirectPexels(keyword, weatherCode, isDayTime)
+        if (file != null) return@withContext file
+
+        Log.w(TAG, "All proxies and direct API failed, using local fallback")
         null
     }
 
@@ -195,6 +202,80 @@ class PexelsImageRepository(context: android.content.Context) {
             response.imageUrl
         } catch (e: Exception) {
             Log.w(TAG, "$label failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Try direct Pexels API as last fallback (bypasses proxy).
+     * Only works if PEXELS_API_KEY is configured in BuildConfig.
+     */
+    private fun tryDirectPexels(
+        keyword: String,
+        weatherCode: String,
+        isDayTime: Boolean
+    ): File? {
+        val apiKey = BuildConfig.PEXELS_API_KEY
+        if (apiKey.isBlank()) {
+            Log.d(TAG, "PexelsDirect: no API key configured, skipping")
+            return null
+        }
+
+        return try {
+            // Step A: Search Pexels API directly
+            val encodedQuery = URLEncoder.encode(keyword, "UTF-8")
+            val searchUrl = "https://api.pexels.com/v1/search?query=$encodedQuery&orientation=landscape&per_page=1"
+            val searchRequest = Request.Builder()
+                .url(searchUrl)
+                .header("Authorization", apiKey)
+                .build()
+
+            val searchResponse = try {
+                downloadClient.newCall(searchRequest).execute()
+            } catch (e: Exception) {
+                Log.w(TAG, "PexelsDirect: search request failed: ${e.message}")
+                return null
+            }
+
+            if (!searchResponse.isSuccessful) {
+                Log.w(TAG, "PexelsDirect: search HTTP ${searchResponse.code}")
+                return null
+            }
+
+            val body = searchResponse.body?.string() ?: return null
+            val json = JSONObject(body)
+            val photos = json.optJSONArray("photos")
+            if (photos == null || photos.length() == 0) {
+                Log.w(TAG, "PexelsDirect: no photos found")
+                return null
+            }
+
+            val photo = photos.getJSONObject(0)
+            val imageUrl = photo.optString("src", "").let { src ->
+                // Prefer original quality
+                val srcObj = photo.optJSONObject("src")
+                srcObj?.optString("original") ?: srcObj?.optString("large2x")
+                ?: srcObj?.optString("large") ?: src
+            }
+
+            if (imageUrl.isBlank()) {
+                Log.w(TAG, "PexelsDirect: no image URL")
+                return null
+            }
+
+            Log.d(TAG, "PexelsDirect: got image URL, downloading...")
+
+            // Step B: Download directly from Pexels CDN
+            val file = cache.downloadAndCache(imageUrl, weatherCode, isDayTime)
+            if (file != null) {
+                Log.d(TAG, "PexelsDirect: download OK")
+                return file
+            }
+
+            Log.w(TAG, "PexelsDirect: download failed")
+            null
+        } catch (e: Exception) {
+            Log.w(TAG, "PexelsDirect: ${e.message}")
             null
         }
     }
