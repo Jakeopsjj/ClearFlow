@@ -159,6 +159,7 @@ fun EmergencyCallCard(
  */
 @Composable
 private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
+    val colors = backgroundAwareColors()
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -221,6 +222,7 @@ private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
  */
 @Composable
 private fun FamilyContactLink(onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val color by animateColorAsState(

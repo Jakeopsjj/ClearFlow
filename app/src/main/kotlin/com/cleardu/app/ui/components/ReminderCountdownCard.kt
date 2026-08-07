@@ -211,6 +211,7 @@ fun ReminderCountdownCard(
  */
 @Composable
 private fun NavigatePillButton(onClick: () -> Unit, enabled: Boolean = true) {
+    val colors = backgroundAwareColors()
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(

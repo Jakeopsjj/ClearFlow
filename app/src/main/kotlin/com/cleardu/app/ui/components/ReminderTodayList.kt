@@ -110,6 +110,7 @@ fun ReminderTodayList(
 
 @Composable
 private fun TodayReminderRow(item: TodayReminder) {
+    val colors = backgroundAwareColors()
     val infiniteTransition = rememberInfiniteTransition(label = "dot")
     val dotAlpha by infiniteTransition.animateFloat(
         initialValue = 1f,

@@ -46,6 +46,7 @@ import com.cleardu.app.ui.components.MedicationDose as TimelineMedDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.launch
 
 /**

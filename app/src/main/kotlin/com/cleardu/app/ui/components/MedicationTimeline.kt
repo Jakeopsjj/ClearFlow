@@ -286,6 +286,7 @@ private fun MedicationTimelineItem(
 
 @Composable
 private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
+    val colors = backgroundAwareColors()
     when (dose.status) {
         MedDoseStatus.TAKEN -> {
             Box(

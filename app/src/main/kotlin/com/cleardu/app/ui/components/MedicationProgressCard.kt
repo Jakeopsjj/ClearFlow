@@ -117,6 +117,7 @@ fun MedicationProgressCard(
 
 @Composable
 private fun ProgressRing(progress: Float, percentText: String) {
+    val colors = backgroundAwareColors()
     // Animated fill (1.5s iOS-style ease)
     var target by remember { mutableFloatStateOf(0f) }
     val animated by animateFloatAsState(
