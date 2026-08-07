@@ -38,12 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +60,7 @@ import com.cleardu.app.data.VitalStatus
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.FluidBalanceRing
 import com.cleardu.app.ui.components.MedicationReminderCard
+import com.cleardu.app.ui.components.NavBlurFade
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.QuickActionsRow
 import com.cleardu.app.ui.components.VitalCard
@@ -456,30 +455,6 @@ private fun VitalsGrid(
             }
         }
     }
-}
-
-/**
- * Bottom navigation blur fade gradient.
- */
-@Composable
-private fun NavBlurFade(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.NavBlurFadeStart,
-                        LiquidGlassColors.NavBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
-    )
 }
 
 // ===== Helper functions =====

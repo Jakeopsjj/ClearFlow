@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 一次服药记录的状态。
@@ -109,13 +110,13 @@ fun MedicationTimeline(
                 Text(
                     text = "暂无用药记录",
                     style = ClearDuTypography.MedSectionLabel,
-                    color = LiquidGlassColors.Text400
+                    color = backgroundAwareColors().text400
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "点击右下角 + 添加用药时间",
                     style = ClearDuTypography.MedCardMeta,
-                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
+                    color = backgroundAwareColors().text400.copy(alpha = 0.6f)
                 )
             }
         }
@@ -187,7 +188,7 @@ private fun MedicationTimelineItem(
                 Text(
                     text = dose.time,
                     style = ClearDuTypography.MedTimelineTime,
-                    color = if (isPast) LiquidGlassColors.Text400 else LiquidGlassColors.LightForeground,
+                    color = if (isPast) backgroundAwareColors().text400 else backgroundAwareColors().foreground,
                     textAlign = TextAlign.End
                 )
             }
@@ -197,12 +198,7 @@ private fun MedicationTimelineItem(
                 modifier = Modifier
                     .weight(1f)
                     .alpha(cardAlpha),
-                shape = RoundedCornerShape(ClearDuDimens.MedCardRadius),
-                background = LiquidGlassColors.LightGlassBg,
-                border = LiquidGlassColors.LightGlassBorder,
-                shadowColor = LiquidGlassColors.LightGlassShadow,
-                shadowElevation = 4f,
-                specularTop = LiquidGlassColors.LightGlassSpecularTop
+                shape = RoundedCornerShape(ClearDuDimens.MedCardRadius)
             ) {
                 Row(
                     modifier = Modifier
@@ -234,7 +230,7 @@ private fun MedicationTimelineItem(
                         Text(
                             text = dose.name,
                             style = ClearDuTypography.MedCardName,
-                            color = LiquidGlassColors.LightForeground
+                            color = backgroundAwareColors().foreground
                         )
                         Spacer(Modifier.height(ClearDuDimens.MedCardNameBottomGap))
                         Row(
@@ -244,7 +240,7 @@ private fun MedicationTimelineItem(
                             Text(
                                 text = dose.dose,
                                 style = ClearDuTypography.MedCardDose,
-                                color = LiquidGlassColors.Text300
+                                color = backgroundAwareColors().text300
                             )
                             if (!dose.instruction.isNullOrEmpty()) {
                                 Box(
@@ -257,7 +253,7 @@ private fun MedicationTimelineItem(
                                 Text(
                                     text = dose.instruction,
                                     style = ClearDuTypography.MedCardMeta,
-                                    color = LiquidGlassColors.Text400
+                                    color = backgroundAwareColors().text400
                                 )
                             }
                         }
@@ -334,7 +330,7 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                 Text(
                     text = "可选",
                     style = ClearDuTypography.MedOptionalLabel,
-                    color = LiquidGlassColors.Text400
+                    color = backgroundAwareColors().text400
                 )
             }
         }

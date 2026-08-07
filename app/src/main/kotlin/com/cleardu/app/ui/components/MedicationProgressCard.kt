@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 今日服药进度玻璃卡片。
@@ -63,12 +64,7 @@ fun MedicationProgressCard(
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ClearDuDimens.MedProgressCardRadius),
-        background = LiquidGlassColors.LightGlassBg,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 6f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        shape = RoundedCornerShape(ClearDuDimens.MedProgressCardRadius)
     ) {
         Row(
             modifier = Modifier
@@ -85,13 +81,13 @@ fun MedicationProgressCard(
                 Text(
                     text = "今日服药进度",
                     style = ClearDuTypography.MedProgressTitle,
-                    color = LiquidGlassColors.LightForeground
+                    color = backgroundAwareColors().foreground
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
                     text = "已服 $takenCount / 共 $totalCount 次",
                     style = ClearDuTypography.MedProgressDetail,
-                    color = LiquidGlassColors.Text400
+                    color = backgroundAwareColors().text400
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -200,7 +196,7 @@ private fun ProgressRing(progress: Float, percentText: String) {
         Text(
             text = percentText,
             style = ClearDuTypography.MedProgressPct,
-            color = LiquidGlassColors.LightForeground,
+            color = backgroundAwareColors().foreground,
             textAlign = TextAlign.Center
         )
     }

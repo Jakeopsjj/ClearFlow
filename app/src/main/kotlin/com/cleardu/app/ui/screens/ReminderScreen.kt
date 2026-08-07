@@ -24,11 +24,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,14 +33,15 @@ import com.cleardu.app.ui.components.ContactPickerDialog
 import com.cleardu.app.ui.components.EmergencyCallCard
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.HospitalPickerDialog
+import com.cleardu.app.ui.components.NavBlurFade
 import com.cleardu.app.ui.components.ReminderCountdownCard
 import com.cleardu.app.ui.components.ReminderSettingsCard
 import com.cleardu.app.ui.components.ReminderTodayList
 import com.cleardu.app.ui.components.TodayReminder
 import com.cleardu.app.ui.components.WeatherBackground
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
-import com.cleardu.app.ui.theme.LiquidGlassColors
 import com.cleardu.app.util.LocationHelper
 import kotlinx.coroutines.launch
 
@@ -107,7 +103,7 @@ fun ReminderScreen(
                 Text(
                     text = "提醒中心",
                     style = ClearDuTypography.ReminderPageTitle,
-                    color = LiquidGlassColors.LightForeground
+                    color = backgroundAwareColors().foreground
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderPageTitleBottomMargin))
 
@@ -173,7 +169,7 @@ fun ReminderScreen(
                 Text(
                     text = "强提醒模式：即使在锁屏状态或App在后台，也会以全屏声音+震动提醒您服药和透析时间",
                     style = ClearDuTypography.ReminderFooterNote,
-                    color = LiquidGlassColors.Text400,
+                    color = backgroundAwareColors().text400,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,7 +189,7 @@ fun ReminderScreen(
             }
 
             // === 导航渐隐 ===
-            LightNavBlurFade(
+            NavBlurFade(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -208,8 +204,7 @@ fun ReminderScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = ClearDuDimens.NavBarBottomOffset),
-                lightMode = true
+                    .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
     }
 
@@ -250,36 +245,10 @@ private fun SectionLabel(text: String) {
     Text(
         text = text,
         style = ClearDuTypography.ReminderSectionLabel,
-        color = LiquidGlassColors.Text400,
+        color = backgroundAwareColors().text400,
         modifier = Modifier.padding(
             start = ClearDuDimens.ReminderSectionLabelStartPadding
         )
-    )
-}
-
-
-
-/**
- * 浅色模式底部导航渐隐。
- */
-@Composable
-private fun LightNavBlurFade(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.LightNavBlurFadeStart,
-                        LiquidGlassColors.LightNavBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
     )
 }
 

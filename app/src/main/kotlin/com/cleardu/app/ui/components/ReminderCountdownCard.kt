@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 下次透析倒计时主卡片。
@@ -86,12 +87,7 @@ fun ReminderCountdownCard(
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ClearDuDimens.ReminderCountdownCardRadius),
-        background = LiquidGlassColors.LightGlassBgStrong,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 8f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        shape = RoundedCornerShape(ClearDuDimens.ReminderCountdownCardRadius)
     ) {
         Column(
             modifier = Modifier
@@ -102,7 +98,7 @@ fun ReminderCountdownCard(
             Text(
                 text = "下次透析",
                 style = ClearDuTypography.ReminderCountdownLabel,
-                color = LiquidGlassColors.Text400,
+                color = backgroundAwareColors().text400,
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownLabelBottomMargin)
             )
 
@@ -117,7 +113,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "天",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = backgroundAwareColors().text400,
                     modifier = Modifier.alignByBaseline().padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
                 )
                 Text(
@@ -129,7 +125,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "小时",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = backgroundAwareColors().text400,
                     modifier = Modifier.alignByBaseline().padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
                 )
                 Text(
@@ -141,7 +137,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "分",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = backgroundAwareColors().text400,
                     modifier = Modifier.alignByBaseline()
                 )
             }
@@ -152,7 +148,7 @@ fun ReminderCountdownCard(
             Text(
                 text = "8月2日 周日 上午8:00",
                 style = ClearDuTypography.ReminderCountdownDate,
-                color = LiquidGlassColors.LightForeground,
+                color = backgroundAwareColors().foreground,
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownDateBottomMargin)
             )
 
@@ -177,7 +173,7 @@ fun ReminderCountdownCard(
                         Text(
                             text = displayAddress,
                             style = ClearDuTypography.ReminderSettingDetail,
-                            color = LiquidGlassColors.Text400.copy(alpha = 0.6f),
+                            color = backgroundAwareColors().text400.copy(alpha = 0.6f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

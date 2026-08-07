@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 提醒设置卡片 —— 提醒中心页。
@@ -39,12 +40,7 @@ fun ReminderSettingsCard(
 ) {
     GlassCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ClearDuDimens.ReminderSettingsCardRadius),
-        background = LiquidGlassColors.LightGlassBg,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 4f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        shape = RoundedCornerShape(ClearDuDimens.ReminderSettingsCardRadius)
     ) {
         Column(
             modifier = Modifier.padding(ClearDuDimens.ReminderSettingsCardPadding)
@@ -82,13 +78,13 @@ private fun SettingItemRow(item: SettingItem) {
             Text(
                 text = item.name,
                 style = ClearDuTypography.ReminderSettingName,
-                color = LiquidGlassColors.LightForeground
+                color = backgroundAwareColors().foreground
             )
             Spacer(Modifier.height(ClearDuDimens.ReminderSettingsDetailTopGap))
             Text(
                 text = item.detail,
                 style = ClearDuTypography.ReminderSettingDetail,
-                color = LiquidGlassColors.Text400
+                color = backgroundAwareColors().text400
             )
         }
         ReminderToggle(

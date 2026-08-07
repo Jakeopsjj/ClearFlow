@@ -238,6 +238,8 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.gson)
     implementation(libs.coil.compose)
+    // [修改点-需求4] WorkManager — 每小时定时拉取天气数据
+    implementation(libs.androidx.work.runtime.ktx)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

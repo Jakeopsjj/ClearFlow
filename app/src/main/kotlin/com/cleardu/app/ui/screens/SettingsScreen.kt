@@ -279,20 +279,36 @@ fun SettingsScreen(
                         if (isCheckingUpdate) return@SettingsNavItem
                         isCheckingUpdate = true
                         scope.launch {
-                            // 按当前构建通道（Debug/Release）获取最新版本
-                            val release = GitHubReleaseChecker.fetchLatestRelease(isDebug = BuildConfig.DEBUG)
-                            latestRelease = release
+                            // [修改点-需求3] 使用分类结果，按异常类型展示精确的错误提示文案
+                            val result = GitHubReleaseChecker.fetchLatestReleaseResult(isDebug = BuildConfig.DEBUG)
                             isCheckingUpdate = false
-                            if (release != null) {
-                                val latestVer = release.versionName
-                                // 语义化版本比较：仅当远端版本严格高于当前版本时提示更新
-                                if (GitHubReleaseChecker.isNewerVersion(latestVer, BuildConfig.VERSION_NAME)) {
-                                    showUpdateDialog = true
-                                } else {
-                                    Toast.makeText(context, "已是最新版本 ${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
+                            when (result) {
+                                is GitHubReleaseChecker.UpdateFetchResult.Success -> {
+                                    val release = result.release
+                                    latestRelease = release
+                                    val latestVer = release.versionName
+                                    // 语义化版本比较：仅当远端版本严格高于当前版本时提示更新
+                                    if (GitHubReleaseChecker.isNewerVersion(latestVer, BuildConfig.VERSION_NAME)) {
+                                        showUpdateDialog = true
+                                    } else {
+                                        Toast.makeText(context, "已是最新版本 ${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                            } else {
-                                Toast.makeText(context, "检查失败，请检查网络连接", Toast.LENGTH_SHORT).show()
+                                is GitHubReleaseChecker.UpdateFetchResult.NetworkUnreachable -> {
+                                    // 仅 IOException IO 网络异常 → "网络无法连接"
+                                    Toast.makeText(context, "网络无法连接，请检查网络设置", Toast.LENGTH_SHORT).show()
+                                }
+                                is GitHubReleaseChecker.UpdateFetchResult.HttpError -> {
+                                    // HTTP 错误码使用独立提示文案
+                                    Toast.makeText(context, "服务器异常（HTTP ${result.code}），请稍后重试", Toast.LENGTH_SHORT).show()
+                                }
+                                is GitHubReleaseChecker.UpdateFetchResult.ParseError -> {
+                                    // JSON 解析异常使用独立提示文案
+                                    Toast.makeText(context, "更新数据解析失败，请稍后重试", Toast.LENGTH_SHORT).show()
+                                }
+                                is GitHubReleaseChecker.UpdateFetchResult.UnknownError -> {
+                                    Toast.makeText(context, "检查更新失败，请稍后重试", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     }

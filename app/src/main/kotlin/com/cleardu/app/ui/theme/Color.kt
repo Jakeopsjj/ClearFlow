@@ -209,6 +209,13 @@ object LiquidGlassColors {
     val BrightText300 = Color(0xFF48484A)        // 深色辅助文字
     val BrightGlassBg = Color(0x40000000)         // rgba(0,0,0,0.25) — 深色磨砂卡片
     val BrightGlassBorder = Color(0x33000000)     // rgba(0,0,0,0.2) — 深色卡片边框
+    val BrightGlassSpecularTop = Color(0x40FFFFFF) // rgba(255,255,255,0.25) — 亮色背景下深色玻璃的高光
+    val BrightGlassShadow = Color(0x66000000)      // rgba(0,0,0,0.4) — 亮色背景下增强阴影
+    val BrightNavBg = Color(0xE61A1A1A)             // 亮色背景下导航栏深色玻璃
+    val BrightNavBorder = Color(0x4DFFFFFF)         // 亮色背景下导航栏边框
+    val BrightNavSpecular = Color(0x33FFFFFF)       // 亮色背景下导航栏高光
+    val BrightNavBlurFadeStart = Color(0x80000000)   // 亮色背景下导航栏渐隐起点
+    val BrightNavBlurFadeMid = Color(0x33000000)    // 亮色背景下导航栏渐隐中点
 
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)

@@ -6,6 +6,8 @@
 
     <!-- 网络权限：搜索附近医院、同步健康数据 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- [修改点-需求3] 网络状态权限：检查更新模块用于检测网络连接状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- ====== 定位权限（仅前台定位） ====== -->
     <!-- 粗略定位：基于基站/WiFi/IP，室内可用，Android 12+ 必须同时声明 -->

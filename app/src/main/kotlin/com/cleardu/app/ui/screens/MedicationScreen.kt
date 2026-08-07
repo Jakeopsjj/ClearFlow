@@ -22,11 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.data.AppSettings
@@ -40,9 +35,11 @@ import com.cleardu.app.ui.components.MedicationSettingsEntry
 import com.cleardu.app.ui.components.MedicationTimeline
 import com.cleardu.app.ui.components.MedicationWarningBanner
 import com.cleardu.app.ui.components.MedDoseStatus
+import com.cleardu.app.ui.components.NavBlurFade
 import com.cleardu.app.ui.components.RefillRequestDialog
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.components.MedicationDose as TimelineMedDose
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
@@ -119,7 +116,7 @@ fun MedicationScreen(
                 Text(
                     text = "用药管理",
                     style = ClearDuTypography.MedPageTitle,
-                    color = LiquidGlassColors.LightForeground,
+                    color = backgroundAwareColors().foreground,
                     textAlign = TextAlign.Start
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedPageTitleBottomMargin))
@@ -141,7 +138,7 @@ fun MedicationScreen(
                 Text(
                     text = "今日用药时间轴",
                     style = ClearDuTypography.MedSectionLabel,
-                    color = LiquidGlassColors.Text400,
+                    color = backgroundAwareColors().text400,
                     modifier = Modifier.padding(start = ClearDuDimens.MedSectionLabelStartPadding)
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedSectionLabelBottomMargin))
@@ -178,7 +175,7 @@ fun MedicationScreen(
             )
 
             // === 导航渐隐 ===
-            LightNavBlurFade(
+            NavBlurFade(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -190,8 +187,7 @@ fun MedicationScreen(
                 onItemSelected = onNavItemSelected,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = ClearDuDimens.NavBarBottomOffset),
-                lightMode = true
+                    .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
     }
 
@@ -237,32 +233,6 @@ fun MedicationScreen(
             onDismiss = { showRefillDialog = false }
         )
     }
-}
-
-
-
-/**
- * 浅色模式底部导航渐隐。
- */
-@Composable
-private fun LightNavBlurFade(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.LightNavBlurFadeStart,
-                        LiquidGlassColors.LightNavBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
-    )
 }
 
 // ===== Data derivation helpers =====
