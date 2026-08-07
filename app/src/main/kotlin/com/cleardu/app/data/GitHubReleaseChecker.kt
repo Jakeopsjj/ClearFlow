@@ -67,6 +67,22 @@ object GitHubReleaseChecker {
     suspend fun fetchLatestRelease(): ReleaseInfo? = fetchLatestRelease(isDebug = false)
 
     /**
+     * 按 tag 名称获取指定 Release，用于获取当前版本对应的更新日志。
+     *
+     * @param tagName GitHub Release 的 tag 名称，如 "v1.12.1" 或 "v1.12.1-debug"
+     * @return 匹配的 [ReleaseInfo]，或 null
+     */
+    suspend fun fetchReleaseByTag(tagName: String): ReleaseInfo? = withContext(Dispatchers.IO) {
+        try {
+            val releases = fetchReleases()
+            releases.firstOrNull { it.tagName == tagName }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch release by tag: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * 比较两个语义化版本号。
      *
      * @return 正数：v1 > v2；负数：v1 < v2；0：相等

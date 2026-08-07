@@ -116,9 +116,6 @@ fun SettingsScreen(
 
     val context = LocalContext.current
 
-    // 显示版本号：去除 "-debug" 后缀，确保纯数字显示
-    val displayVersion = BuildConfig.VERSION_NAME.substringBefore("-")
-
     // ===== Dialog state variables =====
     var showUnitDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -144,8 +141,9 @@ fun SettingsScreen(
     LaunchedEffect(Unit) {
         val currentVersion = BuildConfig.VERSION_NAME
         if (s.lastSeenVersion != currentVersion) {
-            // 首次启动此版本，尝试获取更新日志（按当前构建通道）
-            val release = GitHubReleaseChecker.fetchLatestRelease(isDebug = BuildConfig.DEBUG)
+            // 获取当前版本对应的 GitHub Release 更新日志
+            val tagName = "v$currentVersion"
+            val release = GitHubReleaseChecker.fetchReleaseByTag(tagName)
             if (release != null) {
                 updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }
             } else {
@@ -294,7 +292,7 @@ fun SettingsScreen(
                     iconBg = Color(0x14FFFFFF),
                     iconFg = LiquidGlassColors.Text400,
                     label = "检查更新",
-                    value = if (isCheckingUpdate) "检查中..." else displayVersion,
+                    value = if (isCheckingUpdate) "检查中..." else BuildConfig.VERSION_NAME,
                     onClick = {
                         if (isCheckingUpdate) return@SettingsNavItem
                         isCheckingUpdate = true
@@ -309,7 +307,7 @@ fun SettingsScreen(
                                 if (GitHubReleaseChecker.isNewerVersion(latestVer, BuildConfig.VERSION_NAME)) {
                                     showUpdateDialog = true
                                 } else {
-                                    Toast.makeText(context, "已是最新版本 $displayVersion", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "已是最新版本 ${BuildConfig.VERSION_NAME}", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(context, "检查失败，请检查网络连接", Toast.LENGTH_SHORT).show()
@@ -464,7 +462,7 @@ fun SettingsScreen(
         }
         if (showUpdateDialog && latestRelease != null) {
             UpdateAvailableDialog(
-                currentVersion = displayVersion,
+                currentVersion = BuildConfig.VERSION_NAME,
                 release = latestRelease!!,
                 onDownload = {
                     showUpdateDialog = false
@@ -476,7 +474,7 @@ fun SettingsScreen(
         }
         if (showUpdateLogDialog) {
             UpdateLogDialog(
-                versionName = displayVersion,
+                versionName = BuildConfig.VERSION_NAME,
                 logText = updateLogText,
                 onDismiss = {
                     showUpdateLogDialog = false
@@ -1661,7 +1659,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    "版本：v${BuildConfig.VERSION_NAME.substringBefore("-")}\n" +
+                    "版本：v${BuildConfig.VERSION_NAME}\n" +
                     "构建号：${BuildConfig.VERSION_CODE}\n\n" +
                     "清渡是一款专为透析患者设计的健康管理应用，帮助您轻松记录透析数据、管理用药、设置提醒，让健康管理更简单、更安心。\n\n" +
                     "© 2026 清渡团队",
