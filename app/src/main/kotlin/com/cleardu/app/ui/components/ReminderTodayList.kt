@@ -55,7 +55,7 @@ fun ReminderTodayList(
     reminders: List<TodayReminder> = emptyList(),
     modifier: Modifier = Modifier
 ) {
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),

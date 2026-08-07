@@ -38,7 +38,7 @@ import com.cleardu.app.ui.theme.glassParams
 fun ReminderSettingsCard(
     modifier: Modifier = Modifier
 ) {
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),

@@ -67,7 +67,7 @@ fun EmergencyCallCard(
 
     val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
     val displayPhone = contactPhone.ifBlank { "" }
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),

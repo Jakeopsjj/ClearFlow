@@ -43,7 +43,7 @@ fun MedicationSettingsEntry(
         targetValue = if (pressed) ClearDuMotion.CardPressScale else 1f,
         label = "settingsEntryScale"
     )
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier

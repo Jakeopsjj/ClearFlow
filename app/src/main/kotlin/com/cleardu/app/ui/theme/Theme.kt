@@ -83,24 +83,35 @@ data class GlassParams(
  *
  * 默认返回仪表盘基准参数（暗色背景）。
  * 当天气背景为高亮度时自动覆写为亮色适配值。
+ * 当 lightMode = true 时（用药/提醒等浅色页面），返回浅色玻璃参数。
  *
+ * @param lightMode 是否为浅色页面模式，默认 false（暗色仪表盘）
  * @return 当前适用的玻璃视觉参数
  */
 @Composable
-fun glassParams(): GlassParams {
+fun glassParams(lightMode: Boolean = false): GlassParams {
     val weatherState by WeatherBackgroundManager.state.collectAsState()
     val isBright = weatherState.enabled && weatherState.isBrightBackground
 
-    return if (isBright) {
-        GlassParams(
+    return when {
+        // 浅色页面：使用浅色玻璃参数（白色磨砂）
+        lightMode -> GlassParams(
+            background = LiquidGlassColors.LightGlassBg,
+            border = LiquidGlassColors.LightGlassBorder,
+            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
+            shadowElevation = 0f,
+            specularTop = LiquidGlassColors.LightGlassSpecularTop
+        )
+        // 暗色页面 + 高亮天气背景：使用深色磨砂参数
+        isBright -> GlassParams(
             background = LiquidGlassColors.BrightGlassBg,
             border = LiquidGlassColors.BrightGlassBorder,
             shadowColor = androidx.compose.ui.graphics.Color.Transparent,
             shadowElevation = 0f,
             specularTop = LiquidGlassColors.GlassSpecularTop
         )
-    } else {
-        GlassParams(
+        // 暗色页面 + 暗色背景：仪表盘基准
+        else -> GlassParams(
             background = LiquidGlassColors.GlassBg,
             border = LiquidGlassColors.GlassBorder,
             shadowColor = androidx.compose.ui.graphics.Color.Transparent,

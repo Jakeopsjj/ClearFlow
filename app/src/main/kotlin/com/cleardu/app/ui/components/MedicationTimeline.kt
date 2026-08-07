@@ -171,7 +171,7 @@ private fun MedicationTimelineItem(
     val isPast = dose.status == MedDoseStatus.TAKEN
     // 历史 TAKEN 卡片 0.6 透明；刚点击"服了"的卡片保持不透明
     val cardAlpha = if (isPast && !justTaken) 0.6f else 1f
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(

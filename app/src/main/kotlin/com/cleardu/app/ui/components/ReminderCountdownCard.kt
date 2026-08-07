@@ -84,7 +84,7 @@ fun ReminderCountdownCard(
 
     val displayHospital = hospitalName.ifBlank { "点击设置透析医院" }
     val displayAddress = hospitalAddress.ifBlank { "未设置" }
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),

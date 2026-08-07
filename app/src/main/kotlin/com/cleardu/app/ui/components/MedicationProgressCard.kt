@@ -61,7 +61,7 @@ fun MedicationProgressCard(
         (takenCount.toFloat() / totalCount.toFloat()).coerceIn(0f, 1f)
     } else 0f
     val pctText = "${(progress * 100).toInt()}%"
-    val glass = glassParams()
+    val glass = glassParams(lightMode = true)
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
