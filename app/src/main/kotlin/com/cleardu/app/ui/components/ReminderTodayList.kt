@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
-import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 今日提醒卡片 —— 提醒中心页。
@@ -57,7 +56,12 @@ fun ReminderTodayList(
 ) {
     GlassCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ClearDuDimens.ReminderTodayCardRadius)
+        shape = RoundedCornerShape(ClearDuDimens.ReminderTodayCardRadius),
+        background = LiquidGlassColors.LightGlassBg,
+        border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         if (reminders.isEmpty()) {
             // 空状态：引导用户设置提醒
@@ -70,13 +74,13 @@ fun ReminderTodayList(
                 Text(
                     text = "暂无提醒",
                     style = ClearDuTypography.ReminderTodayText,
-                    color = backgroundAwareColors().text400,
+                    color = LiquidGlassColors.Text400,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
                     text = "请在用药、测量等页面设置提醒",
                     style = ClearDuTypography.ReminderTodayStatus,
-                    color = backgroundAwareColors().text400.copy(alpha = 0.6f)
+                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
                 )
             }
         } else {
@@ -167,14 +171,14 @@ private fun TodayReminderRow(item: TodayReminder) {
         Text(
             text = item.time,
             style = ClearDuTypography.ReminderTodayTime,
-            color = backgroundAwareColors().text400,
+            color = LiquidGlassColors.Text400,
             modifier = Modifier.width(ClearDuDimens.ReminderTodayTimeWidth)
         )
         // 标题
         Text(
             text = item.title,
             style = ClearDuTypography.ReminderTodayText,
-            color = backgroundAwareColors().foreground,
+            color = LiquidGlassColors.LightForeground,
             modifier = Modifier.weight(1f)
         )
         // 状态徽章

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
-import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 紧急呼叫卡片。
@@ -72,7 +71,10 @@ fun EmergencyCallCard(
         modifier = modifier.fillMaxWidth(),
         shape = cardShape,
         background = LiquidGlassColors.LightTintRedBg,
-        border = LiquidGlassColors.LightTintRedBorder
+        border = LiquidGlassColors.LightTintRedBorder,
+        shadowColor = LiquidGlassColors.GlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Box(modifier = Modifier.padding(ClearDuDimens.ReminderEmergencyCardPadding)) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -109,7 +111,7 @@ fun EmergencyCallCard(
                     Text(
                         text = displayContact,
                         style = ClearDuTypography.ReminderEmergencyContact,
-                        color = if (contactName.isNotBlank()) backgroundAwareColors().foreground else LiquidGlassColors.MedicalRed,
+                        color = if (contactName.isNotBlank()) LiquidGlassColors.LightForeground else LiquidGlassColors.MedicalRed,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(bottom = if (contactName.isNotBlank()) ClearDuDimens.ReminderEmergencyContactBottomMargin else 0.dp)
@@ -118,7 +120,7 @@ fun EmergencyCallCard(
                         Text(
                             text = displayPhone,
                             style = ClearDuTypography.ReminderEmergencyPhone,
-                            color = backgroundAwareColors().foreground,
+                            color = LiquidGlassColors.LightForeground,
                             modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyPhoneBottomMargin)
                         )
                     }
@@ -204,7 +206,7 @@ private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
             Text(
                 text = if (enabled) "立即拨打" else "请先设置联系人",
                 style = ClearDuTypography.ReminderEmergencyCallBtn,
-                color = if (enabled) LiquidGlassColors.White else backgroundAwareColors().text400
+                color = if (enabled) LiquidGlassColors.White else LiquidGlassColors.Text400
             )
         }
     }

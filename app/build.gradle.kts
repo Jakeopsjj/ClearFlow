@@ -16,8 +16,8 @@ android {
         applicationId = "com.cleardu.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 38
-        versionName = "1.13.0"
+        versionCode = 37
+        versionName = "1.12.1"
 
         // === Native 库过滤：仅保留 armeabi-v7a 和 arm64-v8a，去除 x86/x86_64 减小包体积 ===
         // 同时解决三家地图 SDK 的 so 库冲突
@@ -238,8 +238,6 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.gson)
     implementation(libs.coil.compose)
-    // [修改点-需求4] WorkManager — 每小时定时拉取天气数据
-    implementation(libs.androidx.work.runtime.ktx)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

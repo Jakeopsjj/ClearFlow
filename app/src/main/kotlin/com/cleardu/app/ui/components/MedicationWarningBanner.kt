@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
-import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 用药不足警告横幅。
@@ -41,11 +40,17 @@ fun MedicationWarningBanner(
     onRefillClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    GlassCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ClearDuDimens.MedWarningRadius),
-        background = LiquidGlassColors.LightTintOrangeBg,
-        border = LiquidGlassColors.LightTintOrangeBorder
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(ClearDuDimens.MedWarningRadius))
+            .drawBehind {
+                drawRect(LiquidGlassColors.LightTintOrangeBg)
+            }
+            .border(
+                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightTintOrangeBorder),
+                RoundedCornerShape(ClearDuDimens.MedWarningRadius)
+            )
     ) {
         Row(
             modifier = Modifier

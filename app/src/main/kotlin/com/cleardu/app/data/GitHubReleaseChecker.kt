@@ -4,14 +4,10 @@ import android.util.Log
 import com.cleardu.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.net.HttpURLConnection
-import java.util.concurrent.TimeUnit
+import java.net.URL
 
 /**
  * GitHub Release 版本检查器。
@@ -23,14 +19,6 @@ import java.util.concurrent.TimeUnit
  * - Debug 通道：匹配资产名包含 "-debug.apk" 的 APK
  * - Release 通道：匹配资产名包含 "-release.apk" 的 APK
  * - 版本比较：使用语义化版本（major.minor.patch）比较，仅当远端版本严格高于当前版本时提示更新
- *
- * ## 需求3：异常分类处理与重试机制
- *
- * 本模块使用独立的 OkHttp 客户端，不复用 pexels 代理接口。
- * - 仅 IOException IO 网络异常提示"网络无法连接"
- * - HTTP 错误码使用独立提示文案
- * - JSON 解析异常使用独立提示文案
- * - 单次请求最多重试 2 次，打印原始异常调试日志
  */
 object GitHubReleaseChecker {
 
@@ -39,147 +27,50 @@ object GitHubReleaseChecker {
     private const val TIMEOUT_MS = 10_000
     private const val PER_PAGE = 30
 
-    /** [修改点-需求3] 更新请求最大重试次数（首次 + 2 次重试 = 共 3 次尝试）。 */
-    private const val MAX_RETRY = 2
-
-    /** [修改点-需求3] 独立 OkHttp 客户端，不复用 pexels 代理接口。 */
-    private val updateHttpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(TIMEOUT_MS.toLong(), TimeUnit.MILLISECONDS)
-            .readTimeout(TIMEOUT_MS.toLong(), TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT_MS.toLong(), TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
+    // 代理服务器 URL（解决国内无法直接访问 GitHub API 的问题）
+    private val PROXY_URL: String by lazy {
+        BuildConfig.GITHUB_PROXY_URL.trimEnd('/')
     }
 
     /**
-     * [修改点-需求3] 更新检查结果分类。
+     * 获取最新 Release 信息（匹配当前构建类型通道）。
      *
-     * 用于区分不同失败原因，向用户展示精确的错误提示文案，
-     * 而不是把所有失败统一报"网络失败"。
-     */
-    sealed class UpdateFetchResult {
-        /** 成功获取到 Release 信息。 */
-        data class Success(val release: ReleaseInfo) : UpdateFetchResult()
-
-        /** 仅 IOException IO 网络异常 — 提示"网络无法连接"。 */
-        data object NetworkUnreachable : UpdateFetchResult()
-
-        /** HTTP 错误码（如 404/500/503） — 提示服务器异常。 */
-        data class HttpError(val code: Int) : UpdateFetchResult()
-
-        /** JSON 解析异常 — 提示数据解析失败。 */
-        data object ParseError : UpdateFetchResult()
-
-        /** 其它未知异常 — 提示检查失败。 */
-        data object UnknownError : UpdateFetchResult()
-    }
-
-    /**
-     * [修改点-需求3] 获取最新 Release 信息（匹配当前构建类型通道）。
-     *
-     * 返回分类后的 [UpdateFetchResult]，调用方可据此展示精确的错误提示。
+     * 不再按 tag 名称区分通道，而是获取最新 Release 后按资产名匹配对应的 APK。
      *
      * @param isDebug 当前是否为 Debug 构建
-     * @return 分类结果，[UpdateFetchResult.Success] 携带匹配通道的最新 [ReleaseInfo]
+     * @return 匹配通道的最新 [ReleaseInfo]，或 null
      */
-    suspend fun fetchLatestReleaseResult(isDebug: Boolean): UpdateFetchResult =
-        withContext(Dispatchers.IO) {
-            var lastError: UpdateFetchResult = UpdateFetchResult.UnknownError
+    suspend fun fetchLatestRelease(isDebug: Boolean): ReleaseInfo? = withContext(Dispatchers.IO) {
+        try {
+            val releases = fetchReleases()
+            if (releases.isEmpty()) return@withContext null
 
-            // 重试循环：首次 + MAX_RETRY 次重试
-            for (attempt in 0..MAX_RETRY) {
-                if (attempt > 0) {
-                    Log.d(TAG, "重试第 $attempt/$MAX_RETRY 次")
-                    // 重试前短暂等待，避免立即重打导致雪崩
-                    try {
-                        Thread.sleep(500L * attempt)
-                    } catch (_: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                        return@withContext lastError
-                    }
-                }
+            // 取版本号最高的 Release
+            val latest = releases.maxByOrNull { release ->
+                val parts = release.parsedVersion
+                (parts.getOrElse(0) { 0 }) * 1_000_000L +
+                    (parts.getOrElse(1) { 0 }) * 1_000L +
+                    (parts.getOrElse(2) { 0 })
+            } ?: return@withContext null
 
-                when (val result = fetchReleasesWithClassification()) {
-                    is InternalResult.Success -> {
-                        val releases = result.releases
-                        if (releases.isEmpty()) {
-                            Log.w(TAG, "Release 列表为空")
-                            lastError = UpdateFetchResult.ParseError
-                            continue
-                        }
+            // 按构建类型匹配对应的 APK 资产
+            val apkSuffix = if (isDebug) "-debug.apk" else "-release.apk"
+            val apkAsset = latest.assets.firstOrNull { it.name.endsWith(apkSuffix) }
 
-                        // 取版本号最高的 Release
-                        val latest = releases.maxByOrNull { release ->
-                            val parts = release.parsedVersion
-                            (parts.getOrElse(0) { 0 }) * 1_000_000L +
-                                (parts.getOrElse(1) { 0 }) * 1_000L +
-                                (parts.getOrElse(2) { 0 })
-                        }
-
-                        if (latest == null) {
-                            lastError = UpdateFetchResult.ParseError
-                            continue
-                        }
-
-                        // 按构建类型匹配对应的 APK 资产
-                        val apkSuffix = if (isDebug) "-debug.apk" else "-release.apk"
-                        val apkAsset = latest.assets.firstOrNull { it.name.endsWith(apkSuffix) }
-
-                        if (apkAsset == null) {
-                            Log.w(TAG, "No ${if (isDebug) "debug" else "release"} APK in release ${latest.tagName}")
-                            lastError = UpdateFetchResult.ParseError
-                            continue
-                        }
-
-                        return@withContext UpdateFetchResult.Success(
-                            latest.copy(apkUrl = apkAsset.url)
-                        )
-                    }
-                    is InternalResult.NetworkUnreachable -> {
-                        // IO 异常才重试
-                        lastError = UpdateFetchResult.NetworkUnreachable
-                        Log.d(TAG, "IO 异常，准备重试")
-                    }
-                    is InternalResult.HttpError -> {
-                        // HTTP 4xx 不重试（除了 429），5xx 重试
-                        lastError = UpdateFetchResult.HttpError(result.code)
-                        if (result.code in 400..499 && result.code != 429) {
-                            Log.d(TAG, "HTTP ${result.code} 客户端错误，不重试")
-                            return@withContext UpdateFetchResult.HttpError(result.code)
-                        }
-                        Log.d(TAG, "HTTP ${result.code}，准备重试")
-                    }
-                    is InternalResult.ParseError -> {
-                        // JSON 解析异常不重试
-                        return@withContext UpdateFetchResult.ParseError
-                    }
-                    is InternalResult.UnknownError -> {
-                        lastError = UpdateFetchResult.UnknownError
-                        Log.d(TAG, "未知异常，准备重试")
-                    }
-                }
+            if (apkAsset == null) {
+                Log.w(TAG, "No ${if (isDebug) "debug" else "release"} APK in release ${latest.tagName}")
+                return@withContext null
             }
 
-            lastError
-        }
-
-    /**
-     * 兼容旧接口：返回 [ReleaseInfo] 或 null。
-     * 新代码应优先使用 [fetchLatestReleaseResult] 获取分类错误。
-     */
-    suspend fun fetchLatestRelease(isDebug: Boolean): ReleaseInfo? {
-        return when (val result = fetchLatestReleaseResult(isDebug)) {
-            is UpdateFetchResult.Success -> result.release
-            else -> {
-                Log.e(TAG, "fetchLatestRelease 失败: $result")
-                null
-            }
+            latest.copy(apkUrl = apkAsset.url)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch latest release: ${e.message}", e)
+            null
         }
     }
 
     /**
-     * 兼容旧接口：获取所有 Release（用于更新日志弹窗等场景）。
+     * 获取所有 Release（兼容旧接口，用于更新日志弹窗等场景）。
      */
     suspend fun fetchLatestRelease(): ReleaseInfo? = fetchLatestRelease(isDebug = false)
 
@@ -190,12 +81,12 @@ object GitHubReleaseChecker {
      * @return 匹配的 [ReleaseInfo]，或 null
      */
     suspend fun fetchReleaseByTag(tagName: String): ReleaseInfo? = withContext(Dispatchers.IO) {
-        when (val result = fetchReleasesWithClassification()) {
-            is InternalResult.Success -> result.releases.firstOrNull { it.tagName == tagName }
-            else -> {
-                Log.e(TAG, "fetchReleaseByTag 失败: $result")
-                null
-            }
+        try {
+            val releases = fetchReleases()
+            releases.firstOrNull { it.tagName == tagName }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch release by tag: ${e.message}", e)
+            null
         }
     }
 
@@ -225,94 +116,66 @@ object GitHubReleaseChecker {
 
     // ==================== 内部实现 ====================
 
-    /**
-     * [修改点-需求3] 内部请求结果，携带 Release 列表或分类错误。
-     */
-    private sealed class InternalResult {
-        data class Success(val releases: List<ReleaseInfo>) : InternalResult()
-        data object NetworkUnreachable : InternalResult()
-        data class HttpError(val code: Int) : InternalResult()
-        data object ParseError : InternalResult()
-        data object UnknownError : InternalResult()
+    private fun fetchReleases(): List<ReleaseInfo> {
+        // 先尝试代理服务器，再回退到直连 GitHub API
+        val proxyUrl = "$PROXY_URL/api/github/releases?owner=Jakeopsjj&repo=ClearFlow&per_page=$PER_PAGE"
+        val body = try {
+            fetchFromUrl(proxyUrl)
+        } catch (e: Exception) {
+            Log.w(TAG, "Proxy fetch failed, trying direct GitHub API: ${e.message}")
+            try {
+                fetchFromUrl("$GITHUB_API_URL?per_page=$PER_PAGE")
+            } catch (e2: Exception) {
+                Log.e(TAG, "Direct GitHub API also failed: ${e2.message}")
+                return emptyList()
+            }
+        }
+
+        val jsonArray = JSONArray(body)
+
+        return (0 until jsonArray.length()).map { i ->
+            val json = jsonArray.getJSONObject(i)
+            val assets = json.optJSONArray("assets")?.let { assetsArray ->
+                (0 until assetsArray.length()).map { j ->
+                    val asset = assetsArray.getJSONObject(j)
+                    ReleaseAsset(
+                        name = asset.optString("name", ""),
+                        url = asset.optString("browser_download_url", ""),
+                        size = asset.optLong("size", 0)
+                    )
+                }
+            } ?: emptyList()
+
+            ReleaseInfo(
+                tagName = json.optString("tag_name", ""),
+                versionName = json.optString("tag_name", "").removePrefix("v"),
+                body = json.optString("body", ""),
+                publishedAt = json.optString("published_at", ""),
+                htmlUrl = json.optString("html_url", ""),
+                apkUrl = assets.firstOrNull { it.name.endsWith(".apk") }?.url ?: "",
+                assets = assets
+            )
+        }
     }
 
     /**
-     * [修改点-需求3] 请求 GitHub API 并分类异常。
-     *
-     * - 直连 GitHub API，不复用 pexels 代理接口
-     * - IOException → NetworkUnreachable
-     * - HTTP 非 200 → HttpError
-     * - JSON 解析异常 → ParseError
+     * 通用 URL 请求方法，返回响应 body 字符串。
      */
-    private suspend fun fetchReleasesWithClassification(): InternalResult =
-        withContext(Dispatchers.IO) {
-            // 直连 GitHub API（需求3：禁止复用 pexels 代理接口）
-            val requestUrl = "$GITHUB_API_URL?per_page=$PER_PAGE"
-            val request = Request.Builder()
-                .url(requestUrl)
-                .header("Accept", "application/vnd.github.v3+json")
-                .header("User-Agent", "ClearFlow-App")
-                .build()
+    private fun fetchFromUrl(urlString: String): String {
+        val url = URL(urlString)
+        val connection = url.openConnection() as HttpURLConnection
+        connection.connectTimeout = TIMEOUT_MS
+        connection.readTimeout = TIMEOUT_MS
+        connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+        connection.setRequestProperty("User-Agent", "ClearFlow-App")
 
-            val responseBody: String
-            try {
-                updateHttpClient.newCall(request).execute().use { response ->
-                    val code = response.code
-                    if (code != HttpURLConnection.HTTP_OK) {
-                        // 打印原始调试日志
-                        Log.w(TAG, "HTTP 错误码: $code")
-                        return@withContext InternalResult.HttpError(code)
-                    }
-                    responseBody = response.body?.string().orEmpty()
-                    if (responseBody.isBlank()) {
-                        Log.w(TAG, "响应 body 为空")
-                        return@withContext InternalResult.ParseError
-                    }
-                }
-            } catch (e: IOException) {
-                // 仅 IOException IO 网络异常 → "网络无法连接"
-                Log.e(TAG, "IO 网络异常: ${e.message}", e)
-                return@withContext InternalResult.NetworkUnreachable
-            } catch (e: Exception) {
-                Log.e(TAG, "未知异常: ${e.message}", e)
-                return@withContext InternalResult.UnknownError
-            }
-
-            // JSON 解析
-            try {
-                val jsonArray = JSONArray(responseBody)
-                val releases = (0 until jsonArray.length()).map { i ->
-                    val json = jsonArray.getJSONObject(i)
-                    val assets = json.optJSONArray("assets")?.let { assetsArray ->
-                        (0 until assetsArray.length()).map { j ->
-                            val asset = assetsArray.getJSONObject(j)
-                            ReleaseAsset(
-                                name = asset.optString("name", ""),
-                                url = asset.optString("browser_download_url", ""),
-                                size = asset.optLong("size", 0)
-                            )
-                        }
-                    } ?: emptyList()
-
-                    ReleaseInfo(
-                        tagName = json.optString("tag_name", ""),
-                        versionName = json.optString("tag_name", "").removePrefix("v"),
-                        body = json.optString("body", ""),
-                        publishedAt = json.optString("published_at", ""),
-                        htmlUrl = json.optString("html_url", ""),
-                        apkUrl = assets.firstOrNull { it.name.endsWith(".apk") }?.url ?: "",
-                        assets = assets
-                    )
-                }
-                InternalResult.Success(releases)
-            } catch (e: JSONException) {
-                Log.e(TAG, "JSON 解析异常: ${e.message}", e)
-                InternalResult.ParseError
-            } catch (e: Exception) {
-                Log.e(TAG, "解析未知异常: ${e.message}", e)
-                InternalResult.UnknownError
-            }
+        val responseCode = connection.responseCode
+        if (responseCode != 200) {
+            throw RuntimeException("HTTP $responseCode")
         }
+
+        return connection.inputStream.bufferedReader().use { it.readText() }
+    }
 
     /**
      * 解析版本号字符串为整数列表。

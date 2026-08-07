@@ -48,15 +48,15 @@ import com.cleardu.app.ui.theme.backgroundAwareColors
 fun FloatingNavigationBar(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lightMode: Boolean = false
 ) {
     val labels = listOf("首页", "记录", "数据", "用药", "提醒")
 
-    val bgColors = backgroundAwareColors()
     val shape = RoundedCornerShape(ClearDuDimens.NavBarRadius)
-    val navBg = bgColors.navBg
-    val navBorder = bgColors.navBorder
-    val navSpecular = bgColors.navSpecular
+    val navBg = if (lightMode) LiquidGlassColors.LightNavBg else LiquidGlassColors.NavBg
+    val navBorder = if (lightMode) LiquidGlassColors.LightNavBorder else LiquidGlassColors.NavBorder
+    val navSpecular = if (lightMode) LiquidGlassColors.LightNavSpecular else LiquidGlassColors.NavSpecular
 
     // Layered approach: blurred background + sharp content on top
     Box(modifier = modifier) {
@@ -179,30 +179,4 @@ private fun NavItem(
                 }
         )
     }
-}
-
-/**
- * 底部导航渐隐 — 背景亮度感知。
- * 卡片和导航栏使用同一套动态参数消除割裂。
- */
-@Composable
-fun NavBlurFade(modifier: Modifier = Modifier) {
-    val bgColors = backgroundAwareColors()
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        bgColors.navBlurFadeStart,
-                        bgColors.navBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
-    )
 }

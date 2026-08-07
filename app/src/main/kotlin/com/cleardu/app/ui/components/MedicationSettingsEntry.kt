@@ -25,7 +25,6 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
-import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 用药提醒设置入口卡片。
@@ -54,7 +53,12 @@ fun MedicationSettingsEntry(
                 indication = null,
                 onClick = onClick
             ),
-        shape = RoundedCornerShape(ClearDuDimens.MedSettingsRadius)
+        shape = RoundedCornerShape(ClearDuDimens.MedSettingsRadius),
+        background = LiquidGlassColors.LightGlassBg,
+        border = LiquidGlassColors.LightGlassBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Row(
             modifier = Modifier
@@ -85,11 +89,11 @@ fun MedicationSettingsEntry(
                 Text(
                     text = "用药提醒设置",
                     style = ClearDuTypography.MedSettingsText,
-                    color = backgroundAwareColors().foreground
+                    color = LiquidGlassColors.LightForeground
                 )
             }
             MedChevronRightIcon(
-                tint = backgroundAwareColors().text400,
+                tint = LiquidGlassColors.Text400,
                 modifier = Modifier.size(20.dp)
             )
         }
