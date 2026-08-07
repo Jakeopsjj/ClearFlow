@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 今日服药进度玻璃卡片。
@@ -60,15 +61,16 @@ fun MedicationProgressCard(
         (takenCount.toFloat() / totalCount.toFloat()).coerceIn(0f, 1f)
     } else 0f
     val pctText = "${(progress * 100).toInt()}%"
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.MedProgressCardRadius),
-        background = LiquidGlassColors.LightGlassBg,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 6f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        background = glass.background,
+        border = glass.border,
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
     ) {
         Row(
             modifier = Modifier

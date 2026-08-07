@@ -25,6 +25,7 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 用药提醒设置入口卡片。
@@ -42,6 +43,7 @@ fun MedicationSettingsEntry(
         targetValue = if (pressed) ClearDuMotion.CardPressScale else 1f,
         label = "settingsEntryScale"
     )
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier
@@ -54,11 +56,11 @@ fun MedicationSettingsEntry(
                 onClick = onClick
             ),
         shape = RoundedCornerShape(ClearDuDimens.MedSettingsRadius),
-        background = LiquidGlassColors.LightGlassBg,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 4f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        background = glass.background,
+        border = glass.border,
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
     ) {
         Row(
             modifier = Modifier

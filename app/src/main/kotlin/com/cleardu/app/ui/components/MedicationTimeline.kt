@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 一次服药记录的状态。
@@ -170,6 +171,7 @@ private fun MedicationTimelineItem(
     val isPast = dose.status == MedDoseStatus.TAKEN
     // 历史 TAKEN 卡片 0.6 透明；刚点击"服了"的卡片保持不透明
     val cardAlpha = if (isPast && !justTaken) 0.6f else 1f
+    val glass = glassParams()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -198,11 +200,11 @@ private fun MedicationTimelineItem(
                     .weight(1f)
                     .alpha(cardAlpha),
                 shape = RoundedCornerShape(ClearDuDimens.MedCardRadius),
-                background = LiquidGlassColors.LightGlassBg,
-                border = LiquidGlassColors.LightGlassBorder,
-                shadowColor = LiquidGlassColors.LightGlassShadow,
-                shadowElevation = 4f,
-                specularTop = LiquidGlassColors.LightGlassSpecularTop
+                background = glass.background,
+                border = glass.border,
+                shadowColor = glass.shadowColor,
+                shadowElevation = glass.shadowElevation,
+                specularTop = glass.specularTop
             ) {
                 Row(
                     modifier = Modifier

@@ -59,6 +59,58 @@ fun ClearDuTheme(
 }
 
 /**
+ * 统一液态玻璃视觉参数。
+ *
+ * 以首页仪表盘 GlassCard 默认参数为唯一视觉基准，所有页面共享同一套玻璃参数。
+ * 当天气背景为高亮度时，通过 [glassParams] 动态覆写为亮色适配值。
+ *
+ * @param background 玻璃背景色（仪表盘基准：GlassBg = rgba(255,255,255,0.12)）
+ * @param border 玻璃边框色（仪表盘基准：GlassBorder = rgba(255,255,255,0.22)）
+ * @param shadowColor 阴影颜色（仪表盘基准：Color.Transparent = 无阴影）
+ * @param shadowElevation 阴影高度dp（仪表盘基准：0f = 无阴影）
+ * @param specularTop 顶部高光色（仪表盘基准：GlassSpecularTop = rgba(255,255,255,0.25)）
+ */
+data class GlassParams(
+    val background: androidx.compose.ui.graphics.Color,
+    val border: androidx.compose.ui.graphics.Color,
+    val shadowColor: androidx.compose.ui.graphics.Color,
+    val shadowElevation: Float,
+    val specularTop: androidx.compose.ui.graphics.Color
+)
+
+/**
+ * 获取当前背景亮度下的液态玻璃参数。
+ *
+ * 默认返回仪表盘基准参数（暗色背景）。
+ * 当天气背景为高亮度时自动覆写为亮色适配值。
+ *
+ * @return 当前适用的玻璃视觉参数
+ */
+@Composable
+fun glassParams(): GlassParams {
+    val weatherState by WeatherBackgroundManager.state.collectAsState()
+    val isBright = weatherState.enabled && weatherState.isBrightBackground
+
+    return if (isBright) {
+        GlassParams(
+            background = LiquidGlassColors.BrightGlassBg,
+            border = LiquidGlassColors.BrightGlassBorder,
+            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
+            shadowElevation = 0f,
+            specularTop = LiquidGlassColors.GlassSpecularTop
+        )
+    } else {
+        GlassParams(
+            background = LiquidGlassColors.GlassBg,
+            border = LiquidGlassColors.GlassBorder,
+            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
+            shadowElevation = 0f,
+            specularTop = LiquidGlassColors.GlassSpecularTop
+        )
+    }
+}
+
+/**
  * 背景亮度自适应的文字颜色。
  *
  * 当天气背景为高亮度类型（晴天、雪天、多云白天）时自动切换为深色文字，

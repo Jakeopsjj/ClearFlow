@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 下次透析倒计时主卡片。
@@ -83,15 +84,16 @@ fun ReminderCountdownCard(
 
     val displayHospital = hospitalName.ifBlank { "点击设置透析医院" }
     val displayAddress = hospitalAddress.ifBlank { "未设置" }
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.ReminderCountdownCardRadius),
-        background = LiquidGlassColors.LightGlassBgStrong,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 8f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        background = glass.background,
+        border = glass.border,
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
     ) {
         Column(
             modifier = Modifier

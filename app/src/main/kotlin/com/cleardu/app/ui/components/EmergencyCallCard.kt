@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 紧急呼叫卡片。
@@ -66,15 +67,16 @@ fun EmergencyCallCard(
 
     val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
     val displayPhone = contactPhone.ifBlank { "" }
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = cardShape,
         background = LiquidGlassColors.LightTintRedBg,
         border = LiquidGlassColors.LightTintRedBorder,
-        shadowColor = LiquidGlassColors.GlassShadow,
-        shadowElevation = 4f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
     ) {
         Box(modifier = Modifier.padding(ClearDuDimens.ReminderEmergencyCardPadding)) {
         Column(modifier = Modifier.fillMaxWidth()) {

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
  * 提醒设置卡片 —— 提醒中心页。
@@ -37,14 +38,16 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 fun ReminderSettingsCard(
     modifier: Modifier = Modifier
 ) {
+    val glass = glassParams()
+
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.ReminderSettingsCardRadius),
-        background = LiquidGlassColors.LightGlassBg,
-        border = LiquidGlassColors.LightGlassBorder,
-        shadowColor = LiquidGlassColors.LightGlassShadow,
-        shadowElevation = 4f,
-        specularTop = LiquidGlassColors.LightGlassSpecularTop
+        background = glass.background,
+        border = glass.border,
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
     ) {
         Column(
             modifier = Modifier.padding(ClearDuDimens.ReminderSettingsCardPadding)
