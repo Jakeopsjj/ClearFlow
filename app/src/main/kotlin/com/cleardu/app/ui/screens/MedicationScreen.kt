@@ -1,6 +1,5 @@
 package com.cleardu.app.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,17 +21,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.AddMedicationDialog
 import com.cleardu.app.ui.components.FloatingNavigationBar
+import com.cleardu.app.ui.components.LightNavBlurFade
 import com.cleardu.app.ui.components.MedicationFab
 import com.cleardu.app.ui.components.MedicationProgressCard
 import com.cleardu.app.ui.components.MedicationSettingsDialog
@@ -240,30 +235,9 @@ fun MedicationScreen(
 }
 
 
-
 /**
- * 浅色模式底部导航渐隐。
+ * 浅色模式底部导航渐隐。已迁移至 NavigationBar.kt 共享组件 LightNavBlurFade。
  */
-@Composable
-private fun LightNavBlurFade(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.LightNavBlurFadeStart,
-                        LiquidGlassColors.LightNavBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
-    )
-}
 
 // ===== Data derivation helpers =====
 
