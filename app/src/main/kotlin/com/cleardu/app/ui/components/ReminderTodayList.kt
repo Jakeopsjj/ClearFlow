@@ -55,7 +55,7 @@ fun ReminderTodayList(
     reminders: List<TodayReminder> = emptyList(),
     modifier: Modifier = Modifier
 ) {
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -97,7 +97,7 @@ fun ReminderTodayList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(LiquidGlassColors.LightDividerSubtle)
+                                .background(LiquidGlassColors.DividerSubtle)
                         )
                     }
                 }
@@ -150,7 +150,7 @@ private fun TodayReminderRow(item: TodayReminder) {
                         drawCircle(
                             brush = Brush.radialGradient(
                                 colors = listOf(
-                                    LiquidGlassColors.LightTintBlueGlow,
+                                    LiquidGlassColors.TintBlueGlow,
                                     Color.Transparent
                                 ),
                                 center = glowCenter,
@@ -181,13 +181,13 @@ private fun TodayReminderRow(item: TodayReminder) {
         Text(
             text = item.title,
             style = ClearDuTypography.ReminderTodayText,
-            color = LiquidGlassColors.LightForeground,
+            color = LiquidGlassColors.Foreground,
             modifier = Modifier.weight(1f)
         )
         // 状态徽章
         Box(
             modifier = Modifier
-                .background(LiquidGlassColors.LightTintCyanBg, CircleShape)
+                .background(LiquidGlassColors.TintCyanBg, CircleShape)
                 .padding(
                     horizontal = ClearDuDimens.ReminderTodayStatusPaddingH,
                     vertical = ClearDuDimens.ReminderTodayStatusPaddingV

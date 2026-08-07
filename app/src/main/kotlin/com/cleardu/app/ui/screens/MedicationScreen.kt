@@ -103,11 +103,7 @@ fun MedicationScreen(
     val nextMedName = nextMed?.name ?: "无"
     val nextMedTime = nextMed?.time ?: "--:--"
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LiquidGlassColors.LightBackground)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
             // === 可滚动内容区 ===
             Column(
                 modifier = Modifier
@@ -123,7 +119,7 @@ fun MedicationScreen(
                 Text(
                     text = "用药管理",
                     style = ClearDuTypography.MedPageTitle,
-                    color = LiquidGlassColors.LightForeground,
+                    color = LiquidGlassColors.Foreground,
                     textAlign = TextAlign.Start
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedPageTitleBottomMargin))
@@ -182,7 +178,7 @@ fun MedicationScreen(
             )
 
             // === 导航渐隐 ===
-            LightNavBlurFade(
+            NavBlurFade(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -195,7 +191,7 @@ fun MedicationScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset),
-                lightMode = true
+                lightMode = false
             )
     }
 
@@ -246,18 +242,18 @@ fun MedicationScreen(
 
 
 /**
- * 浅色模式底部导航渐隐。
+ * 暗色模式底部导航渐隐。
  */
 @Composable
-private fun LightNavBlurFade(modifier: Modifier = Modifier) {
+private fun NavBlurFade(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .height(ClearDuDimens.NavBlurFadeHeight)
             .drawBehind {
                 val brush = Brush.verticalGradient(
                     colors = listOf(
-                        LiquidGlassColors.LightNavBlurFadeStart,
-                        LiquidGlassColors.LightNavBlurFadeMid,
+                        LiquidGlassColors.NavBlurFadeStart,
+                        LiquidGlassColors.NavBlurFadeMid,
                         Color.Transparent
                     ),
                     startY = size.height,

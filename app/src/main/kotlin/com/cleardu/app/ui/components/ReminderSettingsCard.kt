@@ -38,7 +38,7 @@ import com.cleardu.app.ui.theme.glassParams
 fun ReminderSettingsCard(
     modifier: Modifier = Modifier
 ) {
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -59,7 +59,7 @@ fun ReminderSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(LiquidGlassColors.LightDividerSubtle)
+                            .background(LiquidGlassColors.DividerSubtle)
                     )
                 }
             }
@@ -85,7 +85,7 @@ private fun SettingItemRow(item: SettingItem) {
             Text(
                 text = item.name,
                 style = ClearDuTypography.ReminderSettingName,
-                color = LiquidGlassColors.LightForeground
+                color = LiquidGlassColors.Foreground
             )
             Spacer(Modifier.height(ClearDuDimens.ReminderSettingsDetailTopGap))
             Text(

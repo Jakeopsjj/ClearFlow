@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.data.weather.WeatherBackgroundManager
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.screens.ReminderScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 import com.cleardu.app.util.LocationHelper
@@ -46,27 +48,36 @@ class ReminderActivity : ComponentActivity() {
         locationHelper = LocationHelper.create(this)
 
         setContent {
+            val healthDataManager = remember {
+                HealthDataManager(RecordRepository(applicationContext))
+            }
+
+            // 初始化天气背景管理器
+            remember {
+                WeatherBackgroundManager.initialize(applicationContext, healthDataManager)
+                true
+            }
+
             ClearDuTheme {
-                val healthDataManager = remember {
-                    HealthDataManager(RecordRepository(this@ReminderActivity))
+                WeatherBackground(modifier = Modifier.fillMaxSize()) {
+                    ReminderScreen(
+                        healthDataManager = healthDataManager,
+                        locationHelper = locationHelper,
+                        onNavItemSelected = { index ->
+                            when (index) {
+                                0 -> startMainActivity()
+                                1 -> startDataRecordActivity()
+                                2 -> startHealthDataActivity()
+                                3 -> startMedicationActivity()
+                                // 4 = 提醒 (current page, no-op)
+                            }
+                        },
+                        onNavigate = { /* TODO: 导航到医院 */ },
+                        onCall = { /* TODO: 紧急拨打 */ },
+                        onFamilyContact = { /* TODO: 家人联系 */ },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-                ReminderScreen(
-                    healthDataManager = healthDataManager,
-                    locationHelper = locationHelper,
-                    onNavItemSelected = { index ->
-                        when (index) {
-                            0 -> startMainActivity()
-                            1 -> startDataRecordActivity()
-                            2 -> startHealthDataActivity()
-                            3 -> startMedicationActivity()
-                            // 4 = 提醒 (current page, no-op)
-                        }
-                    },
-                    onNavigate = { /* TODO: 导航到医院 */ },
-                    onCall = { /* TODO: 紧急拨打 */ },
-                    onFamilyContact = { /* TODO: 家人联系 */ },
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }

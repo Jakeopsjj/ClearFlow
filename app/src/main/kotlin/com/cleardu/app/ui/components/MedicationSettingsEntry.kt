@@ -43,7 +43,7 @@ fun MedicationSettingsEntry(
         targetValue = if (pressed) ClearDuMotion.CardPressScale else 1f,
         label = "settingsEntryScale"
     )
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier
@@ -80,7 +80,7 @@ fun MedicationSettingsEntry(
                     modifier = Modifier
                         .size(ClearDuDimens.MedSettingsIconSize)
                         .clip(RoundedCornerShape(ClearDuDimens.MedSettingsIconRadius))
-                        .drawBehind { drawRect(LiquidGlassColors.LightTintPurpleBg) },
+                        .drawBehind { drawRect(LiquidGlassColors.TintPurpleBg) },
                     contentAlignment = Alignment.Center
                 ) {
                     MedGearIcon(
@@ -91,7 +91,7 @@ fun MedicationSettingsEntry(
                 Text(
                     text = "用药提醒设置",
                     style = ClearDuTypography.MedSettingsText,
-                    color = LiquidGlassColors.LightForeground
+                    color = LiquidGlassColors.Foreground
                 )
             }
             MedChevronRightIcon(

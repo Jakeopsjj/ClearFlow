@@ -61,7 +61,7 @@ fun MedicationProgressCard(
         (takenCount.toFloat() / totalCount.toFloat()).coerceIn(0f, 1f)
     } else 0f
     val pctText = "${(progress * 100).toInt()}%"
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -87,7 +87,7 @@ fun MedicationProgressCard(
                 Text(
                     text = "今日服药进度",
                     style = ClearDuTypography.MedProgressTitle,
-                    color = LiquidGlassColors.LightForeground
+                    color = LiquidGlassColors.Foreground
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
@@ -169,7 +169,7 @@ private fun ProgressRing(progress: Float, percentText: String) {
 
             // Track
             drawArc(
-                color = LiquidGlassColors.LightGlassBg,
+                color = LiquidGlassColors.GlassBg,
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -202,7 +202,7 @@ private fun ProgressRing(progress: Float, percentText: String) {
         Text(
             text = percentText,
             style = ClearDuTypography.MedProgressPct,
-            color = LiquidGlassColors.LightForeground,
+            color = LiquidGlassColors.Foreground,
             textAlign = TextAlign.Center
         )
     }

@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.RecordRepository
+import com.cleardu.app.data.weather.WeatherBackgroundManager
+import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.screens.MedicationScreen
 import com.cleardu.app.ui.theme.ClearDuTheme
 
@@ -35,26 +37,35 @@ class MedicationActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val healthDataManager = remember {
+                HealthDataManager(RecordRepository(applicationContext))
+            }
+
+            // 初始化天气背景管理器
+            remember {
+                WeatherBackgroundManager.initialize(applicationContext, healthDataManager)
+                true
+            }
+
             ClearDuTheme {
-                val healthDataManager = remember {
-                    HealthDataManager(RecordRepository(this@MedicationActivity))
+                WeatherBackground(modifier = Modifier.fillMaxSize()) {
+                    MedicationScreen(
+                        healthDataManager = healthDataManager,
+                        onNavItemSelected = { index ->
+                            when (index) {
+                                0 -> startMainActivity()
+                                1 -> startDataRecordActivity()
+                                2 -> startHealthDataActivity()
+                                4 -> startReminderActivity()
+                                // 3 = 用药 (current page, no-op)
+                            }
+                        },
+                        onRefill = { /* TODO: 申请续药 */ },
+                        onSettings = { /* TODO: 用药提醒设置 */ },
+                        onFab = { /* TODO: 添加药物 */ },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
-                MedicationScreen(
-                    healthDataManager = healthDataManager,
-                    onNavItemSelected = { index ->
-                        when (index) {
-                            0 -> startMainActivity()
-                            1 -> startDataRecordActivity()
-                            2 -> startHealthDataActivity()
-                            4 -> startReminderActivity()
-                            // 3 = 用药 (current page, no-op)
-                        }
-                    },
-                    onRefill = { /* TODO: 申请续药 */ },
-                    onSettings = { /* TODO: 用药提醒设置 */ },
-                    onFab = { /* TODO: 添加药物 */ },
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }

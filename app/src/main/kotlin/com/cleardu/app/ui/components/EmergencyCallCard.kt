@@ -67,13 +67,13 @@ fun EmergencyCallCard(
 
     val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
     val displayPhone = contactPhone.ifBlank { "" }
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = cardShape,
-        background = LiquidGlassColors.LightTintRedBg,
-        border = LiquidGlassColors.LightTintRedBorder,
+        background = LiquidGlassColors.TintRedBg,
+        border = LiquidGlassColors.TintRedBorder,
         shadowColor = glass.shadowColor,
         shadowElevation = glass.shadowElevation,
         specularTop = glass.specularTop
@@ -113,7 +113,7 @@ fun EmergencyCallCard(
                     Text(
                         text = displayContact,
                         style = ClearDuTypography.ReminderEmergencyContact,
-                        color = if (contactName.isNotBlank()) LiquidGlassColors.LightForeground else LiquidGlassColors.MedicalRed,
+                        color = if (contactName.isNotBlank()) LiquidGlassColors.Foreground else LiquidGlassColors.MedicalRed,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(bottom = if (contactName.isNotBlank()) ClearDuDimens.ReminderEmergencyContactBottomMargin else 0.dp)
@@ -122,7 +122,7 @@ fun EmergencyCallCard(
                         Text(
                             text = displayPhone,
                             style = ClearDuTypography.ReminderEmergencyPhone,
-                            color = LiquidGlassColors.LightForeground,
+                            color = LiquidGlassColors.Foreground,
                             modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyPhoneBottomMargin)
                         )
                     }
@@ -222,7 +222,7 @@ private fun FamilyContactLink(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val color by animateColorAsState(
-        targetValue = if (isPressed) LiquidGlassColors.LightForeground else LiquidGlassColors.LightText600,
+        targetValue = if (isPressed) LiquidGlassColors.Foreground else LiquidGlassColors.Text600,
         animationSpec = tween(durationMillis = 150),
         label = "familyLinkColor"
     )

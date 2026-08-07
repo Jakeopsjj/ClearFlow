@@ -45,10 +45,10 @@ fun MedicationWarningBanner(
             .fillMaxWidth()
             .clip(RoundedCornerShape(ClearDuDimens.MedWarningRadius))
             .drawBehind {
-                drawRect(LiquidGlassColors.LightTintOrangeBg)
+                drawRect(LiquidGlassColors.TintOrangeBg)
             }
             .border(
-                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightTintOrangeBorder),
+                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.TintOrangeBorder),
                 RoundedCornerShape(ClearDuDimens.MedWarningRadius)
             )
     ) {
@@ -72,7 +72,7 @@ fun MedicationWarningBanner(
                         .size(ClearDuDimens.MedWarningIconSize)
                         .clip(RoundedCornerShape(ClearDuDimens.MedWarningIconRadius))
                         .drawBehind {
-                            drawRect(LiquidGlassColors.LightTintOrangeIcon)
+                            drawRect(LiquidGlassColors.TintOrangeBg)
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -90,7 +90,7 @@ fun MedicationWarningBanner(
                     Text(
                         text = subText,
                         style = ClearDuTypography.MedWarningSub,
-                        color = LiquidGlassColors.LightTintOrangeText,
+                        color = LiquidGlassColors.TintOrangeText,
                         modifier = Modifier.padding(top = 1.dp)
                     )
                 }
@@ -115,10 +115,10 @@ private fun RefillButton(onClick: () -> Unit) {
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(RoundedCornerShape(ClearDuDimens.MedWarningBtnPaddingH))
             .drawBehind {
-                drawRect(LiquidGlassColors.LightTintOrangeBtn)
+                drawRect(LiquidGlassColors.TintOrangeBg)
             }
             .border(
-                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightTintOrangeBorder),
+                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.TintOrangeBorder),
                 RoundedCornerShape(ClearDuDimens.MedWarningBtnPaddingH)
             )
             .clickable(

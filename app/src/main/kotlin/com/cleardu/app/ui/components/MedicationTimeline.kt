@@ -130,7 +130,7 @@ fun MedicationTimeline(
                 val x = lineCenterX.toPx()
                 val topPad = 18.dp.toPx()
                 drawLine(
-                    color = LiquidGlassColors.LightGlassBg,
+                    color = LiquidGlassColors.GlassBgLight,
                     start = Offset(x, topPad),
                     end = Offset(x, size.height - topPad),
                     strokeWidth = lineWidth.toPx(),
@@ -171,7 +171,7 @@ private fun MedicationTimelineItem(
     val isPast = dose.status == MedDoseStatus.TAKEN
     // 历史 TAKEN 卡片 0.6 透明；刚点击"服了"的卡片保持不透明
     val cardAlpha = if (isPast && !justTaken) 0.6f else 1f
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -189,7 +189,7 @@ private fun MedicationTimelineItem(
                 Text(
                     text = dose.time,
                     style = ClearDuTypography.MedTimelineTime,
-                    color = if (isPast) LiquidGlassColors.Text400 else LiquidGlassColors.LightForeground,
+                    color = if (isPast) LiquidGlassColors.Text400 else LiquidGlassColors.Foreground,
                     textAlign = TextAlign.End
                 )
             }
@@ -236,7 +236,7 @@ private fun MedicationTimelineItem(
                         Text(
                             text = dose.name,
                             style = ClearDuTypography.MedCardName,
-                            color = LiquidGlassColors.LightForeground
+                            color = LiquidGlassColors.Foreground
                         )
                         Spacer(Modifier.height(ClearDuDimens.MedCardNameBottomGap))
                         Row(
@@ -253,7 +253,7 @@ private fun MedicationTimelineItem(
                                     modifier = Modifier
                                         .size(ClearDuDimens.MedCardDividerSize)
                                         .drawBehind {
-                                            drawCircle(LiquidGlassColors.LightDividerDot)
+                                            drawCircle(LiquidGlassColors.DividerSubtle)
                                         }
                                 )
                                 Text(
@@ -289,7 +289,7 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                 modifier = Modifier
                     .size(ClearDuDimens.MedStatusCheckSize)
                     .clip(RoundedCornerShape(50))
-                    .drawBehind { drawRect(LiquidGlassColors.LightTintGreenStrong) }
+                    .drawBehind { drawRect(LiquidGlassColors.TintGreenStrong) }
                     .border(
                         BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.MedicalGreen),
                         RoundedCornerShape(50)
@@ -310,9 +310,9 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                 modifier = Modifier
                     .size(ClearDuDimens.MedStatusCheckSize)
                     .clip(RoundedCornerShape(50))
-                    .drawBehind { drawRect(LiquidGlassColors.LightCircleEmptyBg) }
+                    .drawBehind { drawRect(LiquidGlassColors.GlassBgLight) }
                     .border(
-                        BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightCircleEmptyBorder),
+                        BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.GlassBorderSubtle),
                         RoundedCornerShape(50)
                     )
             )
@@ -322,9 +322,9 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
-                    .drawBehind { drawRect(LiquidGlassColors.LightMuted) }
+                    .drawBehind { drawRect(LiquidGlassColors.DividerLight) }
                     .border(
-                        BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightBorderMedium),
+                        BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.DividerMedium),
                         RoundedCornerShape(50)
                     )
                     .padding(
@@ -355,9 +355,9 @@ private fun TakeButton(onClick: () -> Unit) {
         modifier = Modifier
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(RoundedCornerShape(50))
-            .drawBehind { drawRect(LiquidGlassColors.LightTintCyanMd) }
+            .drawBehind { drawRect(LiquidGlassColors.TintCyanMd) }
             .border(
-                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightTintCyanActive),
+                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.TintCyanActive),
                 RoundedCornerShape(50)
             )
             .clickable(
@@ -440,7 +440,7 @@ private fun TimelineDot(status: MedDoseStatus, modifier: Modifier = Modifier) {
                         val r = size.minDimension / 2f
                         drawCircle(Color(0x14000000), radius = r)
                         drawCircle(
-                            color = LiquidGlassColors.LightBorderMedium,
+                            color = LiquidGlassColors.DividerMedium,
                             radius = r,
                             style = Stroke(width = 1.dp.toPx(), pathEffect = dash)
                         )

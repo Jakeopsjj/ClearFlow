@@ -84,7 +84,7 @@ fun ReminderCountdownCard(
 
     val displayHospital = hospitalName.ifBlank { "点击设置透析医院" }
     val displayAddress = hospitalAddress.ifBlank { "未设置" }
-    val glass = glassParams(lightMode = true)
+    val glass = glassParams()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -154,7 +154,7 @@ fun ReminderCountdownCard(
             Text(
                 text = "8月2日 周日 上午8:00",
                 style = ClearDuTypography.ReminderCountdownDate,
-                color = LiquidGlassColors.LightForeground,
+                color = LiquidGlassColors.Foreground,
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownDateBottomMargin)
             )
 
@@ -224,12 +224,12 @@ private fun NavigatePillButton(onClick: () -> Unit, enabled: Boolean = true) {
         modifier = Modifier
             .scale(scale)
             .background(
-                if (enabled) LiquidGlassColors.LightTintCyanBg else LiquidGlassColors.GlassBg,
+                if (enabled) LiquidGlassColors.TintCyanBg else LiquidGlassColors.GlassBg,
                 CircleShape
             )
             .border(
                 1.dp,
-                if (enabled) LiquidGlassColors.LightTintCyanBorder else LiquidGlassColors.GlassBorder,
+                if (enabled) LiquidGlassColors.TintCyanBorder else LiquidGlassColors.GlassBorder,
                 CircleShape
             )
             .clickable(
