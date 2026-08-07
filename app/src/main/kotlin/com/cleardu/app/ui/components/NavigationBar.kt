@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Floating pill navigation bar.
@@ -155,7 +156,7 @@ private fun NavItem(
             modifier = Modifier.size(ClearDuDimens.NavIconSize),
             contentAlignment = Alignment.Center
         ) {
-            val iconTint = if (isActive) LiquidGlassColors.NavIconActive else LiquidGlassColors.NavIconInactive
+            val iconTint = if (isActive) LiquidGlassColors.NavIconActive else backgroundAwareColors().text400
             when (index) {
                 0 -> NavHomeIcon(tint = iconTint)
                 1 -> NavRecordIcon(tint = iconTint)

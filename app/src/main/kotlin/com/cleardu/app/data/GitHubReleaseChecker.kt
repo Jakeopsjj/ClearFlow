@@ -1,6 +1,7 @@
 package com.cleardu.app.data
 
 import android.util.Log
+import com.cleardu.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -25,6 +26,11 @@ object GitHubReleaseChecker {
     private const val GITHUB_API_URL = "https://api.github.com/repos/Jakeopsjj/ClearFlow/releases"
     private const val TIMEOUT_MS = 10_000
     private const val PER_PAGE = 30
+
+    // 代理服务器 URL（解决国内无法直接访问 GitHub API 的问题）
+    private val PROXY_URL: String by lazy {
+        BuildConfig.GITHUB_PROXY_URL.trimEnd('/')
+    }
 
     /**
      * 获取最新 Release 信息（匹配当前构建类型通道）。
@@ -111,20 +117,20 @@ object GitHubReleaseChecker {
     // ==================== 内部实现 ====================
 
     private fun fetchReleases(): List<ReleaseInfo> {
-        val url = URL("$GITHUB_API_URL?per_page=$PER_PAGE")
-        val connection = url.openConnection() as HttpURLConnection
-        connection.connectTimeout = TIMEOUT_MS
-        connection.readTimeout = TIMEOUT_MS
-        connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-        connection.setRequestProperty("User-Agent", "ClearFlow-App")
-
-        val responseCode = connection.responseCode
-        if (responseCode != 200) {
-            Log.w(TAG, "GitHub API returned $responseCode")
-            return emptyList()
+        // 先尝试代理服务器，再回退到直连 GitHub API
+        val proxyUrl = "$PROXY_URL/api/github/releases?owner=Jakeopsjj&repo=ClearFlow&per_page=$PER_PAGE"
+        val body = try {
+            fetchFromUrl(proxyUrl)
+        } catch (e: Exception) {
+            Log.w(TAG, "Proxy fetch failed, trying direct GitHub API: ${e.message}")
+            try {
+                fetchFromUrl("$GITHUB_API_URL?per_page=$PER_PAGE")
+            } catch (e2: Exception) {
+                Log.e(TAG, "Direct GitHub API also failed: ${e2.message}")
+                return emptyList()
+            }
         }
 
-        val body = connection.inputStream.bufferedReader().use { it.readText() }
         val jsonArray = JSONArray(body)
 
         return (0 until jsonArray.length()).map { i ->
@@ -150,6 +156,25 @@ object GitHubReleaseChecker {
                 assets = assets
             )
         }
+    }
+
+    /**
+     * 通用 URL 请求方法，返回响应 body 字符串。
+     */
+    private fun fetchFromUrl(urlString: String): String {
+        val url = URL(urlString)
+        val connection = url.openConnection() as HttpURLConnection
+        connection.connectTimeout = TIMEOUT_MS
+        connection.readTimeout = TIMEOUT_MS
+        connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+        connection.setRequestProperty("User-Agent", "ClearFlow-App")
+
+        val responseCode = connection.responseCode
+        if (responseCode != 200) {
+            throw RuntimeException("HTTP $responseCode")
+        }
+
+        return connection.inputStream.bufferedReader().use { it.readText() }
     }
 
     /**

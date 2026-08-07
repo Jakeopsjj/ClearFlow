@@ -202,6 +202,14 @@ object LiquidGlassColors {
     val Black = Color(0xFF000000)
     val White = Color(0xFFFFFFFF)
 
+    // ===== 背景亮度自适应文字颜色 =====
+    // 高亮度背景（晴天、雪天、多云白天）时使用深色文字，确保清晰可读
+    val BrightForeground = Color(0xFF1D1D1F)     // 深色主文字
+    val BrightText400 = Color(0xFF3C3C43)        // 深色副文字
+    val BrightText300 = Color(0xFF48484A)        // 深色辅助文字
+    val BrightGlassBg = Color(0x40000000)         // rgba(0,0,0,0.25) — 深色磨砂卡片
+    val BrightGlassBorder = Color(0x33000000)     // rgba(0,0,0,0.2) — 深色卡片边框
+
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)
     val LightForeground = Color(0xFF1D1D1F)

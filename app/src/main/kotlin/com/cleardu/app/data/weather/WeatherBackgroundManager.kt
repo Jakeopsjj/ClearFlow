@@ -27,7 +27,21 @@ data class WeatherBackgroundState(
     val localBackgroundType: WeatherCodeMapper.LocalBackgroundType =
         WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY,
     val isLoading: Boolean = false
-)
+) {
+    /**
+     * 当前背景是否属于高亮度背景（晴/雪/多云白天）。
+     * 用于 UI 文字颜色自适应：高亮背景使用深色文字，暗色背景使用浅色文字。
+     */
+    val isBrightBackground: Boolean
+        get() = when (localBackgroundType) {
+            WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY,
+            WeatherCodeMapper.LocalBackgroundType.CLOUDY_DAY,
+            WeatherCodeMapper.LocalBackgroundType.SNOW_DAY,
+            WeatherCodeMapper.LocalBackgroundType.FOG,
+            WeatherCodeMapper.LocalBackgroundType.SANDSTORM -> true
+            else -> false
+        }
+}
 
 /**
  * Singleton manager for weather background functionality.

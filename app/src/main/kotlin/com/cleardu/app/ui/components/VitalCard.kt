@@ -31,6 +31,7 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * A single vital sign card in the 2x2 dashboard grid.
@@ -91,11 +92,12 @@ fun VitalCard(
             Spacer(Modifier.height(ClearDuDimens.VitalHeaderBottomMargin))
 
             // Value row
+            val colors = backgroundAwareColors()
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = item.value,
                     style = ClearDuTypography.VitalValue,
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     textAlign = TextAlign.Start
                 )
                 if (item.unit.isNotEmpty()) {
@@ -103,7 +105,7 @@ fun VitalCard(
                     Text(
                         text = item.unit,
                         style = ClearDuTypography.VitalUnit,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
             }
@@ -113,7 +115,7 @@ fun VitalCard(
             Text(
                 text = item.subValue ?: "",
                 style = ClearDuTypography.VitalSub,
-                color = if (item.subValue != null) LiquidGlassColors.Text400 else Color.Transparent
+                color = if (item.subValue != null) colors.text400 else Color.Transparent
             )
         }
     }

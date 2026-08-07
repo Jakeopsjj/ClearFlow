@@ -41,6 +41,49 @@ function sendJson(res, status, body) {
   res.end(json);
 }
 
+function fetchGitHubReleases(owner, repo, perPage) {
+  return new Promise((resolve, reject) => {
+    const path = `/repos/${owner}/${repo}/releases?per_page=${perPage}`;
+
+    const options = {
+      hostname: 'api.github.com',
+      port: 443,
+      path: path,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'ClearFlow-Proxy',
+      },
+      timeout: 10000,
+    };
+
+    const req = https.request(options, (resp) => {
+      let data = '';
+      resp.on('data', (chunk) => { data += chunk; });
+      resp.on('end', () => {
+        if (resp.statusCode !== 200) {
+          reject(new Error(`GitHub API returned ${resp.statusCode}`));
+          return;
+        }
+        try {
+          const json = JSON.parse(data);
+          resolve(json);
+        } catch (e) {
+          reject(new Error('Failed to parse GitHub response'));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('GitHub request timeout'));
+    });
+
+    req.end();
+  });
+}
+
 function fetchPexels(query, orientation) {
   return new Promise((resolve, reject) => {
     if (!PEXELS_API_KEY) {
@@ -119,7 +162,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/' || url.pathname === '/api') {
     sendJson(res, 200, {
       service: 'cleardu-pexels-proxy',
-      endpoints: ['/health', '/api/search?query=…'],
+      endpoints: ['/health', '/api/search?query=…', '/api/github/releases?owner=…&repo=…'],
     });
     return;
   }
@@ -167,6 +210,30 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       console.error('[ERROR] Pexels fetch failed:', err.message);
       sendJson(res, 502, { error: err.message, imageUrl: null });
+    }
+    return;
+  }
+
+  // --- GitHub Releases endpoint ---
+  if (url.pathname === '/api/github/releases') {
+    const owner = url.searchParams.get('owner') || 'Jakeopsjj';
+    const repo = url.searchParams.get('repo') || 'ClearFlow';
+    const perPage = url.searchParams.get('per_page') || '30';
+
+    const cacheKey = `gh_releases_${owner}_${repo}`;
+    const cached = cache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+      sendJson(res, 200, cached.data);
+      return;
+    }
+
+    try {
+      const ghData = await fetchGitHubReleases(owner, repo, perPage);
+      cache.set(cacheKey, { data: ghData, timestamp: Date.now() });
+      sendJson(res, 200, ghData);
+    } catch (err) {
+      console.error('[ERROR] GitHub fetch failed:', err.message);
+      sendJson(res, 502, { error: err.message });
     }
     return;
   }

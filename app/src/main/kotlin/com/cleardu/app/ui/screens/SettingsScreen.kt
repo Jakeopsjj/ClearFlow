@@ -132,27 +132,8 @@ fun SettingsScreen(
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
-    var showUpdateLogDialog by remember { mutableStateOf(false) }
     var latestRelease by remember { mutableStateOf<ReleaseInfo?>(null) }
     var isCheckingUpdate by remember { mutableStateOf(false) }
-    var updateLogText by remember { mutableStateOf("") }
-
-    // 检查是否需要显示更新日志弹窗
-    LaunchedEffect(Unit) {
-        val currentVersion = BuildConfig.VERSION_NAME
-        if (s.lastSeenVersion != currentVersion) {
-            // 获取当前版本对应的 GitHub Release 更新日志
-            // tag 不含 -debug 后缀，如 v1.12.1
-            val tagName = "v${currentVersion.substringBefore("-")}"
-            val release = GitHubReleaseChecker.fetchReleaseByTag(tagName)
-            if (release != null) {
-                updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }
-            } else {
-                updateLogText = "版本 $currentVersion\n\n感谢使用清渡，祝您健康每一天。"
-            }
-            showUpdateLogDialog = true
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -473,20 +454,7 @@ fun SettingsScreen(
                 onDismiss = { showUpdateDialog = false }
             )
         }
-        if (showUpdateLogDialog) {
-            UpdateLogDialog(
-                versionName = BuildConfig.VERSION_NAME,
-                logText = updateLogText,
-                onDismiss = {
-                    showUpdateLogDialog = false
-                    // 标记当前版本已查看
-                    scope.launch {
-                        healthDataManager.updateSettings { it.copy(lastSeenVersion = BuildConfig.VERSION_NAME) }
-                    }
-                }
-            )
     }
-}
 
 // ===== Sub-components =====
 
@@ -1788,58 +1756,6 @@ private fun UpdateAvailableDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("稍后再说", color = LiquidGlassColors.Text400)
-            }
-        },
-        containerColor = Color(0xFF1C1C2E),
-        shape = RoundedCornerShape(16.dp)
-    )
-}
-
-@Composable
-private fun UpdateLogDialog(
-    versionName: String,
-    logText: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(LiquidGlassColors.MedicalCyan, LiquidGlassColors.MedicalBlue)
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("清", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-                Spacer(Modifier.width(12.dp))
-                Text("$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 400.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    logText,
-                    color = LiquidGlassColors.Text400,
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("知道了", color = LiquidGlassColors.MedicalBlue)
             }
         },
         containerColor = Color(0xFF1C1C2E),

@@ -40,6 +40,7 @@ android {
         buildConfigField("String", "PEXELS_API_KEY", "\"${localProps.getProperty("PEXELS_API_KEY", "")}\"")
         buildConfigField("String", "PEXELS_PROXY_KOYEB_URL", "\"${localProps.getProperty("PEXELS_PROXY_KOYEB_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
         buildConfigField("String", "PEXELS_PROXY_RENDER_URL", "\"${localProps.getProperty("PEXELS_PROXY_RENDER_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
+        buildConfigField("String", "GITHUB_PROXY_URL", "\"${localProps.getProperty("GITHUB_PROXY_URL", "https://cleardu-pexels-proxy.cleardu.workers.dev")}\"")
     }
 
     // === Signing configurations ===

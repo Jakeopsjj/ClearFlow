@@ -16,14 +16,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -42,11 +46,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.heightIn
+import com.cleardu.app.BuildConfig
 import com.cleardu.app.data.DashboardVitals
+import com.cleardu.app.data.GitHubReleaseChecker
 import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.MedicationReminder
 import com.cleardu.app.data.QuickAction
+import com.cleardu.app.data.ReleaseInfo
 import com.cleardu.app.data.VitalItem
 import com.cleardu.app.data.VitalStatus
 import com.cleardu.app.ui.components.FloatingNavigationBar
@@ -58,6 +68,7 @@ import com.cleardu.app.ui.components.VitalCard
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -86,6 +97,27 @@ fun DashboardScreen(
     var selectedNavIndex by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // === Observe settings for update log ===
+    val settings by healthDataManager.settings.collectAsState(initial = null)
+    var showUpdateLogDialog by remember { mutableStateOf(false) }
+    var updateLogText by remember { mutableStateOf("") }
+
+    // 首次打开 App 时检查是否需要显示更新日志弹窗
+    LaunchedEffect(Unit) {
+        val s = settings ?: return@LaunchedEffect
+        val currentVersion = BuildConfig.VERSION_NAME
+        if (s.lastSeenVersion != currentVersion) {
+            val tagName = "v${currentVersion.substringBefore("-")}"
+            val release = GitHubReleaseChecker.fetchReleaseByTag(tagName)
+            if (release != null) {
+                updateLogText = release.body.ifBlank { "版本 ${release.versionName}" }
+            } else {
+                updateLogText = "版本 $currentVersion\n\n感谢使用清渡，祝您健康每一天。"
+            }
+            showUpdateLogDialog = true
+        }
+    }
 
     // === Observe real-time vitals from shared data manager ===
     val vitals by healthDataManager.latestVitals.collectAsState(initial = DashboardVitals())
@@ -206,8 +238,8 @@ fun DashboardScreen(
             ) { snackbarData ->
                 Snackbar(
                     snackbarData = snackbarData,
-                    containerColor = LiquidGlassColors.GlassBgStrong,
-                    contentColor = LiquidGlassColors.Foreground
+                    containerColor = backgroundAwareColors().glassBg,
+                    contentColor = backgroundAwareColors().foreground
                 )
             }
 
@@ -226,6 +258,20 @@ fun DashboardScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
+
+            // === 更新日志弹窗 ===
+            if (showUpdateLogDialog) {
+                UpdateLogDialog(
+                    versionName = BuildConfig.VERSION_NAME,
+                    logText = updateLogText,
+                    onDismiss = {
+                        showUpdateLogDialog = false
+                        scope.launch {
+                            healthDataManager.updateSettings { it.copy(lastSeenVersion = BuildConfig.VERSION_NAME) }
+                        }
+                    }
+                )
+            }
     }
 }
 
@@ -314,18 +360,19 @@ private fun GreetingSection(
     subtitle: String,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = greeting,
             style = ClearDuTypography.GreetingTitle,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Start
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = subtitle,
             style = ClearDuTypography.GreetingSubtitle,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Start
         )
     }
@@ -461,4 +508,62 @@ private fun generateGreetingSubtitle(): String {
     val day = cal.get(Calendar.DAY_OF_MONTH)
     val dayDiff = cal.get(Calendar.DAY_OF_YEAR) % 3 + 1
     return "${month}月${day}日 $weekday · 透析后第 ${dayDiff} 天"
+}
+
+// ===== Update Log Dialog =====
+
+/**
+ * 更新日志弹窗 — 首次打开新版本时显示。
+ * 内容取自 GitHub Release 的 body 字段。
+ */
+@Composable
+private fun UpdateLogDialog(
+    versionName: String,
+    logText: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(LiquidGlassColors.MedicalCyan, LiquidGlassColors.MedicalBlue)
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("清", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+                Spacer(Modifier.width(12.dp))
+                Text("$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    logText,
+                    color = LiquidGlassColors.Text400,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了", color = LiquidGlassColors.MedicalBlue)
+            }
+        },
+        containerColor = Color(0xFF1C1C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
 }

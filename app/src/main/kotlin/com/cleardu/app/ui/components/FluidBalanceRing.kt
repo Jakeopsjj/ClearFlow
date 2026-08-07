@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Fluid balance ring progress chart.
@@ -124,26 +125,27 @@ fun FluidBalanceRing(
             }
 
             // Center text
+            val colors = backgroundAwareColors()
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     androidx.compose.material3.Text(
                         text = "%,d".format(currentValue),
                         style = ClearDuTypography.RingValue,
-                        color = LiquidGlassColors.Foreground,
+                        color = colors.foreground,
                         textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.width(2.dp))
                     androidx.compose.material3.Text(
                         text = "ml",
                         style = ClearDuTypography.RingValueUnit,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
                 Spacer(Modifier.height(ClearDuDimens.RingCenterGap))
                 androidx.compose.material3.Text(
                     text = "今日目标 ${"%,d".format(targetValue)}ml",
                     style = ClearDuTypography.RingLabel,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         }
