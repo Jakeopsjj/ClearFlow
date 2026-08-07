@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
@@ -84,10 +83,13 @@ fun getLocalWeatherDrawable(type: LocalBackgroundType): Int = when (type) {
  * 3. 前景内容
  *
  * 多波纹扩散动画：
+ * - 仅当天气编码发生真实变更时触发（isWeatherCodeChanged = true）
  * - 随机生成 1-3 个圆形圆心
  * - 每个圆形独立缓慢向外扩张
- * - 圆形内部显示新背景图，外部保留旧背景图
+ * - 圆形内部显示新天气背景图，外部保留旧天气背景图
  * - 两张图均保持清晰，不做模糊/透明度淡入淡出
+ * - 天气无变化时直接显示当前背景，不触发动画
+ * - 动画完成后触发亮度联动 UI 更新（通过 backgroundAwareColors 自动响应状态变化）
  */
 @Composable
 fun WeatherBackground(
@@ -103,6 +105,8 @@ fun WeatherBackground(
     }
 
     val localType = weatherState.localBackgroundType
+    val previousLocalType = weatherState.previousLocalBackgroundType
+    val isWeatherCodeChanged = weatherState.isWeatherCodeChanged
     val imageFile = weatherState.imageFile
     val hasImage = imageFile != null && imageFile.exists()
 
@@ -110,8 +114,9 @@ fun WeatherBackground(
 
     // 本地内置背景 drawable 资源 ID
     val localDrawableRes = remember(localType) { getLocalWeatherDrawable(localType) }
+    val previousLocalDrawableRes = remember(previousLocalType) { getLocalWeatherDrawable(previousLocalType) }
 
-    // 从网络图片文件加载 Bitmap（用于 Canvas 裁剪过渡动画）
+    // 从网络图片文件加载 Bitmap（用于无天气变更时的直接显示）
     val imageBitmap = remember(imageFile?.absolutePath) {
         if (hasImage) {
             try {
@@ -122,19 +127,19 @@ fun WeatherBackground(
         } else null
     }
 
-    // 生成波纹圆心（图片变化时稳定）
-    val rippleCenters = remember(imageFile?.absolutePath) {
-        if (hasImage) generateRippleCenters() else emptyList()
+    // 当天气变更时生成波纹圆心
+    val rippleCenters = remember(isWeatherCodeChanged, localType) {
+        if (isWeatherCodeChanged) generateRippleCenters() else emptyList()
     }
 
     // 每个波纹的动画进度（0f → 1f）
-    val rippleProgressList = remember(imageFile?.absolutePath) {
+    val rippleProgressList = remember(isWeatherCodeChanged, localType) {
         rippleCenters.map { Animatable(0f) }
     }
 
-    // 当图片可用时触发动画
-    LaunchedEffect(imageFile) {
-        if (hasImage && rippleProgressList.isNotEmpty()) {
+    // 当天气变更时触发动画
+    LaunchedEffect(isWeatherCodeChanged, localType) {
+        if (isWeatherCodeChanged && rippleProgressList.isNotEmpty()) {
             rippleProgressList.forEachIndexed { index, anim ->
                 launch {
                     delay(rippleCenters[index].delayMs)
@@ -147,73 +152,78 @@ fun WeatherBackground(
                     )
                 }
             }
+            // 动画完成后重置天气变更标志
+            WeatherBackgroundManager.onWeatherCodeAnimationComplete()
         }
     }
 
-    val allAnimating = rippleProgressList.any { it.value < 1f }
+    val allAnimating = rippleProgressList.isNotEmpty() && rippleProgressList.any { it.value < 1f }
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .onSizeChanged { sizePx = it }
     ) {
-        if (hasImage && imageBitmap != null && rippleProgressList.isNotEmpty() && sizePx != IntSize.Zero) {
-            if (allAnimating) {
-                // === 过渡动画：本地背景 + 网络图片通过扩展圆形裁剪 ===
-                // 在 Composable 层加载 painter，避免在 Canvas lambda 中调用 @Composable 函数
-                val localPainter = painterResource(localDrawableRes)
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    // 1. 绘制本地内置背景图（圆形外部）
-                    with(localPainter) {
+        if (isWeatherCodeChanged && rippleProgressList.isNotEmpty() && sizePx != IntSize.Zero) {
+            // === 天气变更过渡动画：旧背景 + 新背景通过扩展圆形裁剪 ===
+            val oldPainter = painterResource(previousLocalDrawableRes)
+            val newPainter = painterResource(localDrawableRes)
+
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                // 1. 绘制旧天气背景图（圆形外部）
+                with(oldPainter) {
+                    draw(size = this@Canvas.size)
+                }
+
+                // 2. 构建所有波纹的并集路径
+                val unionPath = Path()
+                rippleProgressList.forEachIndexed { index, anim ->
+                    val center = rippleCenters[index]
+                    val cx = center.centerX * size.width
+                    val cy = center.centerY * size.height
+                    val maxRadius = maxOf(
+                        sqrt(cx.toDouble() * cx + cy.toDouble() * cy),
+                        sqrt((size.width - cx).toDouble() * (size.width - cx) + cy.toDouble() * cy),
+                        sqrt(cx.toDouble() * cx + (size.height - cy).toDouble() * (size.height - cy)),
+                        sqrt((size.width - cx).toDouble() * (size.width - cx) + (size.height - cy).toDouble() * (size.height - cy))
+                    ).toFloat() * 1.1f
+                    val currentRadius = maxRadius * anim.value
+                    unionPath.addOval(
+                        Rect(
+                            cx - currentRadius, cy - currentRadius,
+                            cx + currentRadius, cy + currentRadius
+                        )
+                    )
+                }
+
+                // 3. 在圆形内部绘制新天气背景图
+                clipPath(unionPath) {
+                    with(newPainter) {
                         draw(size = this@Canvas.size)
                     }
-
-                    // 2. 构建所有波纹的并集路径
-                    val unionPath = Path()
-                    rippleProgressList.forEachIndexed { index, anim ->
-                        val center = rippleCenters[index]
-                        val cx = center.centerX * size.width
-                        val cy = center.centerY * size.height
-                        val maxRadius = maxOf(
-                            sqrt(cx.toDouble() * cx + cy.toDouble() * cy),
-                            sqrt((size.width - cx).toDouble() * (size.width - cx) + cy.toDouble() * cy),
-                            sqrt(cx.toDouble() * cx + (size.height - cy).toDouble() * (size.height - cy)),
-                            sqrt((size.width - cx).toDouble() * (size.width - cx) + (size.height - cy).toDouble() * (size.height - cy))
-                        ).toFloat() * 1.1f
-                        val currentRadius = maxRadius * anim.value
-                        unionPath.addOval(
-                            Rect(
-                                cx - currentRadius, cy - currentRadius,
-                                cx + currentRadius, cy + currentRadius
-                            )
-                        )
-                    }
-
-                    // 3. 在圆形内部绘制网络图片
-                    clipPath(unionPath) {
-                        drawImage(
-                            image = imageBitmap,
-                            dstSize = androidx.compose.ui.unit.IntSize(
-                                size.width.toInt(),
-                                size.height.toInt()
-                            )
-                        )
-                    }
                 }
-            } else {
-                // === 动画完成：仅显示网络图片 ===
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageFile)
-                        .crossfade(false)
-                        .build(),
-                    contentDescription = "Weather background",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
             }
+        } else if (isWeatherCodeChanged && rippleProgressList.isEmpty()) {
+            // 天气变更但波纹未生成（极端情况），直接显示新本地背景
+            Image(
+                painter = painterResource(localDrawableRes),
+                contentDescription = "Local weather background",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (hasImage && imageBitmap != null) {
+            // === 无天气变更：显示网络 Pexels 图片 ===
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageFile)
+                    .crossfade(false)
+                    .build(),
+                contentDescription = "Weather background",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         } else {
-            // === 无网络图片：显示本地内置背景 ===
+            // === 无天气变更且无网络图片：显示本地内置背景 ===
             Image(
                 painter = painterResource(localDrawableRes),
                 contentDescription = "Local weather background",

@@ -31,7 +31,8 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 /**
  * 用药不足警告横幅。
  *
- * 橙色玻璃材质横幅，左侧警告图标 + 文案，右侧"申请续药"按钮（按下 0.95 缩放）。
+ * 橙色玻璃材质横幅，使用公共 GlassCard 组件保证全局统一外观。
+ * 左侧警告图标 + 文案，右侧"申请续药"按钮（按下 0.95 缩放）。
  */
 @Composable
 fun MedicationWarningBanner(
@@ -40,17 +41,14 @@ fun MedicationWarningBanner(
     onRefillClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(ClearDuDimens.MedWarningRadius))
-            .drawBehind {
-                drawRect(LiquidGlassColors.LightTintOrangeBg)
-            }
-            .border(
-                BorderStroke(ClearDuDimens.GlassBorderWidth, LiquidGlassColors.LightTintOrangeBorder),
-                RoundedCornerShape(ClearDuDimens.MedWarningRadius)
-            )
+    GlassCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ClearDuDimens.MedWarningRadius),
+        background = LiquidGlassColors.LightTintOrangeBg,
+        border = LiquidGlassColors.LightTintOrangeBorder,
+        shadowColor = LiquidGlassColors.LightGlassShadow,
+        shadowElevation = 4f,
+        specularTop = LiquidGlassColors.LightGlassSpecularTop
     ) {
         Row(
             modifier = Modifier
