@@ -239,8 +239,5 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.coil.compose)
 
-    // WorkManager — 定时天气刷新 + 后台任务调度
-    implementation(libs.androidx.work.runtime.ktx)
-
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

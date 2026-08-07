@@ -1,6 +1,5 @@
 package com.cleardu.app.ui.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -37,30 +36,6 @@ import com.cleardu.app.ui.theme.LiquidGlassColors
 import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
- * 浅色模式底部导航渐隐渐变（共享组件，供用药管理、提醒中心等页面使用）。
- */
-@Composable
-fun LightNavBlurFade(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(ClearDuDimens.NavBlurFadeHeight)
-            .drawBehind {
-                val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LiquidGlassColors.LightNavBlurFadeStart,
-                        LiquidGlassColors.LightNavBlurFadeMid,
-                        Color.Transparent
-                    ),
-                    startY = size.height,
-                    endY = 0f,
-                    tileMode = TileMode.Clamp
-                )
-                drawRect(brush = brush)
-            }
-    )
-}
-
-/**
  * Floating pill navigation bar.
  *
  * Reproduces `.nav-bar` from the reference:
@@ -68,7 +43,6 @@ fun LightNavBlurFade(modifier: Modifier = Modifier) {
  * - Top specular highlight
  * - 5 nav items with indicators
  * - Active state with cyan indicator dot
- * - 背景亮度自适应：亮色背景时加深导航栏底色，暗色背景时保持默认
  */
 @Composable
 fun FloatingNavigationBar(
@@ -78,48 +52,24 @@ fun FloatingNavigationBar(
     lightMode: Boolean = false
 ) {
     val labels = listOf("首页", "记录", "数据", "用药", "提醒")
-    val colors = backgroundAwareColors()
-    val animDuration = 600
 
     val shape = RoundedCornerShape(ClearDuDimens.NavBarRadius)
-
-    // 背景亮度联动：亮色背景加深导航栏底色 + 边框
-    val navBgTarget = if (colors.isBright) {
-        LiquidGlassColors.BrightGlassBg
-    } else if (lightMode) {
-        LiquidGlassColors.LightNavBg
-    } else {
-        LiquidGlassColors.NavBg
-    }
-    val navBorderTarget = if (colors.isBright) {
-        LiquidGlassColors.BrightGlassBorder
-    } else if (lightMode) {
-        LiquidGlassColors.LightNavBorder
-    } else {
-        LiquidGlassColors.NavBorder
-    }
-    val navSpecularTarget = if (colors.isBright) {
-        LiquidGlassColors.LightNavSpecular.copy(alpha = 0.1f)
-    } else if (lightMode) {
-        LiquidGlassColors.LightNavSpecular
-    } else {
-        LiquidGlassColors.NavSpecular
-    }
-
-    val navBg by animateColorAsState(targetValue = navBgTarget, animationSpec = tween(animDuration), label = "navBg")
-    val navBorder by animateColorAsState(targetValue = navBorderTarget, animationSpec = tween(animDuration), label = "navBorder")
-    val navSpecular by animateColorAsState(targetValue = navSpecularTarget, animationSpec = tween(animDuration), label = "navSpecular")
+    val navBg = if (lightMode) LiquidGlassColors.LightNavBg else LiquidGlassColors.NavBg
+    val navBorder = if (lightMode) LiquidGlassColors.LightNavBorder else LiquidGlassColors.NavBorder
+    val navSpecular = if (lightMode) LiquidGlassColors.LightNavSpecular else LiquidGlassColors.NavSpecular
 
     // Layered approach: blurred background + sharp content on top
     Box(modifier = modifier) {
         // === Layer 1: Real-time blurred glass background ===
+        // This Box blurs the page content scrolling behind the nav bar
+        // and draws a semi-transparent background on top.
         Box(
             modifier = Modifier
                 .width(ClearDuDimens.NavBarWidth)
                 .height(ClearDuDimens.NavBarHeight)
                 .clip(shape)
                 .blur(12.dp)
-                .background(navBg.copy(alpha = if (colors.isBright) 0.95f else 0.85f))
+                .background(navBg.copy(alpha = 0.85f))
         )
 
         // === Layer 2: Sharp content (border, specular, nav items) ===

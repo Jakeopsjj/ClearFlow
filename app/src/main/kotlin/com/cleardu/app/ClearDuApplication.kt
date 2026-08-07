@@ -6,7 +6,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.cleardu.app.data.weather.WeatherBackgroundManager
 import com.cleardu.app.util.map.MapServiceManager
 import org.osmdroid.config.Configuration
 
@@ -45,8 +44,5 @@ class ClearDuApplication : Application() {
 
         // 初始化三家地图 SDK
         MapServiceManager.init(this)
-
-        // 调度 WorkManager 定时天气刷新（每小时）
-        WeatherBackgroundManager.schedulePeriodicRefresh(this)
     }
 }

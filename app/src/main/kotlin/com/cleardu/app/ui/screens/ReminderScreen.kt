@@ -24,6 +24,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +38,6 @@ import com.cleardu.app.ui.components.ContactPickerDialog
 import com.cleardu.app.ui.components.EmergencyCallCard
 import com.cleardu.app.ui.components.FloatingNavigationBar
 import com.cleardu.app.ui.components.HospitalPickerDialog
-import com.cleardu.app.ui.components.LightNavBlurFade
 import com.cleardu.app.ui.components.ReminderCountdownCard
 import com.cleardu.app.ui.components.ReminderSettingsCard
 import com.cleardu.app.ui.components.ReminderTodayList
@@ -254,9 +258,30 @@ private fun SectionLabel(text: String) {
 }
 
 
+
 /**
- * 浅色模式底部导航渐隐。已迁移至 NavigationBar.kt 共享组件 LightNavBlurFade。
+ * 浅色模式底部导航渐隐。
  */
+@Composable
+private fun LightNavBlurFade(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .height(ClearDuDimens.NavBlurFadeHeight)
+            .drawBehind {
+                val brush = Brush.verticalGradient(
+                    colors = listOf(
+                        LiquidGlassColors.LightNavBlurFadeStart,
+                        LiquidGlassColors.LightNavBlurFadeMid,
+                        Color.Transparent
+                    ),
+                    startY = size.height,
+                    endY = 0f,
+                    tileMode = TileMode.Clamp
+                )
+                drawRect(brush = brush)
+            }
+    )
+}
 
 // ===== Data derivation helpers =====
 
