@@ -91,7 +91,11 @@ fun ReminderScreen(
         deriveTodayReminders(latestRecord)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LiquidGlassColors.LightBackground)
+    ) {
             // === 可滚动内容区 ===
             Column(
                 modifier = Modifier
