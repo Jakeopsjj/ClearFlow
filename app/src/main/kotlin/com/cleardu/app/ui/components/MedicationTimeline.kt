@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -84,6 +85,7 @@ fun MedicationTimeline(
 ) {
     // 追踪刚点击"服了"的索引，保持卡片不透明
     val justTaken = remember { mutableStateListOf<Int>() }
+    val colors = backgroundAwareColors()
 
     val timeColWidth = ClearDuDimens.MedTimelineTimeColWidth
     val gap = ClearDuDimens.MedCardGap
@@ -103,20 +105,20 @@ fun MedicationTimeline(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 MedClockIcon(
-                    tint = LiquidGlassColors.Text400.copy(alpha = 0.5f),
+                    tint = colors.text400.copy(alpha = 0.5f),
                     modifier = Modifier.size(40.dp)
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = "暂无用药记录",
                     style = ClearDuTypography.MedSectionLabel,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "点击右下角 + 添加用药时间",
                     style = ClearDuTypography.MedCardMeta,
-                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
+                    color = colors.text400.copy(alpha = 0.6f)
                 )
             }
         }
@@ -172,6 +174,7 @@ private fun MedicationTimelineItem(
     // 历史 TAKEN 卡片 0.6 透明；刚点击"服了"的卡片保持不透明
     val cardAlpha = if (isPast && !justTaken) 0.6f else 1f
     val glass = glassParams()
+    val colors = backgroundAwareColors()
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -189,7 +192,7 @@ private fun MedicationTimelineItem(
                 Text(
                     text = dose.time,
                     style = ClearDuTypography.MedTimelineTime,
-                    color = if (isPast) LiquidGlassColors.Text400 else LiquidGlassColors.Foreground,
+                    color = if (isPast) colors.text400 else colors.foreground,
                     textAlign = TextAlign.End
                 )
             }
@@ -236,7 +239,7 @@ private fun MedicationTimelineItem(
                         Text(
                             text = dose.name,
                             style = ClearDuTypography.MedCardName,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                         Spacer(Modifier.height(ClearDuDimens.MedCardNameBottomGap))
                         Row(
@@ -246,7 +249,7 @@ private fun MedicationTimelineItem(
                             Text(
                                 text = dose.dose,
                                 style = ClearDuTypography.MedCardDose,
-                                color = LiquidGlassColors.Text300
+                                color = colors.text300
                             )
                             if (!dose.instruction.isNullOrEmpty()) {
                                 Box(
@@ -259,7 +262,7 @@ private fun MedicationTimelineItem(
                                 Text(
                                     text = dose.instruction,
                                     style = ClearDuTypography.MedCardMeta,
-                                    color = LiquidGlassColors.Text400
+                                    color = colors.text400
                                 )
                             }
                         }
@@ -336,7 +339,7 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                 Text(
                     text = "可选",
                     style = ClearDuTypography.MedOptionalLabel,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         }

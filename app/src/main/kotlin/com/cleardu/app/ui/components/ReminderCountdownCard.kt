@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -85,6 +86,7 @@ fun ReminderCountdownCard(
     val displayHospital = hospitalName.ifBlank { "点击设置透析医院" }
     val displayAddress = hospitalAddress.ifBlank { "未设置" }
     val glass = glassParams()
+    val colors = backgroundAwareColors()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -104,7 +106,7 @@ fun ReminderCountdownCard(
             Text(
                 text = "下次透析",
                 style = ClearDuTypography.ReminderCountdownLabel,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownLabelBottomMargin)
             )
 
@@ -119,7 +121,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "天",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     modifier = Modifier.alignByBaseline().padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
                 )
                 Text(
@@ -131,7 +133,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "小时",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     modifier = Modifier.alignByBaseline().padding(end = ClearDuDimens.ReminderCountdownUnitEndMargin)
                 )
                 Text(
@@ -143,7 +145,7 @@ fun ReminderCountdownCard(
                 Text(
                     text = "分",
                     style = ClearDuTypography.ReminderCountdownUnit,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     modifier = Modifier.alignByBaseline()
                 )
             }
@@ -154,7 +156,7 @@ fun ReminderCountdownCard(
             Text(
                 text = "8月2日 周日 上午8:00",
                 style = ClearDuTypography.ReminderCountdownDate,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 modifier = Modifier.padding(bottom = ClearDuDimens.ReminderCountdownDateBottomMargin)
             )
 
@@ -171,7 +173,7 @@ fun ReminderCountdownCard(
                     Text(
                         text = displayHospital,
                         style = ClearDuTypography.ReminderCountdownHospital,
-                        color = if (hospitalName.isNotBlank()) LiquidGlassColors.Text400 else LiquidGlassColors.MedicalCyan,
+                        color = if (hospitalName.isNotBlank()) colors.text400 else LiquidGlassColors.MedicalCyan,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -179,7 +181,7 @@ fun ReminderCountdownCard(
                         Text(
                             text = displayAddress,
                             style = ClearDuTypography.ReminderSettingDetail,
-                            color = LiquidGlassColors.Text400.copy(alpha = 0.6f),
+                            color = colors.text400.copy(alpha = 0.6f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -246,13 +248,13 @@ private fun NavigatePillButton(onClick: () -> Unit, enabled: Boolean = true) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         ReminderPinIcon(
-            tint = if (enabled) LiquidGlassColors.MedicalBlue else LiquidGlassColors.Text400,
+            tint = if (enabled) LiquidGlassColors.MedicalBlue else colors.text400,
             modifier = Modifier.size(ClearDuDimens.ReminderNavBtnIconSize)
         )
         Text(
             text = if (enabled) "导航到医院" else "请先设置医院",
             style = ClearDuTypography.ReminderNavBtn,
-            color = if (enabled) LiquidGlassColors.MedicalBlue else LiquidGlassColors.Text400
+            color = if (enabled) LiquidGlassColors.MedicalBlue else colors.text400
         )
     }
 }

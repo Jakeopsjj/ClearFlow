@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -62,6 +63,7 @@ fun MedicationProgressCard(
     } else 0f
     val pctText = "${(progress * 100).toInt()}%"
     val glass = glassParams()
+    val colors = backgroundAwareColors()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -87,13 +89,13 @@ fun MedicationProgressCard(
                 Text(
                     text = "今日服药进度",
                     style = ClearDuTypography.MedProgressTitle,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
                     text = "已服 $takenCount / 共 $totalCount 次",
                     style = ClearDuTypography.MedProgressDetail,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -202,7 +204,7 @@ private fun ProgressRing(progress: Float, percentText: String) {
         Text(
             text = percentText,
             style = ClearDuTypography.MedProgressPct,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Center
         )
     }

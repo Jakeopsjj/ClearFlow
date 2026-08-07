@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -68,6 +69,7 @@ fun EmergencyCallCard(
     val displayContact = contactName.ifBlank { "点击设置紧急联系人" }
     val displayPhone = contactPhone.ifBlank { "" }
     val glass = glassParams()
+    val colors = backgroundAwareColors()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -113,7 +115,7 @@ fun EmergencyCallCard(
                     Text(
                         text = displayContact,
                         style = ClearDuTypography.ReminderEmergencyContact,
-                        color = if (contactName.isNotBlank()) LiquidGlassColors.Foreground else LiquidGlassColors.MedicalRed,
+                        color = if (contactName.isNotBlank()) colors.foreground else LiquidGlassColors.MedicalRed,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(bottom = if (contactName.isNotBlank()) ClearDuDimens.ReminderEmergencyContactBottomMargin else 0.dp)
@@ -122,7 +124,7 @@ fun EmergencyCallCard(
                         Text(
                             text = displayPhone,
                             style = ClearDuTypography.ReminderEmergencyPhone,
-                            color = LiquidGlassColors.Foreground,
+                            color = colors.foreground,
                             modifier = Modifier.padding(bottom = ClearDuDimens.ReminderEmergencyPhoneBottomMargin)
                         )
                     }
@@ -182,8 +184,8 @@ private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
                             LiquidGlassColors.MedicalRed,
                             LiquidGlassColors.DestructiveLight
                         ) else listOf(
-                            LiquidGlassColors.Text400.copy(alpha = 0.3f),
-                            LiquidGlassColors.Text400.copy(alpha = 0.3f)
+                            colors.text400.copy(alpha = 0.3f),
+                            colors.text400.copy(alpha = 0.3f)
                         )
                     )
                 )
@@ -202,13 +204,13 @@ private fun EmergencyCallButton(onClick: () -> Unit, enabled: Boolean = true) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             ReminderPhoneIcon(
-                tint = if (enabled) LiquidGlassColors.White else LiquidGlassColors.Text400,
+                tint = if (enabled) LiquidGlassColors.White else colors.text400,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = if (enabled) "立即拨打" else "请先设置联系人",
                 style = ClearDuTypography.ReminderEmergencyCallBtn,
-                color = if (enabled) LiquidGlassColors.White else LiquidGlassColors.Text400
+                color = if (enabled) LiquidGlassColors.White else colors.text400
             )
         }
     }
@@ -222,7 +224,7 @@ private fun FamilyContactLink(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val color by animateColorAsState(
-        targetValue = if (isPressed) LiquidGlassColors.Foreground else LiquidGlassColors.Text600,
+        targetValue = if (isPressed) colors.foreground else LiquidGlassColors.Text600,
         animationSpec = tween(durationMillis = 150),
         label = "familyLinkColor"
     )

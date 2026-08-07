@@ -57,10 +57,10 @@ object LiquidGlassColors {
     val MeshAdditionalOrange = Color(0x1AFF9500) // rgba(255,149,0,0.1)
 
     // ===== Glass material tokens (dark-first) =====
-    val GlassBg = Color(0x1FFFFFFF)          // rgba(255,255,255,0.12)
-    val GlassBgStrong = Color(0x2EFFFFFF)    // rgba(255,255,255,0.18)
+    val GlassBg = Color(0x2EFFFFFF)          // rgba(255,255,255,0.18) — 暗色背景卡片更可见
+    val GlassBgStrong = Color(0x33FFFFFF)    // rgba(255,255,255,0.20)
     val GlassBgLight = Color(0x14FFFFFF)     // rgba(255,255,255,0.08)
-    val GlassBorder = Color(0x38FFFFFF)      // rgba(255,255,255,0.22)
+    val GlassBorder = Color(0x4DFFFFFF)      // rgba(255,255,255,0.30) — 暗色背景边框更可见
     val GlassBorderSubtle = Color(0x1FFFFFFF) // rgba(255,255,255,0.12)
     val GlassHighlight = Color(0x59FFFFFF)   // rgba(255,255,255,0.35)
     val GlassShadow = Color(0x40000000)      // rgba(0,0,0,0.25)
@@ -207,8 +207,8 @@ object LiquidGlassColors {
     val BrightForeground = Color(0xFF1D1D1F)     // 深色主文字
     val BrightText400 = Color(0xFF3C3C43)        // 深色副文字
     val BrightText300 = Color(0xFF48484A)        // 深色辅助文字
-    val BrightGlassBg = Color(0x40000000)         // rgba(0,0,0,0.25) — 深色磨砂卡片
-    val BrightGlassBorder = Color(0x33000000)     // rgba(0,0,0,0.2) — 深色卡片边框
+    val BrightGlassBg = Color(0x66000000)         // rgba(0,0,0,0.4) — 深色磨砂卡片，亮背景增强对比
+    val BrightGlassBorder = Color(0x4D000000)     // rgba(0,0,0,0.3) — 深色卡片边框
 
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)

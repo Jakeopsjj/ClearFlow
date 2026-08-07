@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -69,6 +70,7 @@ fun ReminderSettingsCard(
 
 @Composable
 private fun SettingItemRow(item: SettingItem) {
+    val colors = backgroundAwareColors()
     var checked by remember { mutableStateOf(true) }
     Row(
         modifier = Modifier
@@ -85,13 +87,13 @@ private fun SettingItemRow(item: SettingItem) {
             Text(
                 text = item.name,
                 style = ClearDuTypography.ReminderSettingName,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
             Spacer(Modifier.height(ClearDuDimens.ReminderSettingsDetailTopGap))
             Text(
                 text = item.detail,
                 style = ClearDuTypography.ReminderSettingDetail,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
         }
         ReminderToggle(

@@ -7,6 +7,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import com.cleardu.app.data.weather.WeatherBackgroundManager
 
 /**
@@ -71,50 +72,41 @@ fun ClearDuTheme(
  * @param specularTop 顶部高光色（仪表盘基准：GlassSpecularTop = rgba(255,255,255,0.25)）
  */
 data class GlassParams(
-    val background: androidx.compose.ui.graphics.Color,
-    val border: androidx.compose.ui.graphics.Color,
-    val shadowColor: androidx.compose.ui.graphics.Color,
+    val background: Color,
+    val border: Color,
+    val shadowColor: Color,
     val shadowElevation: Float,
-    val specularTop: androidx.compose.ui.graphics.Color
+    val specularTop: Color
 )
 
 /**
  * 获取当前背景亮度下的液态玻璃参数。
  *
- * 默认返回仪表盘基准参数（暗色背景）。
- * 当天气背景为高亮度时自动覆写为亮色适配值。
- * 当 lightMode = true 时（用药/提醒等浅色页面），返回浅色玻璃参数。
+ * 亮背景（晴天/雪天等）：深色磨砂卡片（40% 黑色），深色文字，确保卡片在亮背景上清晰可见。
+ * 暗背景（夜间/阴天等）：浅色磨砂卡片（18% 白色），白色文字，卡片略白于背景形成层次。
  *
- * @param lightMode 是否为浅色页面模式，默认 false（暗色仪表盘）
  * @return 当前适用的玻璃视觉参数
  */
 @Composable
-fun glassParams(lightMode: Boolean = false): GlassParams {
+fun glassParams(): GlassParams {
     val weatherState by WeatherBackgroundManager.state.collectAsState()
     val isBright = weatherState.enabled && weatherState.isBrightBackground
 
-    return when {
-        // 浅色页面：使用浅色玻璃参数（白色磨砂）
-        lightMode -> GlassParams(
-            background = LiquidGlassColors.LightGlassBg,
-            border = LiquidGlassColors.LightGlassBorder,
-            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
-            shadowElevation = 0f,
-            specularTop = LiquidGlassColors.LightGlassSpecularTop
-        )
-        // 暗色页面 + 高亮天气背景：使用深色磨砂参数
-        isBright -> GlassParams(
+    return if (isBright) {
+        // 亮背景 → 深色磨砂卡片，增加灰度，黑色文字
+        GlassParams(
             background = LiquidGlassColors.BrightGlassBg,
             border = LiquidGlassColors.BrightGlassBorder,
-            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
+            shadowColor = Color.Transparent,
             shadowElevation = 0f,
-            specularTop = LiquidGlassColors.GlassSpecularTop
+            specularTop = LiquidGlassColors.BrightGlassBorder.copy(alpha = 0.15f)
         )
-        // 暗色页面 + 暗色背景：仪表盘基准
-        else -> GlassParams(
+    } else {
+        // 暗背景 → 浅色磨砂卡片，增加白度，白色文字
+        GlassParams(
             background = LiquidGlassColors.GlassBg,
             border = LiquidGlassColors.GlassBorder,
-            shadowColor = androidx.compose.ui.graphics.Color.Transparent,
+            shadowColor = Color.Transparent,
             shadowElevation = 0f,
             specularTop = LiquidGlassColors.GlassSpecularTop
         )

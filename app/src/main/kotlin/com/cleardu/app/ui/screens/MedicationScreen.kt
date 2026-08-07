@@ -116,10 +116,11 @@ fun MedicationScreen(
                     )
             ) {
                 // === 页面标题 ===
+                val textColors = backgroundAwareColors()
                 Text(
                     text = "用药管理",
                     style = ClearDuTypography.MedPageTitle,
-                    color = LiquidGlassColors.Foreground,
+                    color = textColors.foreground,
                     textAlign = TextAlign.Start
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedPageTitleBottomMargin))
@@ -141,7 +142,7 @@ fun MedicationScreen(
                 Text(
                     text = "今日用药时间轴",
                     style = ClearDuTypography.MedSectionLabel,
-                    color = LiquidGlassColors.Text400,
+                    color = textColors.text400,
                     modifier = Modifier.padding(start = ClearDuDimens.MedSectionLabelStartPadding)
                 )
                 Spacer(Modifier.height(ClearDuDimens.MedSectionLabelBottomMargin))

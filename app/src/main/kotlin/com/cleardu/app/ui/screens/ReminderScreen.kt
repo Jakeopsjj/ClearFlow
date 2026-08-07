@@ -46,6 +46,7 @@ import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.util.LocationHelper
 import kotlinx.coroutines.launch
 
@@ -103,11 +104,12 @@ fun ReminderScreen(
                         end = ClearDuDimens.ReminderPageContentHorizontal
                     )
             ) {
+                val textColors = backgroundAwareColors()
                 // 1. 页面标题
                 Text(
                     text = "提醒中心",
                     style = ClearDuTypography.ReminderPageTitle,
-                    color = LiquidGlassColors.Foreground
+                    color = textColors.foreground
                 )
                 Spacer(Modifier.height(ClearDuDimens.ReminderPageTitleBottomMargin))
 
@@ -173,7 +175,7 @@ fun ReminderScreen(
                 Text(
                     text = "强提醒模式：即使在锁屏状态或App在后台，也会以全屏声音+震动提醒您服药和透析时间",
                     style = ClearDuTypography.ReminderFooterNote,
-                    color = LiquidGlassColors.Text400,
+                    color = textColors.text400,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -247,10 +249,11 @@ fun ReminderScreen(
  */
 @Composable
 private fun SectionLabel(text: String) {
+    val colors = backgroundAwareColors()
     Text(
         text = text,
         style = ClearDuTypography.ReminderSectionLabel,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         modifier = Modifier.padding(
             start = ClearDuDimens.ReminderSectionLabelStartPadding
         )

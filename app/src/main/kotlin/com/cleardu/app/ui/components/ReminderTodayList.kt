@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -56,6 +57,7 @@ fun ReminderTodayList(
     modifier: Modifier = Modifier
 ) {
     val glass = glassParams()
+    val colors = backgroundAwareColors()
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
@@ -77,13 +79,13 @@ fun ReminderTodayList(
                 Text(
                     text = "暂无提醒",
                     style = ClearDuTypography.ReminderTodayText,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
                     text = "请在用药、测量等页面设置提醒",
                     style = ClearDuTypography.ReminderTodayStatus,
-                    color = LiquidGlassColors.Text400.copy(alpha = 0.6f)
+                    color = colors.text400.copy(alpha = 0.6f)
                 )
             }
         } else {
@@ -174,14 +176,14 @@ private fun TodayReminderRow(item: TodayReminder) {
         Text(
             text = item.time,
             style = ClearDuTypography.ReminderTodayTime,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             modifier = Modifier.width(ClearDuDimens.ReminderTodayTimeWidth)
         )
         // 标题
         Text(
             text = item.title,
             style = ClearDuTypography.ReminderTodayText,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             modifier = Modifier.weight(1f)
         )
         // 状态徽章

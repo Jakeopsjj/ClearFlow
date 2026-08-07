@@ -60,6 +60,7 @@ object ClearDuDimens {
     val GlassElevation = 0.dp // we draw shadows manually for multi-layer effect
     val GlassBorderWidth = 1.dp
     val GlassSpecularHeightFraction = 0.5f // top 50% specular highlight
+    val GlassBlurRadius = 2.dp              // 卡片背景轻微模糊，避免与背景图重叠
 
     // ===== Dashboard: greeting =====
     val GreetingBottomMargin = 20.dp

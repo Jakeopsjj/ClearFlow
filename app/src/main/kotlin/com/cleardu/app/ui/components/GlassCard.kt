@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
@@ -57,15 +58,20 @@ fun GlassCard(
                     mod.shadow(shadowElevation.dp, shape, clip = false, ambientColor = shadowColor, spotColor = shadowColor)
                 } else mod
             }
-            // Solid translucent fill — frosted look against dark mesh substrate.
-            .drawBehindFill(background)
-            // Specular overlay drawn on top of the content so the highlight
-            // reads as light catching the glass surface.
-            .drawSpecularOverlay(specularTop)
             .border(BorderStroke(ClearDuDimens.GlassBorderWidth, border), shape),
         contentAlignment = Alignment.Center,
-        content = content
-    )
+    ) {
+        // 模糊背景层 — 轻微模糊使背景图与卡片不重叠
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .blur(ClearDuDimens.GlassBlurRadius)
+                .drawBehindFill(background)
+                .drawSpecularOverlay(specularTop)
+        )
+        // 清晰内容层
+        content()
+    }
 }
 
 /**
