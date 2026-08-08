@@ -71,6 +71,7 @@ import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.data.GitHubReleaseChecker
 import com.cleardu.app.data.ReleaseInfo
 import com.cleardu.app.data.toJson
+import com.cleardu.app.data.weather.WeatherBackgroundManager
 import com.cleardu.app.BuildConfig
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
@@ -195,6 +196,10 @@ fun SettingsScreen(
                         update { it.copy(weatherBackgroundEnabled = enabled) }
                     }
                 )
+                // Debug only: 明暗背景切换
+                if (BuildConfig.DEBUG) {
+                    DebugBackgroundBrightnessItem()
+                }
             }
 
             Spacer(Modifier.height(28.dp))
@@ -888,6 +893,96 @@ private fun WeatherBackgroundToggleItem(
             checked = checked,
             onCheckedChange = onCheckedChange
         )
+    }
+}
+
+@Composable
+private fun DebugBackgroundBrightnessItem() {
+    val colors = backgroundAwareColors()
+    val weatherState by WeatherBackgroundManager.state.collectAsState()
+    val currentMode = weatherState.debugBrightMode
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(29.dp)
+                .clip(RoundedCornerShape(7.dp))
+                .background(LiquidGlassColors.TintPurpleBg),
+            contentAlignment = Alignment.Center
+        ) {
+            DebugIcon()
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "明暗背景 [Debug]",
+                fontSize = 16.sp,
+                color = colors.foreground,
+                letterSpacing = (-0.01).sp
+            )
+            Text(
+                text = when (currentMode) {
+                    null -> "自动（跟随天气）"
+                    true -> "强制亮色背景"
+                    false -> "强制暗色背景"
+                },
+                fontSize = 12.sp,
+                color = colors.text400,
+                letterSpacing = (-0.01).sp
+            )
+        }
+
+        // 三态切换：自动 → 亮 → 暗 → 自动
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(LiquidGlassColors.TintPurpleBg)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    val next = when (currentMode) {
+                        null -> true
+                        true -> false
+                        false -> null
+                    }
+                    WeatherBackgroundManager.setDebugBrightMode(next)
+                }
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = when (currentMode) {
+                    null -> "自动"
+                    true -> "亮"
+                    false -> "暗"
+                },
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = LiquidGlassColors.MedicalPurple
+            )
+        }
+    }
+}
+
+@Composable
+private fun DebugIcon() {
+    Canvas(modifier = Modifier.size(16.dp)) {
+        val w = size.width
+        val h = size.height
+        val color = LiquidGlassColors.MedicalPurple
+        // 齿轮/工具图标
+        drawCircle(color, w * 0.25f, center = Offset(w * 0.5f, h * 0.5f), style = Stroke(width = 1.4f * density))
+        drawLine(color, Offset(w * 0.5f, h * 0.25f), Offset(w * 0.5f, h * 0.125f), strokeWidth = 1.4f * density)
+        drawLine(color, Offset(w * 0.5f, h * 0.75f), Offset(w * 0.5f, h * 0.875f), strokeWidth = 1.4f * density)
+        drawLine(color, Offset(w * 0.25f, h * 0.5f), Offset(w * 0.125f, h * 0.5f), strokeWidth = 1.4f * density)
+        drawLine(color, Offset(w * 0.75f, h * 0.5f), Offset(w * 0.875f, h * 0.5f), strokeWidth = 1.4f * density)
     }
 }
 

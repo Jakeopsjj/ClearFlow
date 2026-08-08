@@ -7,6 +7,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,10 +19,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +41,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
@@ -85,25 +85,26 @@ fun MedicationTimeline(
 ) {
     // 追踪刚点击"服了"的索引，保持卡片不透明
     val justTaken = remember { mutableStateListOf<Int>() }
+    val glass = glassParams()
     val colors = backgroundAwareColors()
 
-    val timeColWidth = ClearDuDimens.MedTimelineTimeColWidth
-    val gap = ClearDuDimens.MedCardGap
-    val dotSize = ClearDuDimens.MedTimelineDotSize
-    val lineWidth = ClearDuDimens.MedTimelineLineWidth
-    // 时间线贴近时间列，距卡片更远，视觉更舒适
-    val lineCenterX = timeColWidth + ClearDuDimens.MedTimelineLineOffsetFromTime
-    val dotLeft = lineCenterX - dotSize / 2
-
-    if (doses.isEmpty()) {
-        // === 空状态 ===
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    GlassCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ClearDuDimens.MedCardRadius),
+        background = glass.background,
+        border = glass.border,
+        shadowColor = glass.shadowColor,
+        shadowElevation = glass.shadowElevation,
+        specularTop = glass.specularTop
+    ) {
+        if (doses.isEmpty()) {
+            // === 空状态（与 ReminderTodayList 一致） ===
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 MedClockIcon(
                     tint = colors.text400.copy(alpha = 0.5f),
                     modifier = Modifier.size(40.dp)
@@ -121,171 +122,198 @@ fun MedicationTimeline(
                     color = colors.text400.copy(alpha = 0.6f)
                 )
             }
-        }
-        return
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .drawBehind {
-                val x = lineCenterX.toPx()
-                val topPad = 18.dp.toPx()
-                drawLine(
-                    color = LiquidGlassColors.GlassBgLight,
-                    start = Offset(x, topPad),
-                    end = Offset(x, size.height - topPad),
-                    strokeWidth = lineWidth.toPx(),
-                    cap = StrokeCap.Round
+        } else {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = ClearDuDimens.MedCardPaddingH,
+                    vertical = ClearDuDimens.MedCardPaddingV
                 )
-            }
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(ClearDuDimens.MedTimelineItemGap)
-        ) {
-            doses.forEachIndexed { index, dose ->
-                MedicationTimelineItem(
-                    dose = dose,
-                    justTaken = index in justTaken,
-                    lineDotLeft = dotLeft,
-                    onTake = {
-                        if (dose.status == MedDoseStatus.NEXT_DOSE ||
-                            dose.status == MedDoseStatus.UPCOMING
-                        ) {
-                            if (index !in justTaken) justTaken.add(index)
-                            onDoseTaken(index)
+            ) {
+                doses.forEachIndexed { index, dose ->
+                    // 时间线行（类似 ReminderTodayList 的 TodayReminderRow）
+                    MedicationTimelineRow(
+                        dose = dose,
+                        justTaken = index in justTaken,
+                        onTake = {
+                            if (dose.status == MedDoseStatus.NEXT_DOSE ||
+                                dose.status == MedDoseStatus.UPCOMING
+                            ) {
+                                if (index !in justTaken) justTaken.add(index)
+                                onDoseTaken(index)
+                            }
                         }
+                    )
+                    // 分隔线（最后一条不显示）
+                    if (index < doses.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(LiquidGlassColors.DividerSubtle)
+                        )
                     }
-                )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun MedicationTimelineItem(
+private fun MedicationTimelineRow(
     dose: MedicationDose,
     justTaken: Boolean,
-    lineDotLeft: Dp,
     onTake: () -> Unit
 ) {
     val isPast = dose.status == MedDoseStatus.TAKEN
-    // 历史 TAKEN 卡片 0.6 透明；刚点击"服了"的卡片保持不透明
     val cardAlpha = if (isPast && !justTaken) 0.6f else 1f
-    val glass = glassParams()
     val colors = backgroundAwareColors()
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.MedCardGap)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(cardAlpha)
+            .padding(vertical = ClearDuDimens.MedTimelineItemGap),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.MedCardGap)
+    ) {
+        // 时间线圆点（类似 ReminderTodayList 的脉冲圆点）
+        TimelineDotNew(
+            status = dose.status,
+            modifier = Modifier.size(ClearDuDimens.MedTimelineDotSize)
+        )
+
+        // 时间
+        Text(
+            text = dose.time,
+            style = ClearDuTypography.MedTimelineTime,
+            color = if (isPast) colors.text400 else colors.foreground,
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(ClearDuDimens.MedTimelineTimeColWidth)
+        )
+
+        // 药品图标 + 名称 + 剂量
+        Box(
+            modifier = Modifier
+                .size(ClearDuDimens.MedCardIconSize)
+                .clip(RoundedCornerShape(ClearDuDimens.MedCardIconRadius))
+                .drawBehind { drawRect(dose.iconBg) },
+            contentAlignment = Alignment.Center
         ) {
-            // Time column
-            Box(
-                modifier = Modifier
-                    .width(ClearDuDimens.MedTimelineTimeColWidth)
-                    .padding(top = 14.dp),
-                contentAlignment = Alignment.CenterEnd
+            MedicationDoseIcon(
+                name = dose.name,
+                tint = dose.iconTint,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // 药品详情
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = dose.name,
+                style = ClearDuTypography.MedCardName,
+                color = colors.foreground
+            )
+            Spacer(Modifier.height(ClearDuDimens.MedCardNameBottomGap))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.MedCardMetaGap)
             ) {
                 Text(
-                    text = dose.time,
-                    style = ClearDuTypography.MedTimelineTime,
-                    color = if (isPast) colors.text400 else colors.foreground,
-                    textAlign = TextAlign.End
+                    text = dose.dose,
+                    style = ClearDuTypography.MedCardDose,
+                    color = colors.text300
                 )
-            }
-
-            // Medication card
-            GlassCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .alpha(cardAlpha),
-                shape = RoundedCornerShape(ClearDuDimens.MedCardRadius),
-                background = glass.background,
-                border = glass.border,
-                shadowColor = glass.shadowColor,
-                shadowElevation = glass.shadowElevation,
-                specularTop = glass.specularTop
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = ClearDuDimens.MedCardPaddingH,
-                            vertical = ClearDuDimens.MedCardPaddingV
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.MedCardGap)
-                ) {
-                    // Drug icon
+                if (!dose.instruction.isNullOrEmpty()) {
                     Box(
                         modifier = Modifier
-                            .size(ClearDuDimens.MedCardIconSize)
-                            .clip(RoundedCornerShape(ClearDuDimens.MedCardIconRadius))
-                            .drawBehind { drawRect(dose.iconBg) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MedicationDoseIcon(
-                            name = dose.name,
-                            tint = dose.iconTint,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    // Details
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = dose.name,
-                            style = ClearDuTypography.MedCardName,
-                            color = colors.foreground
-                        )
-                        Spacer(Modifier.height(ClearDuDimens.MedCardNameBottomGap))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(ClearDuDimens.MedCardMetaGap)
-                        ) {
-                            Text(
-                                text = dose.dose,
-                                style = ClearDuTypography.MedCardDose,
-                                color = colors.text300
-                            )
-                            if (!dose.instruction.isNullOrEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(ClearDuDimens.MedCardDividerSize)
-                                        .drawBehind {
-                                            drawCircle(LiquidGlassColors.DividerSubtle)
-                                        }
-                                )
-                                Text(
-                                    text = dose.instruction,
-                                    style = ClearDuTypography.MedCardMeta,
-                                    color = colors.text400
-                                )
+                            .size(ClearDuDimens.MedCardDividerSize)
+                            .drawBehind {
+                                drawCircle(LiquidGlassColors.DividerSubtle)
                             }
-                        }
-                    }
-
-                    // Status indicator
-                    StatusIndicator(dose = dose, onTake = onTake)
+                    )
+                    Text(
+                        text = dose.instruction,
+                        style = ClearDuTypography.MedCardMeta,
+                        color = colors.text400
+                    )
                 }
             }
         }
 
-        // Timeline dot overlay (sits on the vertical line)
-        TimelineDot(
-            status = dose.status,
-            modifier = Modifier
-                .offset(x = lineDotLeft, y = 18.dp)
-                .size(ClearDuDimens.MedTimelineDotSize)
-        )
+        // 状态指示器
+        MedStatusBadge(dose = dose, onTake = onTake)
     }
 }
 
 @Composable
-private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
+private fun TimelineDotNew(status: MedDoseStatus, modifier: Modifier = Modifier) {
+    when (status) {
+        MedDoseStatus.TAKEN -> {
+            Box(
+                modifier = modifier
+                    .drawBehind {
+                        val r = size.minDimension / 2f
+                        drawCircle(
+                            LiquidGlassColors.MedicalGreen.copy(alpha = 0.35f),
+                            radius = r * 1.5f
+                        )
+                        drawCircle(LiquidGlassColors.MedicalGreen, radius = r)
+                    }
+            )
+        }
+        MedDoseStatus.NEXT_DOSE -> {
+            val transition = rememberInfiniteTransition(label = "nextDosePulse")
+            val pulse by transition.animateFloat(
+                initialValue = 0.25f,
+                targetValue = 0.5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 2000),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "nextDosePulseAlpha"
+            )
+            Box(modifier = modifier.drawBehind {
+                val r = size.minDimension / 2f
+                drawCircle(
+                    LiquidGlassColors.MedicalCyan.copy(alpha = pulse),
+                    radius = r * 1.5f
+                )
+                drawCircle(LiquidGlassColors.MedicalCyan, radius = r)
+            })
+        }
+        MedDoseStatus.UPCOMING -> {
+            Box(
+                modifier = modifier
+                    .drawBehind {
+                        val r = size.minDimension / 2f
+                        drawCircle(Color(0x26000000), radius = r)
+                    }
+                    .border(
+                        BorderStroke(ClearDuDimens.GlassBorderWidth, Color(0x40000000)),
+                        CircleShape
+                    )
+            )
+        }
+        MedDoseStatus.OPTIONAL -> {
+            val dash = PathEffect.dashPathEffect(floatArrayOf(3f, 3f))
+            Box(
+                modifier = modifier
+                    .drawBehind {
+                        val r = size.minDimension / 2f
+                        drawCircle(Color(0x14000000), radius = r)
+                        drawCircle(
+                            color = LiquidGlassColors.DividerMedium,
+                            radius = r,
+                            style = Stroke(width = 1.dp.toPx(), pathEffect = dash)
+                        )
+                    }
+            )
+        }
+    }
+}
+
+@Composable
+private fun MedStatusBadge(dose: MedicationDose, onTake: () -> Unit) {
     val colors = backgroundAwareColors()
     when (dose.status) {
         MedDoseStatus.TAKEN -> {
@@ -306,9 +334,7 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                 )
             }
         }
-
-        MedDoseStatus.NEXT_DOSE -> TakeButton(onClick = onTake)
-
+        MedDoseStatus.NEXT_DOSE -> MedTakeButton(onClick = onTake)
         MedDoseStatus.UPCOMING -> {
             Box(
                 modifier = Modifier
@@ -321,7 +347,6 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
                     )
             )
         }
-
         MedDoseStatus.OPTIONAL -> {
             Box(
                 modifier = Modifier
@@ -348,7 +373,7 @@ private fun StatusIndicator(dose: MedicationDose, onTake: () -> Unit) {
 }
 
 @Composable
-private fun TakeButton(onClick: () -> Unit) {
+private fun MedTakeButton(onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -380,76 +405,5 @@ private fun TakeButton(onClick: () -> Unit) {
             style = ClearDuTypography.MedTakeBtn,
             color = LiquidGlassColors.MedicalCyan
         )
-    }
-}
-
-@Composable
-private fun TimelineDot(status: MedDoseStatus, modifier: Modifier = Modifier) {
-    when (status) {
-        MedDoseStatus.TAKEN -> {
-            Box(modifier = modifier.drawBehind {
-                val r = size.minDimension / 2f
-                // Glow
-                drawCircle(
-                    LiquidGlassColors.MedicalGreen.copy(alpha = 0.35f),
-                    radius = r * 1.7f
-                )
-                drawCircle(LiquidGlassColors.MedicalGreen, radius = r)
-            })
-        }
-
-        MedDoseStatus.UPCOMING -> {
-            Box(
-                modifier = modifier
-                    .drawBehind {
-                        val r = size.minDimension / 2f
-                        drawCircle(Color(0x26000000), radius = r)
-                    }
-                    .border(
-                        BorderStroke(ClearDuDimens.GlassBorderWidth, Color(0x40000000)),
-                        RoundedCornerShape(50)
-                    )
-            )
-        }
-
-        MedDoseStatus.NEXT_DOSE -> {
-            // Pulsing glow (alpha 0.25 -> 0.5 over 2s)
-            val transition = rememberInfiniteTransition(label = "nextDosePulse")
-            val pulse by transition.animateFloat(
-                initialValue = 0.25f,
-                targetValue = 0.5f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 2000),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "nextDosePulseAlpha"
-            )
-            Box(modifier = modifier.drawBehind {
-                val r = size.minDimension / 2f
-                drawCircle(
-                    LiquidGlassColors.MedicalCyan.copy(alpha = pulse),
-                    radius = r * 1.8f
-                )
-                drawCircle(LiquidGlassColors.MedicalCyan, radius = r)
-            })
-        }
-
-        MedDoseStatus.OPTIONAL -> {
-            val dash = PathEffect.dashPathEffect(
-                floatArrayOf(3f, 3f)
-            )
-            Box(
-                modifier = modifier
-                    .drawBehind {
-                        val r = size.minDimension / 2f
-                        drawCircle(Color(0x14000000), radius = r)
-                        drawCircle(
-                            color = LiquidGlassColors.DividerMedium,
-                            radius = r,
-                            style = Stroke(width = 1.dp.toPx(), pathEffect = dash)
-                        )
-                    }
-            )
-        }
     }
 }

@@ -91,6 +91,7 @@ fun VitalCard(
 
             // Value row
             val colors = backgroundAwareColors()
+            val unitColor = if (colors.isBright) colors.unitGreen else colors.text400
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = item.value,
@@ -103,7 +104,7 @@ fun VitalCard(
                     Text(
                         text = item.unit,
                         style = ClearDuTypography.VitalUnit,
-                        color = colors.text400
+                        color = unitColor
                     )
                 }
             }
@@ -113,7 +114,7 @@ fun VitalCard(
             Text(
                 text = item.subValue ?: "",
                 style = ClearDuTypography.VitalSub,
-                color = if (item.subValue != null) colors.text400 else Color.Transparent
+                color = if (item.subValue != null) unitColor else Color.Transparent
             )
         }
     }

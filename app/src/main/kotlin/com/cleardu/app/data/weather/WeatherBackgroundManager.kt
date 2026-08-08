@@ -26,14 +26,17 @@ data class WeatherBackgroundState(
     val imageFile: File? = null,
     val localBackgroundType: WeatherCodeMapper.LocalBackgroundType =
         WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    /** Debug mode: null=auto, true=bright, false=dark. Only effective in debug builds. */
+    val debugBrightMode: Boolean? = null
 ) {
     /**
      * 当前背景是否属于高亮度背景（晴/雪/多云白天）。
      * 用于 UI 文字颜色自适应：高亮背景使用深色文字，暗色背景使用浅色文字。
+     * Debug 模式下由 debugBrightMode 手动控制。
      */
     val isBrightBackground: Boolean
-        get() = when (localBackgroundType) {
+        get() = debugBrightMode ?: when (localBackgroundType) {
             WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY,
             WeatherCodeMapper.LocalBackgroundType.CLOUDY_DAY,
             WeatherCodeMapper.LocalBackgroundType.SNOW_DAY,
@@ -169,5 +172,13 @@ object WeatherBackgroundManager {
      */
     fun clearCache() {
         imageRepository?.clearCache()
+    }
+
+    /**
+     * Debug only: manually set background brightness mode.
+     * @param brightMode null=auto, true=强制亮色背景, false=强制暗色背景
+     */
+    fun setDebugBrightMode(brightMode: Boolean?) {
+        _state.value = _state.value.copy(debugBrightMode = brightMode)
     }
 }

@@ -90,7 +90,12 @@ data class GlassParams(
 @Composable
 fun glassParams(): GlassParams {
     val weatherState by WeatherBackgroundManager.state.collectAsState()
-    val isBright = weatherState.enabled && weatherState.isBrightBackground
+    // Debug模式下debugBrightMode不为null时直接使用，否则需要天气背景已启用
+    val isBright = if (weatherState.debugBrightMode != null) {
+        weatherState.debugBrightMode == true
+    } else {
+        weatherState.enabled && weatherState.isBrightBackground
+    }
 
     return if (isBright) {
         // 亮背景 → 浅灰磨砂卡片，卡片略暗于背景，白色文字
@@ -124,17 +129,24 @@ fun glassParams(): GlassParams {
 @Composable
 fun backgroundAwareColors(): BackgroundAwareColors {
     val weatherState by WeatherBackgroundManager.state.collectAsState()
-    val isBright = weatherState.enabled && weatherState.isBrightBackground
+    // Debug模式下debugBrightMode不为null时直接使用，否则需要天气背景已启用
+    val isBright = if (weatherState.debugBrightMode != null) {
+        weatherState.debugBrightMode == true
+    } else {
+        weatherState.enabled && weatherState.isBrightBackground
+    }
 
     return if (isBright) {
-        // 亮背景 → 白色文字
+        // 亮背景 → 白色文字，单位/提示小字用绿色/红色
         BackgroundAwareColors(
             foreground = LiquidGlassColors.Foreground,
             text400 = LiquidGlassColors.Text400,
             text300 = LiquidGlassColors.Text300,
             glassBg = LiquidGlassColors.BrightGlassBg,
             glassBorder = LiquidGlassColors.BrightGlassBorder,
-            isBright = true
+            isBright = true,
+            unitGreen = LiquidGlassColors.BrightTextGreen,
+            unitRed = LiquidGlassColors.BrightTextRed
         )
     } else {
         // 暗背景 → 黑色文字
@@ -158,5 +170,7 @@ data class BackgroundAwareColors(
     val text300: androidx.compose.ui.graphics.Color,
     val glassBg: androidx.compose.ui.graphics.Color,
     val glassBorder: androidx.compose.ui.graphics.Color,
-    val isBright: Boolean
+    val isBright: Boolean,
+    val unitGreen: androidx.compose.ui.graphics.Color = LiquidGlassColors.MedicalGreen,
+    val unitRed: androidx.compose.ui.graphics.Color = LiquidGlassColors.MedicalRed
 )

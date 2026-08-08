@@ -156,6 +156,7 @@ private fun InputRing(
     progressFraction: Float
 ) {
     val colors = backgroundAwareColors()
+    val inputUnitColor = if (colors.isBright) colors.unitGreen else colors.text400
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -172,7 +173,7 @@ private fun InputRing(
 
                 // Track circle
                 drawCircle(
-                    color = LiquidGlassColors.GlassBgLight,
+                    color = if (colors.isBright) LiquidGlassColors.BrightGlassBg else LiquidGlassColors.GlassBgLight,
                     radius = radius,
                     center = center,
                     style = Stroke(width = strokeW)
@@ -208,7 +209,7 @@ private fun InputRing(
                 Text(
                     text = "ml",
                     style = ClearDuTypography.InputUnit,
-                    color = colors.text400
+                    color = inputUnitColor
                 )
             }
         }
@@ -216,7 +217,7 @@ private fun InputRing(
         Text(
             text = "点击数字键盘输入超滤量",
             style = ClearDuTypography.InputLabel,
-            color = colors.text400
+            color = inputUnitColor
         )
     }
 }
@@ -303,6 +304,9 @@ private fun KeypadKey(
         targetValue = if (pressed) 0.92f else 1f,
         label = "keypadKeyScale"
     )
+    val colors = backgroundAwareColors()
+    val keyBg = if (colors.isBright) colors.glassBg else LiquidGlassColors.KeyBg
+    val keyActiveBg = if (colors.isBright) colors.glassBg.copy(alpha = 0.5f) else LiquidGlassColors.KeyActiveBg
 
     GlassCard(
         modifier = modifier
@@ -318,7 +322,7 @@ private fun KeypadKey(
                 onClick = onClick
             ),
         shape = RoundedCornerShape(ClearDuDimens.KeypadKeyRadius),
-        background = if (pressed) LiquidGlassColors.KeyActiveBg else LiquidGlassColors.KeyBg,
+        background = if (pressed) keyActiveBg else keyBg,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Box(contentAlignment = Alignment.Center) {

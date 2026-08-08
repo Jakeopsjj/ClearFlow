@@ -83,6 +83,9 @@ fun FluidBalanceRing(
                     }
             )
 
+            val colors = backgroundAwareColors()
+            val ringTrackColor = if (colors.isBright) LiquidGlassColors.BrightGlassBg else LiquidGlassColors.GlassBg
+
             Canvas(modifier = Modifier.size(ClearDuDimens.RingSize)) {
                 val strokeWidth = ClearDuDimens.RingStrokeWidth.toPx()
                 val topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
@@ -91,9 +94,9 @@ fun FluidBalanceRing(
                     size.height - strokeWidth
                 )
 
-                // Track (background ring)
+                // Track (background ring) — 亮色背景用浅灰
                 drawArc(
-                    color = LiquidGlassColors.GlassBg,
+                    color = ringTrackColor,
                     startAngle = 0f,
                     sweepAngle = 360f,
                     useCenter = false,
@@ -125,7 +128,7 @@ fun FluidBalanceRing(
             }
 
             // Center text
-            val colors = backgroundAwareColors()
+            val ringUnitColor = if (colors.isBright) colors.unitGreen else colors.text400
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     androidx.compose.material3.Text(
@@ -138,14 +141,14 @@ fun FluidBalanceRing(
                     androidx.compose.material3.Text(
                         text = "ml",
                         style = ClearDuTypography.RingValueUnit,
-                        color = colors.text400
+                        color = ringUnitColor
                     )
                 }
                 Spacer(Modifier.height(ClearDuDimens.RingCenterGap))
                 androidx.compose.material3.Text(
                     text = "今日目标 ${"%,d".format(targetValue)}ml",
                     style = ClearDuTypography.RingLabel,
-                    color = colors.text400
+                    color = ringUnitColor
                 )
             }
         }

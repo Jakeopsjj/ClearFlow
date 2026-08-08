@@ -85,6 +85,9 @@ private fun BpSection(
         systolic < 90 || diastolic < 60 -> LiquidGlassColors.MedicalOrange
         else -> LiquidGlassColors.MedicalGreen
     }
+    val bpUnitColor = if (colors.isBright) {
+        if (bpStatus == "血压正常") colors.unitGreen else colors.unitRed
+    } else colors.text400
 
     GlassCard(
         modifier = modifier,
@@ -117,7 +120,7 @@ private fun BpSection(
                 Text(
                     text = "mmHg",
                     style = ClearDuTypography.HealthVitalUnit,
-                    color = colors.text400
+                    color = bpUnitColor
                 )
             }
             Spacer(Modifier.height(6.dp))
@@ -151,6 +154,9 @@ private fun HrSection(
         heartRate < 60 -> LiquidGlassColors.MedicalOrange
         else -> LiquidGlassColors.MedicalGreen
     }
+    val hrUnitColor = if (colors.isBright) {
+        if (hrStatus == "心率正常") colors.unitGreen else colors.unitRed
+    } else colors.text400
 
     GlassCard(
         modifier = modifier,
@@ -183,7 +189,7 @@ private fun HrSection(
                 Text(
                     text = "bpm",
                     style = ClearDuTypography.HealthVitalUnit,
-                    color = colors.text400
+                    color = hrUnitColor
                 )
             }
             Spacer(Modifier.height(6.dp))
