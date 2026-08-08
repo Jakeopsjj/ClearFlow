@@ -176,9 +176,66 @@ object WeatherBackgroundManager {
 
     /**
      * Debug only: manually set background brightness mode.
-     * @param brightMode null=auto, true=强制亮色背景, false=强制暗色背景
+     * Swaps the actual background image — bright mode shows a sunny day scene,
+     * dark mode shows a night scene. Auto mode reverts to weather-based behavior.
+     *
+     * @param brightMode null=auto, true=强制亮色背景（晴天白天）, false=强制暗色背景（晴夜）
      */
     fun setDebugBrightMode(brightMode: Boolean?) {
-        _state.value = _state.value.copy(debugBrightMode = brightMode)
+        val newType = when (brightMode) {
+            true -> WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY
+            false -> WeatherCodeMapper.LocalBackgroundType.SUNNY_NIGHT
+            null -> _state.value.localBackgroundType // keep current type, will be overwritten by refresh
+        }
+        _state.value = _state.value.copy(
+            debugBrightMode = brightMode,
+            localBackgroundType = newType,
+            imageFile = null, // clear image to force new fetch
+            weatherCode = if (brightMode == true) "00" else if (brightMode == false) "00" else _state.value.weatherCode,
+            isDayTime = brightMode ?: _state.value.isDayTime
+        )
+        if (brightMode != null) {
+            // Fetch a debug-appropriate background image
+            scope.launch { fetchDebugImage(brightMode) }
+        } else {
+            // Revert to auto mode — re-fetch weather-based background
+            refresh()
+        }
+    }
+
+    /**
+     * Fetch a background image for debug mode (bright or dark).
+     * Uses the Pexels repository to get a matching image without requiring weather data.
+     */
+    private suspend fun fetchDebugImage(isBright: Boolean) {
+        val imgRepo = imageRepository ?: return
+
+        _state.value = _state.value.copy(isLoading = true)
+
+        val weatherCode = "00" // sunny
+        val isDayTime = isBright
+
+        val imageFile = try {
+            imgRepo.getWeatherImage(weatherCode, isDayTime)
+        } catch (e: Exception) {
+            Log.e(TAG, "Debug image fetch error: ${e.message}", e)
+            null
+        }
+
+        val localType = if (isBright) {
+            WeatherCodeMapper.LocalBackgroundType.SUNNY_DAY
+        } else {
+            WeatherCodeMapper.LocalBackgroundType.SUNNY_NIGHT
+        }
+
+        _state.value = _state.value.copy(
+            weatherCode = weatherCode,
+            isDayTime = isDayTime,
+            imageFile = imageFile,
+            localBackgroundType = localType,
+            isLoading = false
+        )
+
+        Log.d(TAG, "Debug background: bright=$isBright, image=${imageFile != null}, type=$localType")
     }
 }

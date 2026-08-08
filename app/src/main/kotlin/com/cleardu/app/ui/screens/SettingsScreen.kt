@@ -930,8 +930,8 @@ private fun DebugBackgroundBrightnessItem() {
             Text(
                 text = when (currentMode) {
                     null -> "自动（跟随天气）"
-                    true -> "强制亮色背景"
-                    false -> "强制暗色背景"
+                    true -> "晴天白天背景"
+                    false -> "晴夜星空背景"
                 },
                 fontSize = 12.sp,
                 color = colors.text400,

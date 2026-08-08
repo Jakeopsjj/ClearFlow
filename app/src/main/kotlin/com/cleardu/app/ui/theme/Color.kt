@@ -41,9 +41,10 @@ object LiquidGlassColors {
     val Foreground = Color(0xFFF5F5F7)
     val Text100 = Color(0xFFE3E3E8)
     val Text200 = Color(0xFFC7C7CC)
-    val Text300 = Color(0xFFAEAEB2)
-    val Text400 = Color(0xFF8E8E93)
-    val Text500 = Color(0xFF6E6E73)
+    // 灰色文字全部改为红/绿：绿色=中性信息，红色=重要/警告
+    val Text300 = Color(0xFF66D98A)    // 浅绿 — 辅助文字/标签
+    val Text400 = Color(0xFF34C759)    // 绿色 — 次要文字/单位/提示
+    val Text500 = Color(0xFFFF3B30)    // 红色 — 重要/警告文字
     val Text600 = Color(0xB3FFFFFF) // rgba(255,255,255,0.7)
     val Text700 = Color(0xFF3C3C43)
     val Text800 = Color(0xFF1D1D1F)
@@ -190,9 +191,9 @@ object LiquidGlassColors {
     val KeyActionColor = MedicalCyan                // #5ac8fa
 
     // ===== Data record: placeholders =====
-    val PlaceholderText = Color(0x59F5F5F7)        // rgba(245,245,247,0.35)
-    val PlaceholderInput = Color(0xFF666666)       // 深灰色，浅色背景可见
-    val PlaceholderInputStrong = Color(0xB38E8E93) // rgba(142,142,147,0.7)
+    val PlaceholderText = Color(0x5934C759)        // rgba(52,199,89,0.35) — 绿色占位文字
+    val PlaceholderInput = Color(0xFFFF3B30)       // 红色 — 输入框占位提示
+    val PlaceholderInputStrong = Color(0xB3FF3B30) // rgba(255,59,48,0.7) — 红色强占位提示
 
     // ===== Data record: save button glow =====
     val BtnGlowCyan = Color(0x595AC8FA)            // rgba(90,200,250,0.35)
@@ -215,8 +216,8 @@ object LiquidGlassColors {
 
     // 暗背景：浅白卡片 + 黑色文字（复用原有 Foreground 暗色系文字）
     val DarkForeground = Color(0xFF1D1D1F)        // 暗背景卡片上的深色主文字
-    val DarkText400 = Color(0xFF3C3C43)           // 暗背景卡片上的深色副文字
-    val DarkText300 = Color(0xFF48484A)           // 暗背景卡片上的深色辅助文字
+    val DarkText400 = Color(0xFF34C759)           // 暗背景卡片上的绿色副文字
+    val DarkText300 = Color(0xFF66D98A)           // 暗背景卡片上的浅绿辅助文字
 
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)
