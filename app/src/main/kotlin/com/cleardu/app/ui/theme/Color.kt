@@ -160,6 +160,11 @@ object LiquidGlassColors {
     val NavIconInactive = Text400
     val NavIconActive = MedicalCyan
 
+    // Bright-mode nav bar: 浅灰 + 白色文字
+    val BrightNavBg = Color(0xB3787880)         // rgba(120,120,128,0.7) — 浅灰磨砂底
+    val BrightNavBorder = Color(0x4D787880)     // rgba(120,120,128,0.3)
+    val BrightNavSpecular = Color(0x26FFFFFF)   // rgba(255,255,255,0.15)
+
     // ===== Card active state =====
     val CardActiveBg = Color(0x29FFFFFF)       // rgba(255,255,255,0.16)
 
@@ -202,13 +207,16 @@ object LiquidGlassColors {
     val Black = Color(0xFF000000)
     val White = Color(0xFFFFFFFF)
 
-    // ===== 背景亮度自适应文字颜色 =====
-    // 高亮度背景（晴天、雪天、多云白天）时使用深色文字，确保清晰可读
-    val BrightForeground = Color(0xFF1D1D1F)     // 深色主文字
-    val BrightText400 = Color(0xFF3C3C43)        // 深色副文字
-    val BrightText300 = Color(0xFF48484A)        // 深色辅助文字
-    val BrightGlassBg = Color(0x66000000)         // rgba(0,0,0,0.4) — 深色磨砂卡片，亮背景增强对比
-    val BrightGlassBorder = Color(0x4D000000)     // rgba(0,0,0,0.3) — 深色卡片边框
+    // ===== 背景亮度自适应颜色 =====
+    // 亮背景：浅灰卡片 + 白色文字
+    val BrightGlassBg = Color(0x59787880)         // rgba(120,120,128,0.35) — 浅灰磨砂卡片，亮背景可见
+    val BrightGlassBorder = Color(0x66787880)     // rgba(120,120,128,0.40) — 浅灰边框
+    val BrightGlassSpecular = Color(0x26FFFFFF)   // rgba(255,255,255,0.15) — 亮背景浅色高光
+
+    // 暗背景：浅白卡片 + 黑色文字（复用原有 Foreground 暗色系文字）
+    val DarkForeground = Color(0xFF1D1D1F)        // 暗背景卡片上的深色主文字
+    val DarkText400 = Color(0xFF3C3C43)           // 暗背景卡片上的深色副文字
+    val DarkText300 = Color(0xFF48484A)           // 暗背景卡片上的深色辅助文字
 
     // ===== Light mode tokens (medication page) =====
     val LightBackground = Color(0xFFF2F2F7)

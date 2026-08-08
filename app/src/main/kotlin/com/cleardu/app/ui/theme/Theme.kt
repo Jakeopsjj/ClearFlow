@@ -82,8 +82,8 @@ data class GlassParams(
 /**
  * 获取当前背景亮度下的液态玻璃参数。
  *
- * 亮背景（晴天/雪天等）：深色磨砂卡片（40% 黑色），深色文字，确保卡片在亮背景上清晰可见。
- * 暗背景（夜间/阴天等）：浅色磨砂卡片（18% 白色），白色文字，卡片略白于背景形成层次。
+ * 亮背景（晴天/雪天等）：浅灰磨砂卡片 + 白色文字，卡片略暗于背景形成层次。
+ * 暗背景（夜间/阴天等）：浅白磨砂卡片 + 黑色文字，卡片略亮于背景形成层次。
  *
  * @return 当前适用的玻璃视觉参数
  */
@@ -93,16 +93,16 @@ fun glassParams(): GlassParams {
     val isBright = weatherState.enabled && weatherState.isBrightBackground
 
     return if (isBright) {
-        // 亮背景 → 深色磨砂卡片，增加灰度，黑色文字
+        // 亮背景 → 浅灰磨砂卡片，卡片略暗于背景，白色文字
         GlassParams(
             background = LiquidGlassColors.BrightGlassBg,
             border = LiquidGlassColors.BrightGlassBorder,
             shadowColor = Color.Transparent,
             shadowElevation = 0f,
-            specularTop = LiquidGlassColors.BrightGlassBorder.copy(alpha = 0.15f)
+            specularTop = LiquidGlassColors.BrightGlassSpecular
         )
     } else {
-        // 暗背景 → 浅色磨砂卡片，增加白度，白色文字
+        // 暗背景 → 浅白磨砂卡片，卡片略亮于背景，黑色文字
         GlassParams(
             background = LiquidGlassColors.GlassBg,
             border = LiquidGlassColors.GlassBorder,
@@ -116,8 +116,8 @@ fun glassParams(): GlassParams {
 /**
  * 背景亮度自适应的文字颜色。
  *
- * 当天气背景为高亮度类型（晴天、雪天、多云白天）时自动切换为深色文字，
- * 确保文字在亮色背景上清晰可读；暗色背景时保持原有的浅色文字。
+ * 亮背景（晴天、雪天、多云白天）：白色文字，确保在浅灰卡片/亮背景上清晰可读。
+ * 暗背景（夜间、阴天）：黑色文字，确保在浅白卡片/暗背景上清晰可读。
  *
  * @return 当前背景亮度下适用的前景色/文字色
  */
@@ -127,19 +127,21 @@ fun backgroundAwareColors(): BackgroundAwareColors {
     val isBright = weatherState.enabled && weatherState.isBrightBackground
 
     return if (isBright) {
+        // 亮背景 → 白色文字
         BackgroundAwareColors(
-            foreground = LiquidGlassColors.BrightForeground,
-            text400 = LiquidGlassColors.BrightText400,
-            text300 = LiquidGlassColors.BrightText300,
+            foreground = LiquidGlassColors.Foreground,
+            text400 = LiquidGlassColors.Text400,
+            text300 = LiquidGlassColors.Text300,
             glassBg = LiquidGlassColors.BrightGlassBg,
             glassBorder = LiquidGlassColors.BrightGlassBorder,
             isBright = true
         )
     } else {
+        // 暗背景 → 黑色文字
         BackgroundAwareColors(
-            foreground = LiquidGlassColors.Foreground,
-            text400 = LiquidGlassColors.Text400,
-            text300 = LiquidGlassColors.Text300,
+            foreground = LiquidGlassColors.DarkForeground,
+            text400 = LiquidGlassColors.DarkText400,
+            text300 = LiquidGlassColors.DarkText300,
             glassBg = LiquidGlassColors.GlassBg,
             glassBorder = LiquidGlassColors.GlassBorderSubtle,
             isBright = false

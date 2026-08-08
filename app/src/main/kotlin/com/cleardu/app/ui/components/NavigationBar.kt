@@ -48,15 +48,15 @@ import com.cleardu.app.ui.theme.backgroundAwareColors
 fun FloatingNavigationBar(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    lightMode: Boolean = false
+    modifier: Modifier = Modifier
 ) {
     val labels = listOf("首页", "记录", "数据", "用药", "提醒")
 
+    val colors = backgroundAwareColors()
     val shape = RoundedCornerShape(ClearDuDimens.NavBarRadius)
-    val navBg = if (lightMode) LiquidGlassColors.LightNavBg else LiquidGlassColors.NavBg
-    val navBorder = if (lightMode) LiquidGlassColors.LightNavBorder else LiquidGlassColors.NavBorder
-    val navSpecular = if (lightMode) LiquidGlassColors.LightNavSpecular else LiquidGlassColors.NavSpecular
+    val navBg = if (colors.isBright) LiquidGlassColors.BrightNavBg else LiquidGlassColors.NavBg
+    val navBorder = if (colors.isBright) LiquidGlassColors.BrightNavBorder else LiquidGlassColors.NavBorder
+    val navSpecular = if (colors.isBright) LiquidGlassColors.BrightNavSpecular else LiquidGlassColors.NavSpecular
 
     // Layered approach: blurred background + sharp content on top
     Box(modifier = modifier) {

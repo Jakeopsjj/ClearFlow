@@ -210,8 +210,7 @@ fun ReminderScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = ClearDuDimens.NavBarBottomOffset),
-                lightMode = false
+                    .padding(bottom = ClearDuDimens.NavBarBottomOffset)
             )
     }
 
