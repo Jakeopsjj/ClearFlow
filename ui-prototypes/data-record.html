@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>数据记录 - 清渡</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* === Data Record Page Specific === */
+
+    .app-container {
+      width: 375px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* === Page Header === */
+    .page-header {
+      padding: 0;
+      margin-bottom: 20px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 34px;
+      color: var(--fg);
+    }
+    .page-header .date {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-400);
+      letter-spacing: -0.01em;
+      margin-top: 4px;
+    }
+
+    /* === Segmented Control === */
+    .segmented-control {
+      display: flex;
+      gap: 0;
+      padding: 3px;
+      margin-bottom: 20px;
+    }
+    .seg-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-600);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .seg-item.active {
+      color: var(--medical-cyan);
+      background: linear-gradient(135deg, rgba(90,200,250,0.35), rgba(0,122,255,0.3));
+      box-shadow: 0 0 12px rgba(90,200,250,0.2);
+    }
+
+    /* === Input Ring === */
+    .input-ring-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .input-ring-wrapper {
+      width: 180px;
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .input-ring-wrapper svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .input-ring-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+    }
+    .input-ring-value {
+      font-family: var(--font-mono);
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 48px;
+      color: var(--fg);
+    }
+    .input-ring-unit {
+      font-family: var(--font-sans);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-400);
+    }
+    .input-ring-hint {
+      font-size: 12px;
+      color: var(--text-400);
+      margin-top: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    /* === Quick Adjust === */
+    .quick-adjust {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .quick-adjust-btn {
+      flex: 1;
+      padding: 8px 14px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--medical-cyan);
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border-subtle);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s;
+    }
+    .quick-adjust-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
+    }
+    .quick-adjust-btn:active {
+      transform: scale(0.93);
+    }
+
+    /* === Keypad === */
+    .keypad {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .keypad-row {
+      display: flex;
+      gap: 8px;
+    }
+    .keypad-key {
+      flex: 1;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--fg);
+      border-radius: 16px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--glass-bg-light);
+      border: 1px solid var(--glass-border-subtle);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .keypad-key::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
+    }
+    .keypad-key:active {
+      background: rgba(255,255,255,0.22);
+      transform: scale(0.92);
+    }
+    .keypad-key.key-action {
+      color: var(--medical-cyan);
+    }
+    .keypad-key.key-del svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* === Goal Progress === */
+    .goal-progress {
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .goal-progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .goal-progress-label {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .goal-progress-values {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--fg);
+    }
+    .goal-progress-track {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .goal-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--medical-cyan), var(--medical-blue));
+      transition: width 0.6s;
+    }
+
+    /* === Scrollable Content === */
+    .scroll-content {
+      padding: 44px 20px 0;
+      padding-bottom: 88px;
+    }
+
+    /* === Nav Blur Fade === */
+    .nav-blur-fade {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      height: 88px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Mesh Gradient Background -->
+  <div class="mesh-bg"></div>
+
+  <!-- Scrollable Content -->
+  <div class="scroll-content" style="position: relative; z-index: 1;">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>数据记录</h1>
+      <p class="date">2026年8月7日</p>
+    </div>
+
+    <!-- Segmented Control -->
+    <div class="segmented-control glass-card">
+      <div class="seg-item active">超滤</div>
+      <div class="seg-item">血压心率</div>
+      <div class="seg-item">体重体温</div>
+      <div class="seg-item">电解质</div>
+      <div class="seg-item">用药</div>
+    </div>
+
+    <!-- Input Ring -->
+    <div class="input-ring-container">
+      <div class="input-ring-wrapper">
+        <svg viewBox="0 0 180 180">
+          <!-- Track circle -->
+          <circle cx="90" cy="90" r="75" fill="none"
+                  stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+          <!-- Progress arc (92% of 360 = 331°) -->
+          <circle cx="90" cy="90" r="75" fill="none"
+                  stroke="#5AC8FA" stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="471.24"
+                  stroke-dashoffset="37.7"
+                  style="transition: stroke-dashoffset 0.6s;"/>
+        </svg>
+        <div class="input-ring-center">
+          <span class="input-ring-value">2.3</span>
+          <span class="input-ring-unit">L</span>
+        </div>
+      </div>
+      <p class="input-ring-hint">点击数字键盘输入超滤量</p>
+    </div>
+
+    <!-- Quick Adjust Buttons -->
+    <div class="quick-adjust">
+      <div class="quick-adjust-btn">-500ml</div>
+      <div class="quick-adjust-btn">-100ml</div>
+      <div class="quick-adjust-btn">+100ml</div>
+      <div class="quick-adjust-btn">+500ml</div>
+    </div>
+
+    <!-- Number Keypad -->
+    <div class="keypad">
+      <div class="keypad-row">
+        <div class="keypad-key">1</div>
+        <div class="keypad-key">2</div>
+        <div class="keypad-key">3</div>
+      </div>
+      <div class="keypad-row">
+        <div class="keypad-key">4</div>
+        <div class="keypad-key">5</div>
+        <div class="keypad-key">6</div>
+      </div>
+      <div class="keypad-row">
+        <div class="keypad-key">7</div>
+        <div class="keypad-key">8</div>
+        <div class="keypad-key">9</div>
+      </div>
+      <div class="keypad-row">
+        <div class="keypad-key key-action">.</div>
+        <div class="keypad-key">0</div>
+        <div class="keypad-key key-del">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(142,142,147,1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 5H9L2 12l7 7h12a2 2 0 002-2V7a2 2 0 00-2-2z"/>
+            <line x1="12" y1="9" x2="18" y2="15"/>
+            <line x1="18" y1="9" x2="12" y2="15"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goal Progress -->
+    <div class="goal-progress glass-card">
+      <div class="goal-progress-header">
+        <span class="goal-progress-label">今日已记录</span>
+        <span class="goal-progress-values">2,300 / 目标 2,500ml</span>
+      </div>
+      <div class="goal-progress-track">
+        <div class="goal-progress-fill" style="width: 92%;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Nav Blur Fade -->
+  <div class="nav-blur-fade"></div>
+
+  <!-- Floating Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item active">
+      <span class="nav-icon">📝</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📊</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">💊</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🔔</span>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+</div>
+
+</body>
+</html>

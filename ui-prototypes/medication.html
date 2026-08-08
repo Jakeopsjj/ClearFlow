@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清渡 · 用药管理</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* === Mobile Container === */
+    .app-container {
+      width: 375px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 44px 20px 100px;
+    }
+
+    /* === Page Title === */
+    .med-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 34px;
+      margin-bottom: 20px;
+    }
+
+    /* === Progress Card === */
+    .progress-card {
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .progress-card .progress-inner {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .progress-ring-wrapper {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+    }
+    .progress-ring-wrapper svg {
+      transform: rotate(-90deg);
+    }
+    .progress-ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.1);
+      stroke-width: 6;
+    }
+    .progress-ring-fg {
+      fill: none;
+      stroke: var(--medical-cyan);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 188.5;
+      stroke-dashoffset: 47.1;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+    .progress-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-ring-percent {
+      font-size: 17px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: -0.03em;
+    }
+    .progress-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .progress-label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .progress-detail {
+      font-size: 13px;
+      color: var(--text-400);
+      margin-bottom: 2px;
+    }
+    .progress-next {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .progress-next span {
+      color: var(--medical-cyan);
+      font-weight: 600;
+    }
+
+    /* === Warning Banner === */
+    .warning-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+    .warning-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--tint-orange-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .warning-text {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .warning-btn {
+      flex-shrink: 0;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--medical-orange);
+      background: var(--tint-orange-bg);
+      color: var(--medical-orange);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* === Section Label === */
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-400);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* === Timeline === */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 16px;
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 22px;
+      bottom: 22px;
+      width: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .timeline-item {
+      position: relative;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -21px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid;
+      z-index: 2;
+    }
+    .timeline-dot.taken {
+      background: var(--medical-green);
+      border-color: var(--medical-green);
+    }
+    .timeline-dot.pending {
+      background: transparent;
+      border-color: var(--text-400);
+    }
+    .timeline-dot.next {
+      background: var(--medical-cyan);
+      border-color: var(--medical-cyan);
+    }
+    .timeline-time {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-300);
+      width: 42px;
+      flex-shrink: 0;
+    }
+    .timeline-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .timeline-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .timeline-dose {
+      font-size: 12px;
+      color: var(--text-400);
+      margin-top: 2px;
+    }
+    .timeline-status {
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .timeline-status.taken {
+      color: var(--medical-green);
+    }
+    .timeline-status.pending {
+      color: var(--medical-cyan);
+    }
+    .timeline-status.upcoming {
+      color: var(--text-400);
+    }
+
+    /* === Settings Entry === */
+    .settings-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .settings-entry .settings-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: var(--tint-cyan-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .settings-entry .settings-text {
+      flex: 1;
+      margin-left: 12px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .settings-entry .settings-arrow {
+      font-size: 16px;
+      color: var(--text-400);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mesh Gradient Background -->
+  <div class="mesh-bg"></div>
+
+  <!-- App Container -->
+  <div class="app-container">
+
+    <!-- Page Title -->
+    <h1 class="med-title">用药管理</h1>
+
+    <!-- Progress Card -->
+    <div class="glass-card progress-card">
+      <div class="progress-inner">
+        <div class="progress-ring-wrapper">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle class="progress-ring-bg" cx="36" cy="36" r="30"/>
+            <circle class="progress-ring-fg" cx="36" cy="36" r="30"/>
+          </svg>
+          <div class="progress-ring-text">
+            <span class="progress-ring-percent">75%</span>
+          </div>
+        </div>
+        <div class="progress-info">
+          <div class="progress-label">今日服药进度</div>
+          <div class="progress-detail">4/6 次已完成</div>
+          <div class="progress-next">下次用药 <span>12:00</span> · 促红素</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="glass-card warning-banner">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-text">药物库存不足</div>
+      <button class="warning-btn">申请续药</button>
+    </div>
+
+    <!-- Section Label -->
+    <div class="section-label">今日用药时间线</div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <!-- Item 1: 已服用 -->
+      <div class="glass-card timeline-item">
+        <div class="timeline-dot taken"></div>
+        <div class="timeline-time">08:00</div>
+        <div class="timeline-info">
+          <div class="timeline-name">碳酸钙</div>
+          <div class="timeline-dose">600mg · 餐后服用</div>
+        </div>
+        <div class="timeline-status taken">已服用</div>
+      </div>
+
+      <!-- Item 2: 待服用 (next dose) -->
+      <div class="glass-card timeline-item">
+        <div class="timeline-dot next"></div>
+        <div class="timeline-time">12:00</div>
+        <div class="timeline-info">
+          <div class="timeline-name">促红素</div>
+          <div class="timeline-dose">4000IU · 随餐服用</div>
+        </div>
+        <div class="timeline-status pending">服用</div>
+      </div>
+
+      <!-- Item 3: 待服用 -->
+      <div class="glass-card timeline-item">
+        <div class="timeline-dot pending"></div>
+        <div class="timeline-time">18:00</div>
+        <div class="timeline-info">
+          <div class="timeline-name">降压药</div>
+          <div class="timeline-dose">5mg · 餐后服用</div>
+        </div>
+        <div class="timeline-status upcoming">待服用</div>
+      </div>
+
+      <!-- Item 4: 待服用 -->
+      <div class="glass-card timeline-item">
+        <div class="timeline-dot pending"></div>
+        <div class="timeline-time">20:00</div>
+        <div class="timeline-info">
+          <div class="timeline-name">铁剂</div>
+          <div class="timeline-dose">100mg · 随餐服用</div>
+        </div>
+        <div class="timeline-status upcoming">待服用</div>
+      </div>
+    </div>
+
+    <!-- Settings Entry -->
+    <div class="glass-card settings-entry">
+      <div class="settings-icon">⚙️</div>
+      <div class="settings-text">用药提醒设置</div>
+      <div class="settings-arrow">›</div>
+    </div>
+
+  </div>
+
+  <!-- Floating Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-item">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📊</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📝</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-icon">💊</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">🔔</div>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+
+</body>
+</html>

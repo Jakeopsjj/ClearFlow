@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清渡 UI 原型目录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    color: #f5f5f7;
+    min-height: 100vh;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 600px; margin: 0 auto; }
+  h1 {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #5AC8FA, #007AFF);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle { font-size: 14px; color: #8E8E93; margin-bottom: 32px; }
+  .grid { display: grid; gap: 12px; }
+  .card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    text-decoration: none;
+    color: #f5f5f7;
+    transition: all 0.2s;
+  }
+  .card:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+  .card .icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .card .info { flex: 1; }
+  .card .name { font-size: 15px; font-weight: 600; }
+  .card .desc { font-size: 12px; color: #8E8E93; margin-top: 2px; }
+  .card .arrow { color: #5AC8FA; font-size: 18px; }
+  .section { font-size: 13px; font-weight: 600; color: #8E8E93; letter-spacing: 0.04em; margin: 24px 0 12px; padding-left: 4px; }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+  .badge-main { background: rgba(90,200,250,0.2); color: #5AC8FA; }
+  .badge-secondary { background: rgba(175,82,222,0.2); color: #AF52DE; }
+  .badge-special { background: rgba(255,149,0,0.2); color: #FF9500; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>清渡 UI 原型</h1>
+  <p class="subtitle">ClearDu · 透析健康管理 · 共 11 个页面</p>
+
+  <div class="section">主要页面</div>
+  <div class="grid">
+    <a href="dashboard.html" class="card">
+      <div class="icon" style="background:rgba(90,200,250,0.15)">📊</div>
+      <div class="info"><div class="name">仪表盘 Dashboard</div><div class="desc">首页 · 体液平衡环 · 体征卡片 · 快捷操作</div></div>
+      <span class="badge badge-main">主页</span>
+    </a>
+    <a href="data-record.html" class="card">
+      <div class="icon" style="background:rgba(0,122,255,0.15)">📝</div>
+      <div class="info"><div class="name">数据记录 DataRecord</div><div class="desc">超滤量输入 · 血压心率 · 体重体温 · 电解质</div></div>
+      <span class="badge badge-main">核心</span>
+    </a>
+    <a href="health-data.html" class="card">
+      <div class="icon" style="background:rgba(52,199,89,0.15)">📈</div>
+      <div class="info"><div class="name">健康数据 HealthData</div><div class="desc">趋势图表 · 电解质网格 · 异常警告 · 导出</div></div>
+      <span class="badge badge-main">核心</span>
+    </a>
+    <a href="medication.html" class="card">
+      <div class="icon" style="background:rgba(255,149,0,0.15)">💊</div>
+      <div class="info"><div class="name">用药管理 Medication</div><div class="desc">服药进度 · 时间线 · 库存警告 · 提醒设置</div></div>
+      <span class="badge badge-main">核心</span>
+    </a>
+    <a href="reminder.html" class="card">
+      <div class="icon" style="background:rgba(255,59,48,0.15)">⏰</div>
+      <div class="info"><div class="name">提醒中心 Reminder</div><div class="desc">透析倒计时 · 今日提醒 · 紧急联系人</div></div>
+      <span class="badge badge-main">核心</span>
+    </a>
+  </div>
+
+  <div class="section">设置页面</div>
+  <div class="grid">
+    <a href="settings.html" class="card">
+      <div class="icon" style="background:rgba(142,142,147,0.15)">⚙️</div>
+      <div class="info"><div class="name">设置 Settings</div><div class="desc">个人资料 · 提醒 · 备份 · 关于 · 退出</div></div>
+    </a>
+    <a href="profile.html" class="card">
+      <div class="icon" style="background:rgba(0,122,255,0.15)">👤</div>
+      <div class="info"><div class="name">个人资料 Profile</div><div class="desc">患者信息 · 透析信息 · 紧急联系人</div></div>
+    </a>
+    <a href="backup.html" class="card">
+      <div class="icon" style="background:rgba(52,199,89,0.15)">☁️</div>
+      <div class="info"><div class="name">数据备份 Backup</div><div class="desc">备份状态 · 自动备份 · 恢复数据</div></div>
+    </a>
+    <a href="notification.html" class="card">
+      <div class="icon" style="background:rgba(255,149,0,0.15)">🔔</div>
+      <div class="info"><div class="name">通知管理 Notification</div><div class="desc">通知分类 · 提醒方式 · 时段设置</div></div>
+    </a>
+  </div>
+
+  <div class="section">特殊页面</div>
+  <div class="grid">
+    <a href="onboarding.html" class="card">
+      <div class="icon" style="background:rgba(175,82,222,0.15)">🚀</div>
+      <div class="info"><div class="name">引导页 Onboarding</div><div class="desc">欢迎 · 权限授权 · 开始使用</div></div>
+      <span class="badge badge-special">首次</span>
+    </a>
+    <a href="splash.html" class="card">
+      <div class="icon" style="background:rgba(88,86,214,0.15)">✨</div>
+      <div class="info"><div class="name">启动页 Splash</div><div class="desc">Logo 动画 · 品牌展示</div></div>
+      <span class="badge badge-special">动画</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

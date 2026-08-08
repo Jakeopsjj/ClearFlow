@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清渡 · 提醒中心</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* === Mobile Container === */
+    .app-container {
+      width: 375px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 44px 20px 100px;
+    }
+
+    /* === Page Title === */
+    .reminder-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 34px;
+      margin-bottom: 20px;
+    }
+
+    /* === Countdown Card === */
+    .countdown-card {
+      padding: 24px 20px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .countdown-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-400);
+      margin-bottom: 12px;
+    }
+    .countdown-digits {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .countdown-block {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+    .countdown-num {
+      font-family: var(--font-mono);
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--medical-cyan);
+    }
+    .countdown-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-400);
+    }
+    .countdown-sep {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--text-500);
+      margin: 0 2px;
+      align-self: center;
+    }
+    .countdown-date {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-300);
+      margin-bottom: 4px;
+    }
+    .countdown-hospital {
+      font-size: 13px;
+      color: var(--text-400);
+    }
+    .countdown-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .countdown-nav-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg-light);
+      color: var(--text-300);
+      cursor: pointer;
+    }
+
+    /* === Permissions Card === */
+    .permissions-card {
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .permissions-card .perm-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .perm-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .perm-row + .perm-row {
+      border-top: 1px solid var(--divider-subtle);
+    }
+    .perm-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .perm-icon.notif { background: var(--tint-blue-bg); }
+    .perm-icon.calendar { background: var(--tint-green-bg); }
+    .perm-icon.location { background: var(--tint-purple-bg); }
+    .perm-label {
+      flex: 1;
+      margin-left: 12px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .perm-desc {
+      font-size: 11px;
+      color: var(--text-400);
+      margin-top: 1px;
+    }
+    .perm-toggle {
+      width: 44px;
+      height: 26px;
+      border-radius: 13px;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .perm-toggle.on {
+      background: var(--medical-green);
+    }
+    .perm-toggle.off {
+      background: var(--text-500);
+    }
+    .perm-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left 0.3s;
+    }
+    .perm-toggle.on::after { left: 21px; }
+    .perm-toggle.off::after { left: 3px; }
+
+    /* === Section Label === */
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-400);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* === Today Reminders === */
+    .reminders-list {
+      margin-bottom: 20px;
+    }
+    .reminder-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+    }
+    .reminder-item + .reminder-item {
+      border-top: 1px solid var(--divider-subtle);
+    }
+    .reminder-time {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-300);
+      width: 42px;
+      flex-shrink: 0;
+    }
+    .reminder-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .reminder-dot.dialysis { background: var(--medical-purple); }
+    .reminder-dot.bp { background: var(--medical-orange); }
+    .reminder-dot.med { background: var(--medical-cyan); }
+    .reminder-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .reminder-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      flex-shrink: 0;
+    }
+    .reminder-badge.done {
+      background: var(--tint-green-bg);
+      color: var(--medical-green);
+    }
+    .reminder-badge.upcoming {
+      background: var(--tint-cyan-bg);
+      color: var(--medical-cyan);
+    }
+
+    /* === Settings Card === */
+    .settings-card {
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .settings-card .settings-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .settings-row + .settings-row {
+      border-top: 1px solid var(--divider-subtle);
+    }
+    .settings-label {
+      font-size: 13px;
+      color: var(--text-300);
+    }
+    .settings-value {
+      font-size: 13px;
+      color: var(--text-400);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .settings-value .arrow {
+      font-size: 14px;
+    }
+
+    /* === Emergency Card === */
+    .emergency-card {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .emergency-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--tint-red-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .emergency-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .emergency-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .emergency-phone {
+      font-size: 13px;
+      color: var(--text-400);
+      margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+    .emergency-call-btn {
+      flex-shrink: 0;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: var(--medical-red);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* === Footer Note === */
+    .footer-note {
+      font-size: 11px;
+      color: var(--text-400);
+      text-align: center;
+      padding: 0 12px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mesh Gradient Background -->
+  <div class="mesh-bg"></div>
+
+  <!-- App Container -->
+  <div class="app-container">
+
+    <!-- Page Title -->
+    <h1 class="reminder-title">提醒中心</h1>
+
+    <!-- Countdown Card -->
+    <div class="glass-card countdown-card">
+      <div class="countdown-label">距离下次透析</div>
+      <div class="countdown-digits">
+        <div class="countdown-block">
+          <span class="countdown-num">2</span>
+          <span class="countdown-unit">天</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-block">
+          <span class="countdown-num">14</span>
+          <span class="countdown-unit">小时</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-block">
+          <span class="countdown-num">32</span>
+          <span class="countdown-unit">分</span>
+        </div>
+      </div>
+      <div class="countdown-date">2026年8月10日 08:00</div>
+      <div class="countdown-hospital">北京协和医院</div>
+      <div class="countdown-nav">
+        <button class="countdown-nav-btn">前一天</button>
+        <button class="countdown-nav-btn">后一天</button>
+      </div>
+    </div>
+
+    <!-- Permissions Card -->
+    <div class="glass-card permissions-card">
+      <div class="perm-title">权限状态</div>
+      <div class="perm-row">
+        <div class="perm-icon notif">🔔</div>
+        <div class="perm-label">
+          通知权限
+          <div class="perm-desc">用于推送用药和透析提醒</div>
+        </div>
+        <button class="perm-toggle on"></button>
+      </div>
+      <div class="perm-row">
+        <div class="perm-icon calendar">📅</div>
+        <div class="perm-label">
+          日历权限
+          <div class="perm-desc">同步透析日程到系统日历</div>
+        </div>
+        <button class="perm-toggle on"></button>
+      </div>
+      <div class="perm-row">
+        <div class="perm-icon location">📍</div>
+        <div class="perm-label">
+          定位权限
+          <div class="perm-desc">查找附近医院和导航</div>
+        </div>
+        <button class="perm-toggle on"></button>
+      </div>
+    </div>
+
+    <!-- Section Label -->
+    <div class="section-label">今日提醒</div>
+
+    <!-- Today Reminders -->
+    <div class="glass-card reminders-list">
+      <div class="reminder-item">
+        <div class="reminder-time">08:00</div>
+        <div class="reminder-dot dialysis"></div>
+        <div class="reminder-title">透析前准备</div>
+        <div class="reminder-badge done">已完成</div>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-time">10:00</div>
+        <div class="reminder-dot bp"></div>
+        <div class="reminder-title">测量血压</div>
+        <div class="reminder-badge upcoming">待办</div>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-time">14:00</div>
+        <div class="reminder-dot med"></div>
+        <div class="reminder-title">服药提醒</div>
+        <div class="reminder-badge upcoming">待办</div>
+      </div>
+    </div>
+
+    <!-- Section Label -->
+    <div class="section-label">提醒设置</div>
+
+    <!-- Settings Card -->
+    <div class="glass-card settings-card">
+      <div class="settings-title">提醒设置</div>
+      <div class="settings-row">
+        <div class="settings-label">提前提醒时间</div>
+        <div class="settings-value">30分钟 <span class="arrow">›</span></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label">提醒方式</div>
+        <div class="settings-value">声音 + 震动 <span class="arrow">›</span></div>
+      </div>
+    </div>
+
+    <!-- Emergency Card -->
+    <div class="glass-card emergency-card">
+      <div class="emergency-icon">📞</div>
+      <div class="emergency-info">
+        <div class="emergency-label">紧急联系人</div>
+        <div class="emergency-phone">138-0000-1234</div>
+      </div>
+      <button class="emergency-call-btn">呼叫</button>
+    </div>
+
+    <!-- Footer Note -->
+    <p class="footer-note">强提醒模式：即使在锁屏状态或App在后台，也会以全屏声音+震动提醒您服药和透析时间</p>
+
+  </div>
+
+  <!-- Floating Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-item">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📊</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📝</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">💊</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-icon">🔔</div>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+
+</body>
+</html>

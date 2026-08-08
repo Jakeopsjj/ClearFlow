@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>清渡 · 启动页</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: #000;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .splash-container {
+      width: 100%;
+      max-width: 375px;
+      margin: 0 auto;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Mesh gradient background */
+    .splash-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 300px 280px at 30% 40%, rgba(88,86,214,0.3), transparent),
+        radial-gradient(ellipse 260px 240px at 70% 30%, rgba(90,200,250,0.25), transparent),
+        radial-gradient(ellipse 240px 220px at 60% 70%, rgba(175,82,222,0.2), transparent),
+        rgba(0,0,0,1);
+      animation: bgPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    /* Logo ring with pulse */
+    .logo-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-glow {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(90,200,250,0.4) 0%, rgba(90,200,250,0.1) 50%, transparent 70%);
+      animation: logoGlowPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes logoGlowPulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .logo-ring {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(90,200,250,0.2), rgba(0,122,255,0.15));
+      border: 2px solid rgba(90,200,250,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(90,200,250,0.2);
+      animation: ringPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(90,200,250,0.15); }
+      50% { box-shadow: 0 0 60px rgba(90,200,250,0.35); }
+    }
+
+    .logo-ring::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.20) 0%, transparent 100%);
+      border-radius: 50% 50% 0 0;
+      pointer-events: none;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #5AC8FA, #007AFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textFade 2.5s ease-in-out infinite;
+    }
+
+    @keyframes textFade {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 1; }
+    }
+
+    /* Title */
+    .splash-title {
+      position: relative;
+      z-index: 1;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #F5F5F7;
+      text-align: center;
+      margin-bottom: 8px;
+      animation: titleFadeIn 0.8s ease-out 0.3s both;
+    }
+
+    @keyframes titleFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Subtitle */
+    .splash-subtitle {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      color: #8E8E93;
+      text-align: center;
+      animation: subtitleFadeIn 0.8s ease-out 0.6s both;
+    }
+
+    @keyframes subtitleFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="splash-bg"></div>
+
+    <div class="logo-wrapper">
+      <div class="logo-glow"></div>
+      <div class="logo-ring">
+        <span class="logo-text">清渡</span>
+      </div>
+    </div>
+
+    <h1 class="splash-title">清渡</h1>
+    <p class="splash-subtitle">透析健康管理</p>
+  </div>
+</body>
+</html>

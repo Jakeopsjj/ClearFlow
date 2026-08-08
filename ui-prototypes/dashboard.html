@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清渡 · 仪表盘</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* === Mobile Container === */
+    .mobile-frame {
+      width: 375px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* === Dashboard Layout === */
+    .dashboard {
+      padding: 60px 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* === Greeting Header === */
+    .greeting-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .greeting-header .greeting-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+      line-height: 1.2;
+    }
+    .greeting-header .greeting-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-400);
+      margin-top: 4px;
+    }
+    .gear-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--glass-bg-light);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .gear-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* === Fluid Balance Ring === */
+    .ring-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .ring-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ring-glow {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(90,200,250,0.18) 0%, rgba(0,122,255,0.06) 40%, transparent 70%);
+      pointer-events: none;
+    }
+    .ring-svg {
+      position: relative;
+      z-index: 1;
+      transform: rotate(-90deg);
+      width: 200px;
+      height: 200px;
+    }
+    .ring-center {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .ring-center .ring-value {
+      font-family: var(--font-mono);
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--fg);
+      display: flex;
+      align-items: baseline;
+    }
+    .ring-center .ring-unit {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-400);
+      margin-left: 2px;
+    }
+    .ring-center .ring-target {
+      font-size: 12px;
+      color: var(--text-400);
+      margin-top: 4px;
+    }
+    .ring-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .ring-status .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--medical-green);
+    }
+    .ring-status .status-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--medical-green);
+    }
+
+    /* === Vitals Grid === */
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .vital-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .vital-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    .vital-card .vital-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .vital-card .vital-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--glass-bg-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .vital-card .vital-status-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--tint-green-bg);
+      color: var(--medical-green);
+    }
+    .vital-card .vital-body {
+      position: relative;
+      z-index: 1;
+    }
+    .vital-card .vital-value-row {
+      display: flex;
+      align-items: baseline;
+    }
+    .vital-card .vital-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--fg);
+    }
+    .vital-card .vital-unit {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-400);
+      margin-left: 2px;
+    }
+    .vital-card .vital-sub {
+      font-size: 11px;
+      color: var(--text-500);
+      margin-top: 4px;
+    }
+
+    /* === Medication Reminder === */
+    .med-reminder {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+    .med-reminder::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    .med-reminder .med-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .med-reminder .med-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--tint-orange-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .med-reminder .med-pill-icon {
+      width: 20px;
+      height: 20px;
+    }
+    .med-reminder .med-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .med-reminder .med-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .med-reminder .med-detail {
+      font-size: 13px;
+      color: var(--text-400);
+    }
+    .med-reminder .med-btn {
+      flex-shrink: 0;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: var(--tint-cyan-bg);
+      border: 1px solid rgba(90,200,250,0.3);
+      color: var(--medical-cyan);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* === Quick Actions === */
+    .quick-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }
+    .quick-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .quick-btn .quick-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .quick-btn .quick-icon-circle::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
+    }
+    .quick-btn .quick-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-400);
+    }
+
+    /* === Nav Blur Fade === */
+    .nav-blur-fade {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* === Section Title === */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-400);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* === SVG Icon Colors === */
+    .icon-red { color: var(--medical-red); stroke: var(--medical-red); fill: none; }
+    .icon-cyan { color: var(--medical-cyan); stroke: var(--medical-cyan); fill: none; }
+    .icon-orange { color: var(--medical-orange); stroke: var(--medical-orange); fill: none; }
+    .icon-purple { color: var(--medical-purple); stroke: var(--medical-purple); fill: none; }
+    .icon-white { color: var(--fg); stroke: var(--fg); fill: none; }
+  </style>
+</head>
+<body>
+
+<div class="mesh-bg"></div>
+
+<div class="mobile-frame">
+  <div class="dashboard">
+
+    <!-- ===== Greeting Header ===== -->
+    <div class="greeting-header">
+      <div>
+        <div class="greeting-title">早上好</div>
+        <div class="greeting-subtitle">8月8日 周五 · 透析后第 2 天</div>
+      </div>
+      <button class="gear-btn" aria-label="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ===== Fluid Balance Ring ===== -->
+    <div class="ring-section">
+      <div class="ring-wrapper">
+        <div class="ring-glow"></div>
+        <svg class="ring-svg" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#5AC8FA"/>
+              <stop offset="100%" stop-color="#007AFF"/>
+            </linearGradient>
+          </defs>
+          <!-- Track ring -->
+          <circle cx="100" cy="100" r="86"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.08)"
+                  stroke-width="12"
+                  stroke-linecap="round"/>
+          <!-- Progress ring: 2300/3000 ≈ 76.7% → 276° sweep -->
+          <circle cx="100" cy="100" r="86"
+                  fill="none"
+                  stroke="url(#ringGradient)"
+                  stroke-width="12"
+                  stroke-linecap="round"
+                  stroke-dasharray="540.35"
+                  stroke-dashoffset="125.67"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-value">
+            2,300<span class="ring-unit">ml</span>
+          </div>
+          <div class="ring-target">今日目标 3,000ml</div>
+        </div>
+      </div>
+      <div class="ring-status">
+        <span class="status-dot"></span>
+        <span class="status-text">体液略偏高</span>
+      </div>
+    </div>
+
+    <!-- ===== Vitals Grid ===== -->
+    <div class="section-title">健康指标</div>
+    <div class="vitals-grid">
+      <!-- Blood Pressure -->
+      <div class="vital-card">
+        <div class="vital-header">
+          <div class="vital-icon-box">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--medical-red)" stroke-width="1.5" stroke-linecap="round">
+              <line x1="8" y1="2" x2="8" y2="4"/>
+              <line x1="8" y1="12" x2="8" y2="14"/>
+              <line x1="2" y1="8" x2="4" y2="8"/>
+              <line x1="12" y1="8" x2="14" y2="8"/>
+              <circle cx="8" cy="8" r="3"/>
+              <line x1="8" y1="6" x2="8" y2="8"/>
+              <line x1="8" y1="8" x2="9.5" y2="9.5"/>
+            </svg>
+          </div>
+          <span class="vital-status-tag">正常</span>
+        </div>
+        <div class="vital-body">
+          <div class="vital-value-row">
+            <span class="vital-value">128/82</span>
+            <span class="vital-unit">mmHg</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heart Rate -->
+      <div class="vital-card">
+        <div class="vital-header">
+          <div class="vital-icon-box">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 14C8 14 3 10.5 3 6.5C3 4.8 4.3 3.5 5.5 3.5C6.4 3.5 7.2 3.9 8 4.8C8.8 3.9 9.6 3.5 10.5 3.5C11.7 3.5 13 4.8 13 6.5C13 10.5 8 14 8 14Z" fill="var(--medical-red)" opacity="0.9"/>
+              <polyline points="5.5,8 7.5,8 8.5,6 9.5,10 10.5,8 12.5,8" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="vital-status-tag">正常</span>
+        </div>
+        <div class="vital-body">
+          <div class="vital-value-row">
+            <span class="vital-value">76</span>
+            <span class="vital-unit">bpm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight -->
+      <div class="vital-card">
+        <div class="vital-header">
+          <div class="vital-icon-box">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--medical-cyan)" stroke-width="1.3" stroke-linecap="round">
+              <rect x="2" y="5" width="12" height="8" rx="2"/>
+              <line x1="5" y1="5" x2="5" y2="4"/>
+              <line x1="11" y1="5" x2="11" y2="4"/>
+              <line x1="3.5" y1="8" x2="12.5" y2="8"/>
+            </svg>
+          </div>
+          <span class="vital-status-tag">正常</span>
+        </div>
+        <div class="vital-body">
+          <div class="vital-value-row">
+            <span class="vital-value">68.5</span>
+            <span class="vital-unit">kg</span>
+          </div>
+          <div class="vital-sub">较上次 -0.3kg</div>
+        </div>
+      </div>
+
+      <!-- Temperature -->
+      <div class="vital-card">
+        <div class="vital-header">
+          <div class="vital-icon-box">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--medical-orange)" stroke-width="1.3" stroke-linecap="round">
+              <line x1="8" y1="3" x2="8" y2="11"/>
+              <circle cx="8" cy="12.5" r="2"/>
+              <line x1="6" y1="7" x2="6" y2="5"/>
+              <line x1="10" y1="7" x2="10" y2="5"/>
+            </svg>
+          </div>
+          <span class="vital-status-tag">正常</span>
+        </div>
+        <div class="vital-body">
+          <div class="vital-value-row">
+            <span class="vital-value">36.5</span>
+            <span class="vital-unit">°C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Medication Reminder ===== -->
+    <div class="section-title">用药提醒</div>
+    <div class="med-reminder">
+      <div class="med-left">
+        <div class="med-icon">
+          <svg class="med-pill-icon" viewBox="0 0 24 24" fill="none" stroke="var(--medical-orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="8" height="12" rx="3"/>
+            <line x1="8" y1="2" x2="8" y2="14"/>
+            <rect x="12" y="2" width="8" height="12" rx="3"/>
+            <line x1="16" y1="2" x2="16" y2="14"/>
+            <ellipse cx="8" cy="14" rx="4" ry="2"/>
+            <ellipse cx="16" cy="14" rx="4" ry="2"/>
+          </svg>
+        </div>
+        <div class="med-info">
+          <div class="med-title">今日用药：诺和灵、碳酸钙</div>
+          <div class="med-detail">共 2 种药物 · 下午 14:00</div>
+        </div>
+      </div>
+      <button class="med-btn">去提醒</button>
+    </div>
+
+    <!-- ===== Quick Actions ===== -->
+    <div class="section-title">快捷操作</div>
+    <div class="quick-actions">
+      <!-- 记录 -->
+      <div class="quick-btn">
+        <div class="quick-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--medical-cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="4"/>
+            <line x1="9" y1="9" x2="15" y2="9"/>
+            <line x1="9" y1="13" x2="15" y2="13"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+          </svg>
+        </div>
+        <span class="quick-label">记录</span>
+      </div>
+      <!-- 数据 -->
+      <div class="quick-btn">
+        <div class="quick-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--medical-purple)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="12" width="4" height="8" rx="1"/>
+            <rect x="10" y="7" width="4" height="13" rx="1"/>
+            <rect x="17" y="3" width="4" height="17" rx="1"/>
+          </svg>
+        </div>
+        <span class="quick-label">数据</span>
+      </div>
+      <!-- 用药 -->
+      <div class="quick-btn">
+        <div class="quick-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--medical-orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="7" height="10" rx="3"/>
+            <line x1="7.5" y1="2" x2="7.5" y2="12"/>
+            <rect x="12" y="3" width="7" height="9" rx="3"/>
+            <line x1="15.5" y1="3" x2="15.5" y2="12"/>
+          </svg>
+        </div>
+        <span class="quick-label">用药</span>
+      </div>
+      <!-- 提醒 -->
+      <div class="quick-btn">
+        <div class="quick-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--medical-red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <span class="quick-label">提醒</span>
+      </div>
+      <!-- 设置 -->
+      <div class="quick-btn">
+        <div class="quick-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+        </div>
+        <span class="quick-label">设置</span>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+</div><!-- /mobile-frame -->
+
+<!-- ===== Nav Blur Fade ===== -->
+<div class="nav-blur-fade"></div>
+
+<!-- ===== Floating Navigation Bar ===== -->
+<nav class="nav-bar">
+  <div class="nav-item active">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <line x1="9" y1="9" x2="15" y2="9"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+      </svg>
+    </div>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="12" width="4" height="8" rx="1"/>
+        <rect x="10" y="7" width="4" height="13" rx="1"/>
+        <rect x="17" y="3" width="4" height="17" rx="1"/>
+      </svg>
+    </div>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="7" height="10" rx="3"/>
+        <line x1="7.5" y1="2" x2="7.5" y2="12"/>
+        <rect x="12" y="3" width="7" height="9" rx="3"/>
+        <line x1="15.5" y1="3" x2="15.5" y2="12"/>
+      </svg>
+    </div>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </div>
+    <div class="nav-dot"></div>
+  </div>
+</nav>
+
+</body>
+</html>

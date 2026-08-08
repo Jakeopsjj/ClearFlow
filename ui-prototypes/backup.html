@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>数据备份 · 清渡</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .app-container {
+      max-width: 375px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .backup-page {
+      position: relative;
+      z-index: 1;
+      padding: 44px 16px 100px;
+      min-height: 100vh;
+    }
+
+    .page-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 20px;
+      padding-top: 4px;
+      height: 32px;
+    }
+    .back-btn {
+      position: absolute;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--medical-cyan);
+      font-size: 17px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .back-arrow { width: 20px; height: 20px; }
+    .page-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-400);
+      margin-bottom: 8px;
+      padding-left: 12px;
+    }
+
+    .backup-card {
+      margin-bottom: 24px;
+    }
+
+    /* Status Card */
+    .status-card {
+      padding: 24px;
+      text-align: center;
+    }
+    .status-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .status-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .status-subtitle {
+      font-size: 14px;
+      color: var(--text-400);
+      margin-bottom: 16px;
+    }
+
+    /* Progress Ring */
+    .progress-ring {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-ring svg {
+      width: 56px;
+      height: 56px;
+      transform: rotate(-90deg);
+    }
+    .progress-ring .ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.1);
+      stroke-width: 3;
+    }
+    .progress-ring .ring-fill {
+      fill: none;
+      stroke: var(--medical-green);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 125.6;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.5s;
+    }
+    .progress-ring .ring-text {
+      position: absolute;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--medical-green);
+    }
+
+    /* Action Buttons */
+    .status-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-backup {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--medical-cyan), var(--medical-blue));
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-backup:active { opacity: 0.85; }
+    .btn-settings {
+      flex: 1;
+      padding: 12px;
+      background: var(--glass-bg-light);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      color: var(--fg);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    /* Toggle Item */
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+    }
+    .toggle-item + .toggle-item {
+      border-top: 0.5px solid var(--divider-subtle);
+    }
+    .toggle-label {
+      flex: 1;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .toggle-sub {
+      font-size: 13px;
+      color: var(--text-400);
+      margin-top: 1px;
+    }
+
+    /* iOS Toggle */
+    .ios-toggle {
+      width: 51px;
+      height: 31px;
+      border-radius: 9999px;
+      background: rgba(120,120,128,0.32);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .ios-toggle.on {
+      background: var(--medical-green);
+    }
+    .ios-toggle .thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      transition: left 0.3s;
+    }
+    .ios-toggle.on .thumb {
+      left: 22px;
+    }
+
+    /* Nav Item */
+    .nav-item-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .nav-item-row:active {
+      background: rgba(255,255,255,0.04);
+    }
+    .nav-item-row + .nav-item-row {
+      border-top: 0.5px solid var(--divider-subtle);
+    }
+    .nav-item-label {
+      flex: 1;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .nav-item-label.danger { color: var(--medical-red); }
+    .nav-item-value {
+      font-size: 15px;
+      color: var(--text-400);
+      margin-right: 4px;
+    }
+    .nav-item-value.danger { color: var(--medical-red); }
+    .nav-item-chevron {
+      font-size: 18px;
+      color: var(--text-400);
+    }
+
+    /* History Item */
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+    }
+    .history-item + .history-item {
+      border-top: 0.5px solid var(--divider-subtle);
+    }
+    .history-info {
+      flex: 1;
+    }
+    .history-date {
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .history-size {
+      font-size: 13px;
+      color: var(--text-400);
+      margin-top: 1px;
+    }
+    .badge-success {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--tint-green-bg);
+      color: var(--medical-green);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      font-size: 15px;
+      color: var(--text-400);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="mesh-bg"></div>
+
+    <div class="backup-page">
+      <!-- Page Nav -->
+      <div class="page-nav">
+        <a class="back-btn" href="settings.html">
+          <svg class="back-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="15 6 9 12 15 18"/>
+          </svg>
+          设置
+        </a>
+        <span class="page-title">数据备份</span>
+      </div>
+
+      <!-- Backup Status Card -->
+      <div class="backup-card glass-card status-card">
+        <div class="status-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="var(--medical-cyan)" stroke-width="2.5">
+            <path d="M20 42 C20 42, 20 25, 32 25 C44 25, 44 42, 44 42" stroke-linecap="round"/>
+            <path d="M20 42 C20 42, 20 33, 32 33 C44 33, 44 42, 44 42" fill="var(--medical-cyan)" fill-opacity="0.1"/>
+            <line x1="32" y1="22" x2="32" y2="14"/>
+            <line x1="26" y1="18" x2="32" y2="14"/>
+            <line x1="38" y1="18" x2="32" y2="14"/>
+          </svg>
+        </div>
+        <div class="status-title">所有数据已备份</div>
+        <div class="status-subtitle">上次备份：今天 08:30</div>
+
+        <div class="progress-ring">
+          <svg viewBox="0 0 56 56">
+            <circle class="ring-bg" cx="28" cy="28" r="20"/>
+            <circle class="ring-fill" cx="28" cy="28" r="20"/>
+          </svg>
+          <span class="ring-text">100%</span>
+        </div>
+
+        <div class="status-actions">
+          <button class="btn-backup">立即备份</button>
+          <button class="btn-settings">备份设置</button>
+        </div>
+      </div>
+
+      <!-- 备份设置 -->
+      <div class="section-header">备份设置</div>
+      <div class="backup-card glass-card">
+        <div class="toggle-item">
+          <div class="toggle-label">自动备份</div>
+          <div class="ios-toggle on" onclick="this.classList.toggle('on')">
+            <div class="thumb"></div>
+          </div>
+        </div>
+        <div class="nav-item-row">
+          <span class="nav-item-label">备份频率</span>
+          <span class="nav-item-value">每周</span>
+          <span class="nav-item-chevron">›</span>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-label">仅Wi-Fi备份</div>
+          <div class="ios-toggle on" onclick="this.classList.toggle('on')">
+            <div class="thumb"></div>
+          </div>
+        </div>
+        <div class="nav-item-row">
+          <span class="nav-item-label">备份内容</span>
+          <span class="nav-item-value">全部数据</span>
+          <span class="nav-item-chevron">›</span>
+        </div>
+        <div class="toggle-item">
+          <div>
+            <div class="toggle-label">备份加密</div>
+            <div class="toggle-sub">端到端加密保护</div>
+          </div>
+          <div class="ios-toggle on" onclick="this.classList.toggle('on')">
+            <div class="thumb"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 备份历史 -->
+      <div class="section-header">备份历史</div>
+      <div class="backup-card glass-card">
+        <div class="history-item">
+          <div class="history-info">
+            <div class="history-date">今天 08:30</div>
+            <div class="history-size">1.2 MB</div>
+          </div>
+          <span class="badge-success">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 12 10 18 20 6"/></svg>
+            成功
+          </span>
+        </div>
+        <div class="history-item">
+          <div class="history-info">
+            <div class="history-date">昨天 08:30</div>
+            <div class="history-size">1.1 MB</div>
+          </div>
+          <span class="badge-success">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 12 10 18 20 6"/></svg>
+            成功
+          </span>
+        </div>
+        <div class="history-item">
+          <div class="history-info">
+            <div class="history-date">8月5日 08:30</div>
+            <div class="history-size">1.0 MB</div>
+          </div>
+          <span class="badge-success">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 12 10 18 20 6"/></svg>
+            成功
+          </span>
+        </div>
+      </div>
+
+      <!-- 恢复与导入 -->
+      <div class="section-header">恢复与导入</div>
+      <div class="backup-card glass-card">
+        <div class="nav-item-row">
+          <span class="nav-item-label danger">从备份恢复</span>
+          <span class="nav-item-value danger">选择备份文件</span>
+          <span class="nav-item-chevron" style="color: var(--medical-red); opacity: 0.6;">›</span>
+        </div>
+        <div class="nav-item-row">
+          <span class="nav-item-label">导入健康数据</span>
+          <span class="nav-item-value">从其他App导入</span>
+          <span class="nav-item-chevron">›</span>
+        </div>
+        <div class="nav-item-row">
+          <span class="nav-item-label">导出为文件</span>
+          <span class="nav-item-value">生成Excel/PDF报告</span>
+          <span class="nav-item-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="backup-card glass-card">
+        <div class="nav-item-row" style="justify-content: center; padding: 14px 16px;">
+          <span class="nav-item-label danger" style="flex: none;">清除所有备份数据</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="nav-dot"></div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="nav-dot"></div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-400)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="nav-dot"></div>
+      </div>
+      <div class="nav-item active">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--nav-indicator)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="nav-dot"></div>
+      </div>
+    </nav>
+  </div>
+</body>
+</html>

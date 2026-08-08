@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>健康数据 - 清渡</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* === Health Data Page Specific === */
+
+    .app-container {
+      width: 375px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* === Scrollable Content === */
+    .scroll-content {
+      position: relative;
+      z-index: 1;
+      padding: 44px 20px 0;
+      padding-bottom: 88px;
+    }
+
+    /* === Page Header === */
+    .page-header {
+      margin-bottom: 16px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 34px;
+      color: var(--fg);
+    }
+
+    /* === Filter Tabs === */
+    .filter-tabs {
+      display: flex;
+      gap: 0;
+      padding: 3px;
+      margin-bottom: 20px;
+    }
+    .filter-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-600);
+      border-radius: 11px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s;
+    }
+    .filter-item.active {
+      color: var(--medical-cyan);
+      background: linear-gradient(135deg, rgba(90,200,250,0.35), rgba(0,122,255,0.3));
+      box-shadow: 0 0 12px rgba(90,200,250,0.2);
+    }
+
+    /* === Card Spacing === */
+    .card-spacer {
+      margin-bottom: 14px;
+    }
+
+    /* === UF Trend Chart Card === */
+    .chart-card {
+      padding: 18px;
+    }
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .chart-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .chart-card-subtitle {
+      font-size: 12px;
+      color: var(--text-400);
+      letter-spacing: -0.01em;
+    }
+    .chart-area {
+      width: 100%;
+      height: 180px;
+      margin-bottom: 0;
+    }
+    .chart-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .chart-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chart-stat-label {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .chart-stat-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--medical-cyan);
+    }
+    .chart-stat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--medical-green);
+    }
+    .chart-stat-comp {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text-400);
+    }
+
+    /* === BP/HR Card === */
+    .bp-hr-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .bp-hr-col {
+      flex: 1;
+      padding: 16px;
+    }
+    .bp-hr-label {
+      font-size: 12px;
+      color: var(--text-400);
+      letter-spacing: -0.01em;
+    }
+    .bp-hr-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .bp-hr-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 29px;
+      color: var(--fg);
+    }
+    .bp-hr-unit {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .bp-hr-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-top: 6px;
+      background: rgba(52,199,89,0.15);
+      color: var(--medical-green);
+    }
+    .bp-hr-status.warn {
+      background: rgba(255,149,0,0.15);
+      color: var(--medical-orange);
+    }
+    .bp-hr-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--medical-green);
+    }
+    .bp-hr-status.warn .bp-hr-dot {
+      background: var(--medical-orange);
+    }
+
+    /* Mini bar chart in BP card */
+    .mini-bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 40px;
+      margin-top: 8px;
+    }
+    .mini-bar {
+      flex: 1;
+      border-radius: 3px;
+      background: rgba(90,200,250,0.6);
+      min-height: 4px;
+    }
+    .mini-bar.highlight {
+      background: rgba(90,200,250,0.4);
+    }
+
+    /* Mini line chart in HR card */
+    .mini-line-area {
+      width: 100%;
+      height: 36px;
+      margin-top: 8px;
+    }
+
+    /* === Electrolyte Grid === */
+    .elec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .elec-card {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .elec-symbol {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--medical-cyan);
+    }
+    .elec-name {
+      font-size: 11px;
+      color: var(--text-400);
+    }
+    .elec-value {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 26px;
+      color: var(--fg);
+      margin-top: 4px;
+    }
+    .elec-value.warn {
+      color: var(--medical-orange);
+    }
+    .elec-unit {
+      font-size: 11px;
+      color: var(--text-400);
+    }
+    .elec-range-bar {
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, rgba(52,199,89,0.3), rgba(52,199,89,0.6));
+      margin-top: 8px;
+      position: relative;
+      overflow: visible;
+    }
+    .elec-range-bar.warn {
+      background: linear-gradient(90deg, rgba(52,199,89,0.3), rgba(52,199,89,0.6), rgba(255,149,0,0.3));
+    }
+    .elec-indicator {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    }
+    .elec-indicator.warn {
+      background: var(--medical-orange);
+      border-color: var(--medical-orange);
+      box-shadow: 0 0 8px rgba(255,149,0,0.5);
+    }
+    .elec-range-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-400);
+      margin-top: 4px;
+    }
+    .elec-range-label.warn {
+      color: var(--medical-orange);
+    }
+
+    /* === Weight Card === */
+    .weight-card {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .weight-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .weight-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .weight-mini-chart {
+      width: 80px;
+      height: 40px;
+    }
+    .weight-values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .weight-val-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .weight-val-col.right {
+      align-items: flex-end;
+    }
+    .weight-val-label {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .weight-val-number {
+      font-family: var(--font-mono);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 34px;
+      color: var(--fg);
+    }
+    .weight-val-number.target {
+      color: var(--medical-cyan);
+    }
+    .weight-val-unit {
+      font-size: 12px;
+      color: var(--text-400);
+    }
+    .weight-progress-track {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 12px;
+      position: relative;
+      overflow: visible;
+    }
+    .weight-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, rgba(90,200,250,0.6), var(--medical-cyan));
+      width: 47%;
+    }
+    .weight-progress-target {
+      position: absolute;
+      top: -2px;
+      width: 2px;
+      height: 10px;
+      background: rgba(52,199,89,0.5);
+      left: 21%;
+    }
+    .weight-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-400);
+    }
+    .weight-scale .scale-target {
+      color: var(--medical-green);
+    }
+
+    /* === Warning Banner === */
+    .warning-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      border-radius: 18px;
+      background: rgba(255,149,0,0.15);
+      border: 1px solid rgba(255,149,0,0.3);
+    }
+    .warning-text {
+      font-size: 13px;
+      line-height: 19px;
+      color: var(--text-100);
+      flex: 1;
+    }
+    .warning-btn {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(255,149,0,0.2);
+      color: var(--medical-orange);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      border: none;
+    }
+
+    /* === Export Buttons === */
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .export-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .export-btn-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(90,200,250,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--medical-cyan);
+      padding-top: 1px;
+    }
+    .export-btn-text {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+
+    /* === Nav Blur Fade === */
+    .nav-blur-fade {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      height: 88px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Mesh Gradient Background -->
+  <div class="mesh-bg"></div>
+
+  <!-- Scrollable Content -->
+  <div class="scroll-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>健康数据</h1>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs glass-card">
+      <div class="filter-item active">本周</div>
+      <div class="filter-item">本月</div>
+      <div class="filter-item">近3月</div>
+    </div>
+
+    <!-- UF Trend Chart Card -->
+    <div class="chart-card glass-card card-spacer">
+      <div class="chart-card-header">
+        <span class="chart-card-title">超滤量趋势</span>
+        <span class="chart-card-subtitle">最近7天</span>
+      </div>
+      <div class="chart-area">
+        <svg viewBox="0 0 335 180" width="100%" height="100%" preserveAspectRatio="none">
+          <!-- Grid lines -->
+          <line x1="36" y1="0" x2="335" y2="0" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="36" y1="40" x2="335" y2="40" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="36" y1="80" x2="335" y2="80" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="36" y1="120" x2="335" y2="120" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="36" y1="160" x2="335" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+
+          <!-- Target line (dashed orange) -->
+          <line x1="36" y1="32" x2="335" y2="32" stroke="rgba(255,149,0,0.6)" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+          <!-- Area fill -->
+          <polygon points="36,160 36,56 78,20 121,68 164,44 207,88 249,36 292,52 292,160"
+                   fill="url(#areaGrad)" opacity="1"/>
+
+          <!-- Line -->
+          <polyline points="36,56 78,20 121,68 164,44 207,88 249,36 292,52"
+                    fill="none" stroke="#5AC8FA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Data points -->
+          <circle cx="36" cy="56" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="78" cy="20" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="121" cy="68" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="164" cy="44" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="207" cy="88" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="249" cy="36" r="4" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="292" cy="52" r="4.5" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+
+          <!-- Y-axis labels -->
+          <text x="4" y="4" fill="rgba(142,142,147,1)" font-size="10" font-family="monospace">2500</text>
+          <text x="4" y="44" fill="rgba(142,142,147,1)" font-size="10" font-family="monospace">2000</text>
+          <text x="4" y="84" fill="rgba(142,142,147,1)" font-size="10" font-family="monospace">1500</text>
+          <text x="4" y="124" fill="rgba(142,142,147,1)" font-size="10" font-family="monospace">1000</text>
+
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(90,200,250,0.3)"/>
+              <stop offset="100%" stop-color="rgba(90,200,250,0)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <!-- X-axis labels -->
+      <div style="display: flex; justify-content: space-between; padding-left: 36px; margin-top: -16px;">
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">一</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">二</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">三</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">四</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">五</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">六</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-400);">日</span>
+      </div>
+      <div class="chart-stats">
+        <div class="chart-stat">
+          <span class="chart-stat-label">本周平均</span>
+          <span class="chart-stat-value">1,960 ml/天</span>
+        </div>
+        <div class="chart-stat">
+          <span class="chart-stat-dot"></span>
+          <span class="chart-stat-comp">达标率: 5/7 天</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BP/HR Cards -->
+    <div class="bp-hr-row">
+      <!-- BP Card -->
+      <div class="bp-hr-col glass-card">
+        <span class="bp-hr-label">血压</span>
+        <div class="bp-hr-value-row">
+          <span class="bp-hr-value">128/82</span>
+          <span class="bp-hr-unit">mmHg</span>
+        </div>
+        <div class="bp-hr-status">
+          <span class="bp-hr-dot"></span>
+          <span>血压正常</span>
+        </div>
+        <div class="mini-bar-chart">
+          <div class="mini-bar" style="height: 22px;"></div>
+          <div class="mini-bar" style="height: 26px;"></div>
+          <div class="mini-bar" style="height: 28px;"></div>
+          <div class="mini-bar" style="height: 24px;"></div>
+          <div class="mini-bar" style="height: 30px;"></div>
+          <div class="mini-bar" style="height: 32px;"></div>
+          <div class="mini-bar highlight" style="height: 27px;"></div>
+        </div>
+      </div>
+
+      <!-- HR Card -->
+      <div class="bp-hr-col glass-card">
+        <span class="bp-hr-label">心率</span>
+        <div class="bp-hr-value-row">
+          <span class="bp-hr-value">76</span>
+          <span class="bp-hr-unit">bpm</span>
+        </div>
+        <div class="bp-hr-status">
+          <span class="bp-hr-dot"></span>
+          <span>心率正常</span>
+        </div>
+        <div class="mini-line-area">
+          <svg viewBox="0 0 146 36" width="100%" height="100%" preserveAspectRatio="none">
+            <polyline points="0,22 29,14 59,25 81,11 103,18 124,13 146,16"
+                      fill="none" stroke="url(#hrLineGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="146" cy="16" r="3" fill="#FF3B30" stroke="#fff" stroke-width="1.5"/>
+            <defs>
+              <linearGradient id="hrLineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#FF3B30"/>
+                <stop offset="100%" stop-color="#FF2D55"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Electrolyte Grid -->
+    <div class="elec-grid">
+      <!-- K+ -->
+      <div class="elec-card glass-card">
+        <span class="elec-symbol">K⁺</span>
+        <span class="elec-name">钾</span>
+        <span class="elec-value">4.2</span>
+        <span class="elec-unit">mmol/L</span>
+        <div class="elec-range-bar">
+          <div class="elec-indicator" style="left: 40%;"></div>
+        </div>
+        <span class="elec-range-label">3.5 / 5.5</span>
+      </div>
+
+      <!-- Na+ -->
+      <div class="elec-card glass-card">
+        <span class="elec-symbol">Na⁺</span>
+        <span class="elec-name">钠</span>
+        <span class="elec-value">138</span>
+        <span class="elec-unit">mmol/L</span>
+        <div class="elec-range-bar">
+          <div class="elec-indicator" style="left: 20%;"></div>
+        </div>
+        <span class="elec-range-label">135 / 145</span>
+      </div>
+
+      <!-- Ca2+ -->
+      <div class="elec-card glass-card">
+        <span class="elec-symbol">Ca²⁺</span>
+        <span class="elec-name">钙</span>
+        <span class="elec-value">2.3</span>
+        <span class="elec-unit">mmol/L</span>
+        <div class="elec-range-bar">
+          <div class="elec-indicator" style="left: 40%;"></div>
+        </div>
+        <span class="elec-range-label">2.1 / 2.6</span>
+      </div>
+
+      <!-- P -->
+      <div class="elec-card glass-card">
+        <span class="elec-symbol">P</span>
+        <span class="elec-name">磷</span>
+        <span class="elec-value warn">1.8</span>
+        <span class="elec-unit">mmol/L</span>
+        <div class="elec-range-bar warn">
+          <div class="elec-indicator warn" style="left: 82%;"></div>
+        </div>
+        <span class="elec-range-label warn">0.8 / 1.6</span>
+      </div>
+    </div>
+
+    <!-- Weight Card -->
+    <div class="weight-card glass-card">
+      <div class="weight-card-top">
+        <span class="weight-card-title">体重记录</span>
+        <div class="weight-mini-chart">
+          <svg viewBox="0 0 80 40" width="100%" height="100%" preserveAspectRatio="none">
+            <polygon points="0,40 0,20 13,15 27,21 40,14 53,20 67,15 80,13 80,40"
+                     fill="url(#wtFill)"/>
+            <polyline points="0,20 13,15 27,21 40,14 53,20 67,15 80,13"
+                      fill="none" stroke="#5AC8FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="80" cy="13" r="3.5" fill="#5AC8FA" stroke="#fff" stroke-width="1.5"/>
+            <defs>
+              <linearGradient id="wtFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(90,200,250,0.4)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <div class="weight-values">
+        <div class="weight-val-col">
+          <span class="weight-val-label">当前体重</span>
+          <div style="display: flex; align-items: baseline; gap: 4px;">
+            <span class="weight-val-number">65.2</span>
+            <span class="weight-val-unit"> kg</span>
+          </div>
+        </div>
+        <div class="weight-val-col right">
+          <span class="weight-val-label">目标干体重</span>
+          <div style="display: flex; align-items: baseline; gap: 4px;">
+            <span class="weight-val-number target">63.0</span>
+            <span class="weight-val-unit"> kg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="weight-progress-track">
+        <div class="weight-progress-fill"></div>
+        <div class="weight-progress-target"></div>
+      </div>
+      <div class="weight-scale">
+        <span>68 kg</span>
+        <span class="scale-target">目标 63.0 kg</span>
+        <span>62 kg</span>
+      </div>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner">
+      <span class="warning-text">血磷偏高，建议减少高磷食物摄入</span>
+      <button class="warning-btn">查看建议</button>
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="export-buttons">
+      <div class="export-btn glass-card">
+        <span class="export-btn-icon">↑</span>
+        <span class="export-btn-text">导出报告</span>
+      </div>
+      <div class="export-btn glass-card">
+        <span class="export-btn-icon">↗</span>
+        <span class="export-btn-text">分享给医生</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Nav Blur Fade -->
+  <div class="nav-blur-fade"></div>
+
+  <!-- Floating Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📝</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item active">
+      <span class="nav-icon">📊</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">💊</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🔔</span>
+      <div class="nav-dot"></div>
+    </div>
+  </nav>
+</div>
+
+</body>
+</html>
