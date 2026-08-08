@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.util.map.MapServiceManager
 import com.cleardu.app.util.map.MapViewSwitcher
 import com.cleardu.app.util.map.MapVendor
@@ -94,6 +95,7 @@ fun HospitalMapView(
     }
 
     if (currentVendor == null && !MapServiceManager.anyAvailable()) {
+        val colors = backgroundAwareColors()
         // 三家全部失效，展示友好空白
         Box(
             modifier = modifier.background(
@@ -104,7 +106,7 @@ fun HospitalMapView(
             androidx.compose.material3.Text(
                 "地图服务暂不可用",
                 style = com.cleardu.app.ui.theme.ClearDuTypography.MedDetail,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
         }
         return

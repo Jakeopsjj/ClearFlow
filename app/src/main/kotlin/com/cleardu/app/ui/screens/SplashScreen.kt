@@ -30,6 +30,7 @@ import com.cleardu.app.R
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.delay
 
 /**
@@ -48,6 +49,7 @@ fun SplashScreen(
     onSplashFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val transition = rememberInfiniteTransition(label = "splashGlow")
 
     // Pulsing glow for the background mesh
@@ -125,7 +127,7 @@ fun SplashScreen(
                         androidx.compose.ui.unit.TextUnitType.Sp
                     )
                 ),
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 textAlign = TextAlign.Center
             )
 
@@ -135,7 +137,7 @@ fun SplashScreen(
             androidx.compose.material3.Text(
                 text = stringResource(R.string.splash_subtitle),
                 style = ClearDuTypography.WelcomeSubtitle,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
         }

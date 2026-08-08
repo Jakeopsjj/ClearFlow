@@ -23,6 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.cleardu.app.data.AppSettings
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.util.LocationHelper
 import com.cleardu.app.util.map.LocationFallbackManager
 import com.cleardu.app.util.map.PoiSearchManager
@@ -75,6 +76,7 @@ fun HospitalPickerDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val context = LocalContext.current
     val locHelper = locationHelper ?: remember { LocationHelper.create(context) }
     val scope = rememberCoroutineScope()
@@ -212,7 +214,7 @@ fun HospitalPickerDialog(
                         color = LiquidGlassColors.LightForeground
                     )
                     TextButton(onClick = onDismiss) {
-                        Text("取消", color = LiquidGlassColors.Text400)
+                        Text("取消", color = colors.text400)
                     }
                 }
 
@@ -244,7 +246,7 @@ fun HospitalPickerDialog(
                                         color = LiquidGlassColors.MedicalCyan
                                     )
                                     Spacer(Modifier.height(12.dp))
-                                    Text("正在获取位置...", style = ClearDuTypography.MedDetail, color = LiquidGlassColors.Text400)
+                                    Text("正在获取位置...", style = ClearDuTypography.MedDetail, color = colors.text400)
                                 }
                             }
                         }
@@ -262,7 +264,7 @@ fun HospitalPickerDialog(
                                     Text(
                                         "请切换到「自定义」标签页手动输入",
                                         style = ClearDuTypography.MedCardMeta,
-                                        color = LiquidGlassColors.Text400
+                                        color = colors.text400
                                     )
                                 }
                             }
@@ -314,7 +316,7 @@ fun HospitalPickerDialog(
                                         Text(
                                             "${locState.vendor} 精度 ${"%.0f".format(locState.accuracy)}m",
                                             style = ClearDuTypography.MedCardMeta,
-                                            color = LiquidGlassColors.Text400
+                                            color = colors.text400
                                         )
                                     }
 
@@ -331,7 +333,7 @@ fun HospitalPickerDialog(
                                                     strokeWidth = 2.dp,
                                                     color = LiquidGlassColors.MedicalCyan
                                                 )
-                                                Text("正在搜索附近医院...", style = ClearDuTypography.MedDetail, color = LiquidGlassColors.Text400)
+                                                Text("正在搜索附近医院...", style = ClearDuTypography.MedDetail, color = colors.text400)
                                             }
                                         }
                                         is HospitalSearchState.Success -> {
@@ -339,7 +341,7 @@ fun HospitalPickerDialog(
                                                 Text(
                                                     "未找到附近医院，请切换到「自定义」标签页手动输入",
                                                     style = ClearDuTypography.MedDetail,
-                                                    color = LiquidGlassColors.Text400,
+                                                    color = colors.text400,
                                                     modifier = Modifier.padding(vertical = 16.dp)
                                                 )
                                             } else {
@@ -367,7 +369,7 @@ fun HospitalPickerDialog(
                                             Text(
                                                 "在您周围 20km 范围内未找到医院。请切换到「自定义」标签页手动输入。",
                                                 style = ClearDuTypography.MedDetail,
-                                                color = LiquidGlassColors.Text400,
+                                                color = colors.text400,
                                                 modifier = Modifier.padding(vertical = 16.dp)
                                             )
                                         }
@@ -375,7 +377,7 @@ fun HospitalPickerDialog(
                                             Column(modifier = Modifier.padding(vertical = 16.dp)) {
                                                 Text(hState.message, style = ClearDuTypography.MedDetail, color = LiquidGlassColors.MedicalOrange)
                                                 Spacer(Modifier.height(6.dp))
-                                                Text("请切换到「自定义」标签页手动输入。", style = ClearDuTypography.MedDetail, color = LiquidGlassColors.Text400)
+                                                Text("请切换到「自定义」标签页手动输入。", style = ClearDuTypography.MedDetail, color = colors.text400)
                                             }
                                         }
                                     }
@@ -398,12 +400,10 @@ fun HospitalPickerDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("医院名称", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("医院名称", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = customName,
@@ -427,12 +427,10 @@ fun HospitalPickerDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("医院地址（可选）", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("医院地址（可选）", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = customAddress,
@@ -537,6 +535,7 @@ private fun HospitalListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -563,7 +562,7 @@ private fun HospitalListItem(
                     Text(
                         hospital.address,
                         style = ClearDuTypography.MedDetail,
-                        color = LiquidGlassColors.Text400,
+                        color = colors.text400,
                         maxLines = 1
                     )
                 }
@@ -572,7 +571,7 @@ private fun HospitalListItem(
                 Text(
                     hospital.distance,
                     style = ClearDuTypography.MedCardMeta,
-                    color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400,
+                    color = if (isSelected) LiquidGlassColors.MedicalCyan else colors.text400,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
@@ -582,6 +581,7 @@ private fun HospitalListItem(
 
 @Composable
 internal fun TabChip(text: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
@@ -592,7 +592,7 @@ internal fun TabChip(text: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             text = text,
             style = ClearDuTypography.MedCardMeta,
-            color = if (selected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400
+            color = if (selected) LiquidGlassColors.MedicalCyan else colors.text400
         )
     }
 }

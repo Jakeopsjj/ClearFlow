@@ -62,6 +62,7 @@ import com.cleardu.app.data.toJson
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -86,6 +87,7 @@ fun BackupScreen(
     onNavigateToDashboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -261,7 +263,7 @@ fun BackupScreen(
                         Text(
                             text = "暂无备份记录",
                             fontSize = 15.sp,
-                            color = LiquidGlassColors.Text400
+                            color = colors.text400
                         )
                     }
                 } else {
@@ -397,6 +399,7 @@ private fun BackupPageNav(
     backLabel: String,
     onBackClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
@@ -439,7 +442,7 @@ private fun BackupPageNav(
             text = title,
             fontSize = 17.sp,
             fontWeight = FontWeight.SemiBold,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.02).sp,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -452,6 +455,7 @@ private fun BackupStatusCard(
     onBackupNow: () -> Unit,
     onBackupSettings: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var isBackupPressed by remember { mutableStateOf(false) }
     val backupScale by animateFloatAsState(
         targetValue = if (isBackupPressed) 0.97f else 1f,
@@ -470,7 +474,6 @@ private fun BackupStatusCard(
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorderSubtle,
         shadowColor = LiquidGlassColors.GlassShadow,
         shadowElevation = 4f,
@@ -544,7 +547,7 @@ private fun BackupStatusCard(
                 text = statusTitle,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.03).sp
             )
 
@@ -553,7 +556,7 @@ private fun BackupStatusCard(
             Text(
                 text = lastBackupText,
                 fontSize = 14.sp,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
 
             Spacer(Modifier.height(16.dp))
@@ -638,7 +641,7 @@ private fun BackupStatusCard(
                         text = "备份设置",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
-                        color = LiquidGlassColors.Foreground
+                        color = colors.foreground
                     )
                 }
             }
@@ -651,11 +654,12 @@ private fun BackupSectionHeader(
     title: String,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     Text(
         text = title,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         letterSpacing = 0.65.sp,
         modifier = modifier.padding(start = 12.dp, bottom = 8.dp)
     )
@@ -668,7 +672,6 @@ private fun BackupCard(
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorderSubtle,
         shadowColor = LiquidGlassColors.GlassShadow,
         shadowElevation = 4f,
@@ -686,6 +689,7 @@ private fun BackupToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -695,7 +699,7 @@ private fun BackupToggleItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -711,6 +715,7 @@ private fun BackupToggleItemWithSub(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -721,14 +726,14 @@ private fun BackupToggleItemWithSub(
             Text(
                 text = label,
                 fontSize = 16.sp,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.01).sp
             )
             Spacer(Modifier.height(1.dp))
             Text(
                 text = sublabel,
                 fontSize = 13.sp,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
         }
 
@@ -743,6 +748,7 @@ private fun BackupNavItem(
     danger: Boolean = false,
     onClick: () -> Unit = {}
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val bgAlpha by animateFloatAsState(
         targetValue = if (isPressed) 0.08f else 0f,
@@ -771,7 +777,7 @@ private fun BackupNavItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = if (danger) LiquidGlassColors.MedicalRed else LiquidGlassColors.Foreground,
+            color = if (danger) LiquidGlassColors.MedicalRed else colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -779,14 +785,14 @@ private fun BackupNavItem(
         Text(
             text = value,
             fontSize = 15.sp,
-            color = if (danger) LiquidGlassColors.MedicalRed.copy(alpha = 0.7f) else LiquidGlassColors.Text400,
+            color = if (danger) LiquidGlassColors.MedicalRed.copy(alpha = 0.7f) else colors.text400,
             modifier = Modifier.padding(end = 4.dp)
         )
 
         Text(
             text = "›",
             fontSize = 18.sp,
-            color = if (danger) LiquidGlassColors.MedicalRed.copy(alpha = 0.6f) else LiquidGlassColors.Text400
+            color = if (danger) LiquidGlassColors.MedicalRed.copy(alpha = 0.6f) else colors.text400
         )
     }
 }
@@ -797,6 +803,7 @@ private fun BackupHistoryItemView(
     fileSize: String,
     success: Boolean
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -807,14 +814,14 @@ private fun BackupHistoryItemView(
             Text(
                 text = date,
                 fontSize = 16.sp,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.01).sp
             )
             Spacer(Modifier.height(1.dp))
             Text(
                 text = fileSize,
                 fontSize = 13.sp,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
         }
 
@@ -936,14 +943,15 @@ private fun BackupFrequencyDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val options = listOf("每天", "每周", "每月")
     var selected by remember { mutableStateOf(currentValue) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C1E),
-        titleContentColor = LiquidGlassColors.Foreground,
-        textContentColor = LiquidGlassColors.Text400,
+        titleContentColor = colors.foreground,
+        textContentColor = colors.text400,
         title = {
             Text("备份频率", fontWeight = FontWeight.SemiBold)
         },
@@ -972,7 +980,7 @@ private fun BackupFrequencyDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -985,7 +993,7 @@ private fun BackupFrequencyDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -997,14 +1005,15 @@ private fun BackupContentDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val options = listOf("全部数据", "仅透析记录", "仅用药记录")
     var selected by remember { mutableStateOf(currentValue) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C1E),
-        titleContentColor = LiquidGlassColors.Foreground,
-        textContentColor = LiquidGlassColors.Text400,
+        titleContentColor = colors.foreground,
+        textContentColor = colors.text400,
         title = {
             Text("备份内容", fontWeight = FontWeight.SemiBold)
         },
@@ -1033,7 +1042,7 @@ private fun BackupContentDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -1046,7 +1055,7 @@ private fun BackupContentDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -1059,11 +1068,12 @@ private fun BackupConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C1E),
-        titleContentColor = LiquidGlassColors.Foreground,
-        textContentColor = LiquidGlassColors.Text400,
+        titleContentColor = colors.foreground,
+        textContentColor = colors.text400,
         title = {
             Text(title, fontWeight = FontWeight.SemiBold)
         },
@@ -1080,7 +1090,7 @@ private fun BackupConfirmDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -1091,14 +1101,15 @@ private fun BackupExportDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val options = listOf("PDF", "Excel")
     var selected by remember { mutableStateOf("PDF") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C1E),
-        titleContentColor = LiquidGlassColors.Foreground,
-        textContentColor = LiquidGlassColors.Text400,
+        titleContentColor = colors.foreground,
+        textContentColor = colors.text400,
         title = {
             Text("选择导出格式", fontWeight = FontWeight.SemiBold)
         },
@@ -1127,7 +1138,7 @@ private fun BackupExportDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -1140,7 +1151,7 @@ private fun BackupExportDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )

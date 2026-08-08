@@ -66,6 +66,7 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Single onboarding / permission screen.
@@ -132,6 +133,7 @@ fun OnboardingScreen(
 
 @Composable
 private fun WelcomeSection() {
+    val colors = backgroundAwareColors()
     Column(
         modifier = Modifier
             .padding(top = ClearDuDimens.WelcomeTopPadding)
@@ -145,7 +147,7 @@ private fun WelcomeSection() {
         Text(
             text = stringResource(R.string.onboarding_welcome_line1),
             style = ClearDuTypography.WelcomeSubtitle,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.W600
         )
@@ -154,7 +156,7 @@ private fun WelcomeSection() {
         Text(
             text = stringResource(R.string.onboarding_welcome_line2),
             style = ClearDuTypography.WelcomeDesc,
-            color = LiquidGlassColors.Text300,
+            color = colors.text300,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
@@ -162,7 +164,7 @@ private fun WelcomeSection() {
         Text(
             text = stringResource(R.string.onboarding_title),
             style = ClearDuTypography.WelcomeTitle,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(ClearDuDimens.WelcomeTitleBottomMargin))
@@ -170,7 +172,7 @@ private fun WelcomeSection() {
         Text(
             text = stringResource(R.string.onboarding_subtitle),
             style = ClearDuTypography.WelcomeSubtitle,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(ClearDuDimens.WelcomeSubtitleBottomMargin))
@@ -178,7 +180,7 @@ private fun WelcomeSection() {
         Text(
             text = stringResource(R.string.onboarding_desc),
             style = ClearDuTypography.WelcomeDesc,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = ClearDuDimens.WelcomeDescMaxWidth)
         )
@@ -187,6 +189,7 @@ private fun WelcomeSection() {
 
 @Composable
 private fun PermissionSectionHeader() {
+    val colors = backgroundAwareColors()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -194,7 +197,7 @@ private fun PermissionSectionHeader() {
         Text(
             text = stringResource(R.string.onboarding_perm_title),
             style = ClearDuTypography.WelcomeSubtitle,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.W600
         )
@@ -202,7 +205,7 @@ private fun PermissionSectionHeader() {
         Text(
             text = stringResource(R.string.onboarding_perm_subtitle),
             style = ClearDuTypography.WelcomeDesc,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Center
         )
     }
@@ -237,6 +240,7 @@ private fun GrantAllButton(
 ) {
     if (allGranted) return // Hide when all permissions are already granted
 
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
@@ -324,7 +328,7 @@ private fun GrantAllButton(
                 Text(
                     text = stringResource(R.string.action_granting),
                     style = ClearDuTypography.PermissionButton.copy(fontSize = 14.sp),
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
             } else {
                 Text(
@@ -333,7 +337,7 @@ private fun GrantAllButton(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W700
                     ),
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
             }
         }
@@ -358,6 +362,7 @@ private fun BottomSection(allGranted: Boolean, onStart: () -> Unit) {
 
 @Composable
 private fun AgreementText() {
+    val colors = backgroundAwareColors()
     val annotated = buildAnnotatedString {
         append("点击即表示您同意")
         withStyle(SpanStyle(color = LiquidGlassColors.MedicalCyan)) {
@@ -371,7 +376,7 @@ private fun AgreementText() {
     Text(
         text = annotated,
         style = ClearDuTypography.Agreement,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         textAlign = TextAlign.Center
     )
 }

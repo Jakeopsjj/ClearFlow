@@ -46,8 +46,6 @@ fun SegmentedControl(
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.SegControlRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(

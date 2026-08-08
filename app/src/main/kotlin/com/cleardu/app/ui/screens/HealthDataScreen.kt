@@ -39,6 +39,7 @@ import com.cleardu.app.ui.components.SegmentedControl
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 健康数据页面 — "数据" tab。
@@ -70,6 +71,8 @@ fun HealthDataScreen(
     val timeFilters = listOf("日", "周", "月", "年")
     var selectedFilter by remember { mutableIntStateOf(1) }
     var selectedNavIndex by remember { mutableIntStateOf(2) } // 数据 tab active
+
+    val colors = backgroundAwareColors()
 
     // === Observe real-time data from shared data manager ===
     val ufTrendData by healthDataManager.ufTrendData.collectAsState(initial = emptyList())
@@ -112,7 +115,7 @@ fun HealthDataScreen(
                 Text(
                     text = "健康数据",
                     style = ClearDuTypography.HealthPageTitle,
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     textAlign = TextAlign.Start
                 )
                 Spacer(Modifier.height(ClearDuDimens.HealthTitleBottomMargin))

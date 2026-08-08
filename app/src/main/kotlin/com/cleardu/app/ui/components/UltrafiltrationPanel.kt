@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import java.util.Locale
 
 /**
@@ -154,6 +155,7 @@ private fun InputRing(
     isPlaceholder: Boolean,
     progressFraction: Float
 ) {
+    val colors = backgroundAwareColors()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -201,12 +203,12 @@ private fun InputRing(
                 Text(
                     text = displayValue,
                     style = ClearDuTypography.InputDisplay,
-                    color = if (isPlaceholder) LiquidGlassColors.PlaceholderText else LiquidGlassColors.Foreground
+                    color = if (isPlaceholder) LiquidGlassColors.PlaceholderText else colors.foreground
                 )
                 Text(
                     text = "ml",
                     style = ClearDuTypography.InputUnit,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         }
@@ -214,7 +216,7 @@ private fun InputRing(
         Text(
             text = "点击数字键盘输入超滤量",
             style = ClearDuTypography.InputLabel,
-            color = LiquidGlassColors.Text400
+            color = colors.text400
         )
     }
 }
@@ -247,8 +249,6 @@ private fun QuickAdjustButton(
                 onClick = onClick
             ),
         shape = RoundedCornerShape(12.dp),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Text(
@@ -319,7 +319,6 @@ private fun KeypadKey(
             ),
         shape = RoundedCornerShape(ClearDuDimens.KeypadKeyRadius),
         background = if (pressed) LiquidGlassColors.KeyActiveBg else LiquidGlassColors.KeyBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -391,6 +390,7 @@ private fun GoalProgressBar(
     target: Int,
     fraction: Float
 ) {
+    val colors = backgroundAwareColors()
     val animatedFraction by animateFloatAsState(
         targetValue = fraction,
         animationSpec = tween(600),
@@ -400,8 +400,6 @@ private fun GoalProgressBar(
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.GoalProgressRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -417,12 +415,12 @@ private fun GoalProgressBar(
                 Text(
                     text = "今日已记录",
                     style = ClearDuTypography.GoalLabel,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
                 Text(
                     text = String.format(Locale.US, "%,d / 目标 %,dml", current, target),
                     style = ClearDuTypography.GoalValues,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
             }
             Spacer(Modifier.height(8.dp))

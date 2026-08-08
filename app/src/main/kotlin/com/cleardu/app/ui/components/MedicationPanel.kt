@@ -51,6 +51,7 @@ import com.cleardu.app.data.MedicationDose
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.launch
 
 /**
@@ -79,6 +80,7 @@ fun MedicationPanel(
     var selectedDrug by remember { mutableStateOf<DrugInfo?>(null) }
     var isSearching by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val colors = backgroundAwareColors()
 
     Column(modifier = modifier.fillMaxWidth()) {
         // Search bar
@@ -115,7 +117,7 @@ fun MedicationPanel(
             Text(
                 text = "搜索结果",
                 style = ClearDuTypography.MedListTitle,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 modifier = Modifier.padding(start = 2.dp)
             )
             Spacer(Modifier.height(8.dp))
@@ -136,7 +138,7 @@ fun MedicationPanel(
             Text(
                 text = "联网搜索中...",
                 style = ClearDuTypography.MedDetail,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 modifier = Modifier.padding(start = 2.dp)
             )
             Spacer(Modifier.height(12.dp))
@@ -146,7 +148,7 @@ fun MedicationPanel(
         Text(
             text = "已选药品",
             style = ClearDuTypography.MedListTitle,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             modifier = Modifier.padding(start = 2.dp)
         )
         Spacer(Modifier.height(8.dp))
@@ -199,8 +201,6 @@ private fun MedicationSearchBar(
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.MedSearchRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -250,13 +250,12 @@ private fun DrugSearchResultItem(
     drug: DrugInfo,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(ClearDuDimens.MedItemRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -283,7 +282,7 @@ private fun DrugSearchResultItem(
                     Text(
                         text = drug.name,
                         style = ClearDuTypography.MedItemName,
-                        color = LiquidGlassColors.Foreground,
+                        color = colors.foreground,
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     if (drug.isFromNetwork) {
@@ -299,21 +298,21 @@ private fun DrugSearchResultItem(
                     Text(
                         text = drug.genericName,
                         style = ClearDuTypography.MedDetail,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
                 if (drug.category.isNotEmpty()) {
                     Text(
                         text = drug.category,
                         style = ClearDuTypography.MedCardMeta,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
                 if (drug.description.isNotEmpty()) {
                     Text(
                         text = drug.description.take(80),
                         style = ClearDuTypography.MedCardMeta,
-                        color = LiquidGlassColors.Text400.copy(alpha = 0.7f),
+                        color = colors.text400.copy(alpha = 0.7f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 2.dp)
@@ -339,6 +338,7 @@ private fun MedicationItem(
     onDoseChanged: (Double) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
 
     LaunchedEffect(initialSelectedIndex) {
@@ -350,8 +350,6 @@ private fun MedicationItem(
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.MedItemRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -381,12 +379,12 @@ private fun MedicationItem(
                     Text(
                         text = name,
                         style = ClearDuTypography.MedItemName,
-                        color = LiquidGlassColors.Foreground
+                        color = colors.foreground
                     )
                     Text(
                         text = dose,
                         style = ClearDuTypography.MedDetail,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
             }
@@ -417,6 +415,7 @@ private fun DoseButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
 
     GlassCard(
@@ -434,7 +433,7 @@ private fun DoseButton(
         Text(
             text = label,
             style = ClearDuTypography.MedDoseBtn,
-            color = if (isActive) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400,
+            color = if (isActive) LiquidGlassColors.MedicalCyan else colors.text400,
             modifier = Modifier.padding(
                 horizontal = ClearDuDimens.MedDoseBtnPaddingH,
                 vertical = ClearDuDimens.MedDoseBtnPaddingV

@@ -20,6 +20,7 @@ import com.cleardu.app.data.AppSettings
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Medication reminder settings dialog.
@@ -37,6 +38,7 @@ fun MedicationSettingsDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var reminderEnabled by remember { mutableStateOf(currentSettings.medicationReminderEnabled) }
     var advanceMinutes by remember { mutableIntStateOf(currentSettings.medicationReminderAdvanceMinutes) }
 
@@ -72,7 +74,7 @@ fun MedicationSettingsDialog(
                         color = LiquidGlassColors.LightForeground
                     )
                     TextButton(onClick = onDismiss) {
-                        Text("取消", color = LiquidGlassColors.Text400)
+                        Text("取消", color = colors.text400)
                     }
                 }
 
@@ -84,8 +86,6 @@ fun MedicationSettingsDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Row(
@@ -104,7 +104,7 @@ fun MedicationSettingsDialog(
                                 Text(
                                     text = "在设定的时间提醒您服药",
                                     style = ClearDuTypography.MedDetail,
-                                    color = LiquidGlassColors.Text400,
+                                    color = colors.text400,
                                     modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
@@ -120,8 +120,6 @@ fun MedicationSettingsDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
@@ -133,7 +131,7 @@ fun MedicationSettingsDialog(
                                 Text(
                                     text = "在服药时间前${advanceMinutes}分钟发送提醒",
                                     style = ClearDuTypography.MedDetail,
-                                    color = LiquidGlassColors.Text400,
+                                    color = colors.text400,
                                     modifier = Modifier.padding(top = 2.dp, bottom = 10.dp)
                                 )
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -156,7 +154,7 @@ fun MedicationSettingsDialog(
                                             Text(
                                                 text = "${mins}分钟",
                                                 style = ClearDuTypography.MedDoseBtn,
-                                                color = if (advanceMinutes == mins) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400
+                                                color = if (advanceMinutes == mins) LiquidGlassColors.MedicalCyan else colors.text400
                                             )
                                         }
                                     }
@@ -170,7 +168,7 @@ fun MedicationSettingsDialog(
                         Text(
                             text = "已添加的自定义用药",
                             style = ClearDuTypography.MedSectionLabel,
-                            color = LiquidGlassColors.Text400,
+                            color = colors.text400,
                             modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                         )
 
@@ -178,8 +176,6 @@ fun MedicationSettingsDialog(
                             GlassCard(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(14.dp),
-                                background = LiquidGlassColors.GlassBg,
-                                border = LiquidGlassColors.GlassBorder,
                                 specularTop = LiquidGlassColors.GlassSpecularTop
                             ) {
                                 Row(
@@ -198,7 +194,7 @@ fun MedicationSettingsDialog(
                                         Text(
                                             text = "${med.detail} · ${med.frequency} ${med.times.joinToString(", ")}",
                                             style = ClearDuTypography.MedDetail,
-                                            color = LiquidGlassColors.Text400
+                                            color = colors.text400
                                         )
                                     }
                                 }

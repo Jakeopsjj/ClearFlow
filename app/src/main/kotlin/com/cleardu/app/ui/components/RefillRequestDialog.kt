@@ -22,6 +22,7 @@ import com.cleardu.app.data.RefillRequest
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Refill request dialog.
@@ -39,6 +40,7 @@ fun RefillRequestDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var showNewRequest by remember { mutableStateOf(false) }
     var medName by remember { mutableStateOf("") }
     var medDetail by remember { mutableStateOf("") }
@@ -74,7 +76,7 @@ fun RefillRequestDialog(
                         color = LiquidGlassColors.LightForeground
                     )
                     TextButton(onClick = onDismiss) {
-                        Text("关闭", color = LiquidGlassColors.Text400)
+                        Text("关闭", color = colors.text400)
                     }
                 }
 
@@ -87,7 +89,7 @@ fun RefillRequestDialog(
                         Text(
                             text = "续药申请记录",
                             style = ClearDuTypography.MedSectionLabel,
-                            color = LiquidGlassColors.Text400,
+                            color = colors.text400,
                             modifier = Modifier.padding(start = 4.dp)
                         )
 
@@ -95,8 +97,6 @@ fun RefillRequestDialog(
                             GlassCard(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(14.dp),
-                                background = LiquidGlassColors.GlassBg,
-                                border = LiquidGlassColors.GlassBorder,
                                 specularTop = LiquidGlassColors.GlassSpecularTop
                             ) {
                                 Row(
@@ -116,7 +116,7 @@ fun RefillRequestDialog(
                                             Text(
                                                 text = request.detail,
                                                 style = ClearDuTypography.MedDetail,
-                                                color = LiquidGlassColors.Text400
+                                                color = colors.text400
                                             )
                                         }
                                         Text(
@@ -131,7 +131,7 @@ fun RefillRequestDialog(
                                                 "pending" -> LiquidGlassColors.MedicalOrange
                                                 "submitted" -> LiquidGlassColors.MedicalCyan
                                                 "fulfilled" -> LiquidGlassColors.MedicalGreen
-                                                else -> LiquidGlassColors.Text400
+                                                else -> colors.text400
                                             }
                                         )
                                     }
@@ -145,19 +145,17 @@ fun RefillRequestDialog(
                         Text(
                             text = "新建续药申请",
                             style = ClearDuTypography.MedSectionLabel,
-                            color = LiquidGlassColors.Text400,
+                            color = colors.text400,
                             modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                         )
 
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("药品名称 *", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("药品名称 *", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = medName,
@@ -179,12 +177,10 @@ fun RefillRequestDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("规格剂量", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("规格剂量", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = medDetail,
@@ -206,12 +202,10 @@ fun RefillRequestDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("备注（可选）", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("备注（可选）", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = notes,
@@ -290,11 +284,12 @@ fun RefillRequestDialog(
 
 @Composable
 private fun RefillStatusBadge(status: String, modifier: Modifier = Modifier) {
+    val colors = backgroundAwareColors()
     val (bg, text, label) = when (status) {
         "pending" -> Triple(LiquidGlassColors.LightTintOrangeBg, LiquidGlassColors.MedicalOrange, "待处理")
         "submitted" -> Triple(LiquidGlassColors.LightTintCyanBg, LiquidGlassColors.MedicalCyan, "已提交")
         "fulfilled" -> Triple(LiquidGlassColors.LightTintGreenStrong, LiquidGlassColors.MedicalGreen, "已完成")
-        else -> Triple(LiquidGlassColors.GlassBg, LiquidGlassColors.Text400, status)
+        else -> Triple(LiquidGlassColors.GlassBg, colors.text400, status)
     }
     Box(
         modifier = modifier

@@ -21,6 +21,7 @@ import com.cleardu.app.data.CustomMedication
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Dialog for adding a custom medication.
@@ -35,6 +36,7 @@ fun AddMedicationDialog(
     onSave: (CustomMedication) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var name by remember { mutableStateOf("") }
     var detail by remember { mutableStateOf("") }
     var selectedFrequency by remember { mutableIntStateOf(0) } // 0=每日, 1=隔日, 2=每周
@@ -74,7 +76,7 @@ fun AddMedicationDialog(
                         color = LiquidGlassColors.LightForeground
                     )
                     TextButton(onClick = onDismiss) {
-                        Text("取消", color = LiquidGlassColors.Text400)
+                        Text("取消", color = colors.text400)
                     }
                 }
 
@@ -86,12 +88,10 @@ fun AddMedicationDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("药品名称 *", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                            Text("药品名称 *", style = ClearDuTypography.MedListTitle, color = colors.text400)
                             Spacer(Modifier.height(8.dp))
                             BasicTextField(
                                 value = name,
@@ -114,12 +114,10 @@ fun AddMedicationDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("剂量详情 *", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                            Text("剂量详情 *", style = ClearDuTypography.MedListTitle, color = colors.text400)
                             Spacer(Modifier.height(8.dp))
                             BasicTextField(
                                 value = detail,
@@ -142,12 +140,10 @@ fun AddMedicationDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("服药频率", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                            Text("服药频率", style = ClearDuTypography.MedListTitle, color = colors.text400)
                             Spacer(Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 frequencies.forEachIndexed { index, freq ->
@@ -165,12 +161,10 @@ fun AddMedicationDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("服药时间", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                            Text("服药时间", style = ClearDuTypography.MedListTitle, color = colors.text400)
                             Spacer(Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 times.forEachIndexed { index, time ->
@@ -188,12 +182,10 @@ fun AddMedicationDialog(
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("备注（可选）", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                            Text("备注（可选）", style = ClearDuTypography.MedListTitle, color = colors.text400)
                             Spacer(Modifier.height(8.dp))
                             BasicTextField(
                                 value = notes,
@@ -251,6 +243,7 @@ fun AddMedicationDialog(
 
 @Composable
 private fun FrequencyChip(text: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
@@ -261,7 +254,7 @@ private fun FrequencyChip(text: String, selected: Boolean, onClick: () -> Unit) 
         Text(
             text = text,
             style = ClearDuTypography.MedDoseBtn,
-            color = if (selected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400
+            color = if (selected) LiquidGlassColors.MedicalCyan else colors.text400
         )
     }
 }

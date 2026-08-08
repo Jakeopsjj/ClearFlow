@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 警告横幅 — 健康数据页面。
@@ -157,6 +158,7 @@ private fun ExportButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -174,8 +176,6 @@ private fun ExportButton(
                 onClick = onClick
             ),
         shape = RoundedCornerShape(ClearDuDimens.HealthExportRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -206,7 +206,7 @@ private fun ExportButton(
             Text(
                 text = text,
                 style = ClearDuTypography.HealthExportBtn,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         }
     }

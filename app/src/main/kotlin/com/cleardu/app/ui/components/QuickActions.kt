@@ -29,6 +29,7 @@ import com.cleardu.app.data.QuickAction
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Quick action buttons row.
@@ -65,6 +66,7 @@ private fun QuickActionButton(
     action: QuickAction,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
@@ -89,8 +91,6 @@ private fun QuickActionButton(
                     onClick = onClick
                 ),
             shape = CircleShape,
-            background = LiquidGlassColors.GlassBg,
-            border = LiquidGlassColors.GlassBorder,
             specularTop = LiquidGlassColors.GlassSpecularTop
         ) {
             Box(
@@ -110,7 +110,7 @@ private fun QuickActionButton(
         Text(
             text = action.label,
             style = ClearDuTypography.QuickActionLabel,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Center
         )
     }

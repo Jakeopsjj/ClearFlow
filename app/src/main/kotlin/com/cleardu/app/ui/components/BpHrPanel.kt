@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * "血压心率" tab content for the data-record page.
@@ -115,11 +116,10 @@ private fun BpCard(
     onIncrease: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = modifier.heightIn(min = ClearDuDimens.BpCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.BpCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -135,19 +135,19 @@ private fun BpCard(
             Text(
                 text = label,
                 style = ClearDuTypography.BpCardLabel,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = value,
                 style = ClearDuTypography.BpCardValue,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = unit,
                 style = ClearDuTypography.BpCardUnit,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(ClearDuDimens.BpAdjustTopMargin))
@@ -167,11 +167,10 @@ private fun HrCard(
     onDecrease: () -> Unit,
     onIncrease: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.HrCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -204,17 +203,17 @@ private fun HrCard(
                     Text(
                         text = "心率",
                         style = ClearDuTypography.BpCardLabel,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                     Text(
                         text = value,
                         style = ClearDuTypography.HrInfoValue,
-                        color = LiquidGlassColors.Foreground
+                        color = colors.foreground
                     )
                     Text(
                         text = "bpm",
                         style = ClearDuTypography.BpCardUnit,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
             }
@@ -258,7 +257,6 @@ private fun BpAdjustButton(
             ),
         shape = CircleShape,
         background = if (pressed) LiquidGlassColors.TintCyanStrong else LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Box(contentAlignment = Alignment.Center) {

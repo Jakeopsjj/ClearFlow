@@ -59,6 +59,7 @@ import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.launch
 
 /**
@@ -365,6 +366,7 @@ private fun NotifPageNav(
     backLabel: String,
     onBackClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
@@ -407,7 +409,7 @@ private fun NotifPageNav(
             text = title,
             fontSize = 17.sp,
             fontWeight = FontWeight.SemiBold,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.02).sp,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -419,6 +421,7 @@ private fun StrongReminderCard(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val trackColor by animateColorAsState(
         targetValue = if (checked) LiquidGlassColors.MedicalOrange else LiquidGlassColors.ToggleOff,
         animationSpec = tween(300),
@@ -488,14 +491,14 @@ private fun StrongReminderCard(
                     text = "强提醒模式",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     letterSpacing = (-0.02).sp
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "在锁屏和后台状态下全屏弹窗提醒您按时服药和透析",
                     fontSize = 13.sp,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     lineHeight = 18.sp
                 )
             }
@@ -526,11 +529,12 @@ private fun StrongReminderCard(
 
 @Composable
 private fun NotifSectionHeader(title: String) {
+    val colors = backgroundAwareColors()
     Text(
         text = title,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         letterSpacing = 0.65.sp,
         modifier = Modifier.padding(start = 12.dp, bottom = 8.dp)
     )
@@ -543,7 +547,6 @@ private fun NotifCard(
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorderSubtle,
         shadowColor = LiquidGlassColors.GlassShadow,
         shadowElevation = 4f,
@@ -561,6 +564,7 @@ private fun NotifToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -570,7 +574,7 @@ private fun NotifToggleItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -587,6 +591,7 @@ private fun NotifToggleWithSub(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -597,7 +602,7 @@ private fun NotifToggleWithSub(
             Text(
                 text = label,
                 fontSize = 16.sp,
-                color = if (warning) LiquidGlassColors.MedicalRed else LiquidGlassColors.Foreground,
+                color = if (warning) LiquidGlassColors.MedicalRed else colors.foreground,
                 letterSpacing = (-0.01).sp
             )
             Spacer(Modifier.height(1.dp))
@@ -607,7 +612,7 @@ private fun NotifToggleWithSub(
                 color = when {
                     warning -> LiquidGlassColors.MedicalRed.copy(alpha = 0.7f)
                     accentSub -> LiquidGlassColors.MedicalOrange
-                    else -> LiquidGlassColors.Text400
+                    else -> colors.text400
                 }
             )
         }
@@ -621,6 +626,7 @@ private fun NotifNavItem(
     value: String,
     onClick: (() -> Unit)? = null
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val bgAlpha by animateFloatAsState(
         targetValue = if (isPressed) 0.08f else 0f,
@@ -649,20 +655,20 @@ private fun NotifNavItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = value,
             fontSize = 15.sp,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             modifier = Modifier.padding(end = 4.dp)
         )
         Text(
             text = "›",
             fontSize = 18.sp,
-            color = LiquidGlassColors.Text400
+            color = colors.text400
         )
     }
 }
@@ -715,6 +721,7 @@ private fun SoundSelectionDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -722,7 +729,7 @@ private fun SoundSelectionDialog(
                 text = "声音提醒",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -747,7 +754,7 @@ private fun SoundSelectionDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -755,7 +762,7 @@ private fun SoundSelectionDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -772,6 +779,7 @@ private fun TimePeriodSelectionDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -779,7 +787,7 @@ private fun TimePeriodSelectionDialog(
                 text = "提醒时段",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -804,7 +812,7 @@ private fun TimePeriodSelectionDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -812,7 +820,7 @@ private fun TimePeriodSelectionDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -827,6 +835,7 @@ private fun NotificationPermissionDialog(
     onGoToSettings: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -834,14 +843,14 @@ private fun NotificationPermissionDialog(
                 text = "需要通知权限",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
             Text(
                 text = "清渡需要通知权限才能在您设定的时间发送提醒。请在系统设置中允许通知权限，以便我们为您提供透析、用药和健康监测的及时提醒。",
                 fontSize = 14.sp,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 lineHeight = 20.sp
             )
         },
@@ -852,7 +861,7 @@ private fun NotificationPermissionDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),

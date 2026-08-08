@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import java.util.Locale
 
 /**
@@ -93,11 +94,10 @@ private fun WeightTempCard(
     onIncrease: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = modifier.heightIn(min = ClearDuDimens.WtCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.WtCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -113,20 +113,20 @@ private fun WeightTempCard(
             Text(
                 text = label,
                 style = ClearDuTypography.BpCardLabel,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = value,
                 style = ClearDuTypography.WtCardValue,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = unit,
                 style = ClearDuTypography.BpCardUnit,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(ClearDuDimens.BpAdjustTopMargin))
@@ -173,7 +173,6 @@ private fun AdjustButton(
             ),
         shape = CircleShape,
         background = if (pressed) LiquidGlassColors.TintCyanStrong else LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Box(contentAlignment = Alignment.Center) {

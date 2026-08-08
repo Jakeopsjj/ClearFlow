@@ -48,6 +48,7 @@ import com.cleardu.app.ui.components.WeightTempPanel
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -243,6 +244,7 @@ fun DataRecordScreen(
  */
 @Composable
 private fun PageHeader(modifier: Modifier = Modifier) {
+    val colors = backgroundAwareColors()
     val dateText = remember {
         val cal = Calendar.getInstance()
         val year = cal.get(Calendar.YEAR)
@@ -257,14 +259,14 @@ private fun PageHeader(modifier: Modifier = Modifier) {
         Text(
             text = "记录数据",
             style = ClearDuTypography.RecordPageTitle,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             textAlign = TextAlign.Start
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = dateText,
             style = ClearDuTypography.RecordPageSubtitle,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             textAlign = TextAlign.Start
         )
     }

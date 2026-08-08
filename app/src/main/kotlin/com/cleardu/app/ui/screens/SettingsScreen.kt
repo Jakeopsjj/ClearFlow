@@ -75,6 +75,7 @@ import com.cleardu.app.BuildConfig
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -104,6 +105,7 @@ fun SettingsScreen(
 ) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+    val colors = backgroundAwareColors()
 
     // 从全局共享数据层读取 AppSettings，所有设置项同源
     val settings by healthDataManager.settings.collectAsState(initial = null)
@@ -146,7 +148,7 @@ fun SettingsScreen(
                 text = "设置",
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.03).sp,
                 modifier = Modifier.padding(bottom = 24.dp, top = 4.dp)
             )
@@ -460,11 +462,12 @@ fun SettingsScreen(
 
 @Composable
 private fun SettingsSectionHeader(title: String) {
+    val colors = backgroundAwareColors()
     Text(
         text = title,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         letterSpacing = 0.65.sp,
         modifier = Modifier.padding(start = 12.dp, bottom = 8.dp)
     )
@@ -478,7 +481,6 @@ private fun SettingsCard(
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorderSubtle,
         shadowColor = LiquidGlassColors.GlassShadow,
         shadowElevation = 4f,
@@ -492,6 +494,7 @@ private fun SettingsCard(
 
 @Composable
 private fun UserProfileCard(onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.98f else 1f,
@@ -560,14 +563,14 @@ private fun UserProfileCard(onClick: () -> Unit) {
                     text = "张先生",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     letterSpacing = (-0.02).sp
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "血液透析 · 透析龄3年2个月",
                     fontSize = 13.sp,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
 
@@ -575,7 +578,7 @@ private fun UserProfileCard(onClick: () -> Unit) {
             Text(
                 text = "›",
                 fontSize = 20.sp,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 modifier = Modifier.alpha(0.6f)
             )
         }
@@ -592,6 +595,7 @@ private fun SettingsNavItem(
     value: String? = null,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val bgAlpha by animateFloatAsState(
         targetValue = if (isPressed) 0.08f else 0f,
@@ -636,21 +640,21 @@ private fun SettingsNavItem(
                 Text(
                     text = label,
                     fontSize = 16.sp,
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     letterSpacing = (-0.01).sp
                 )
                 Spacer(Modifier.height(1.dp))
                 Text(
                     text = sublabel,
                     fontSize = 13.sp,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         } else {
             Text(
                 text = label,
                 fontSize = 16.sp,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.01).sp,
                 modifier = Modifier.weight(1f)
             )
@@ -661,7 +665,7 @@ private fun SettingsNavItem(
             Text(
                 text = value,
                 fontSize = 15.sp,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 modifier = Modifier.padding(end = 4.dp)
             )
         }
@@ -670,7 +674,7 @@ private fun SettingsNavItem(
         Text(
             text = "›",
             fontSize = 18.sp,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             modifier = Modifier.alpha(0.6f)
         )
     }
@@ -685,6 +689,7 @@ private fun ToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -706,7 +711,7 @@ private fun ToggleItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -724,11 +729,14 @@ private fun SettingsTextItem(
     iconBg: Color,
     iconFg: Color,
     label: String,
-    labelColor: Color = LiquidGlassColors.Foreground,
+    labelColor: Color = Color.Unspecified,
     value: String? = null,
-    valueColor: Color = LiquidGlassColors.Text400,
+    valueColor: Color = Color.Unspecified,
     onClick: () -> Unit = {}
 ) {
+    val colors = backgroundAwareColors()
+    val effectiveLabelColor = if (labelColor == Color.Unspecified) colors.foreground else labelColor
+    val effectiveValueColor = if (valueColor == Color.Unspecified) colors.text400 else valueColor
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -754,7 +762,7 @@ private fun SettingsTextItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = labelColor,
+            color = effectiveLabelColor,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -763,7 +771,7 @@ private fun SettingsTextItem(
             Text(
                 text = value,
                 fontSize = 15.sp,
-                color = valueColor,
+                color = effectiveValueColor,
                 modifier = Modifier.padding(end = 4.dp)
             )
         }
@@ -773,9 +781,11 @@ private fun SettingsTextItem(
 @Composable
 private fun SettingsCenterItem(
     label: String,
-    labelColor: Color = LiquidGlassColors.Foreground,
+    labelColor: Color = Color.Unspecified,
     onClick: () -> Unit = {}
 ) {
+    val colors = backgroundAwareColors()
+    val effectiveColor = if (labelColor == Color.Unspecified) colors.foreground else labelColor
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -789,7 +799,7 @@ private fun SettingsCenterItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = labelColor,
+            color = effectiveColor,
             letterSpacing = (-0.01).sp,
             textAlign = TextAlign.Center
         )
@@ -801,6 +811,7 @@ private fun DarkModeToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -822,7 +833,7 @@ private fun DarkModeToggleItem(
         Text(
             text = "深色模式",
             fontSize = 16.sp,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -839,6 +850,7 @@ private fun WeatherBackgroundToggleItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -861,13 +873,13 @@ private fun WeatherBackgroundToggleItem(
             Text(
                 text = "天气背景",
                 fontSize = 16.sp,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 letterSpacing = (-0.01).sp
             )
             Text(
                 text = "根据实时天气切换背景",
                 fontSize = 12.sp,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 letterSpacing = (-0.01).sp
             )
         }
@@ -1235,19 +1247,20 @@ private fun UnitSettingsDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var selected by remember { mutableStateOf(current) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("单位设置", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("单位设置", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = selected == "kg/mmHg", onClick = { selected = "kg/mmHg" })
-                    Text("kg/mmHg（公制）", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                    Text("kg/mmHg（公制）", color = colors.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = selected == "lb/mmHg", onClick = { selected = "lb/mmHg" })
-                    Text("lb/mmHg（英制）", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                    Text("lb/mmHg（英制）", color = colors.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
             }
         },
@@ -1258,7 +1271,7 @@ private fun UnitSettingsDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1272,19 +1285,20 @@ private fun LanguageDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var selected by remember { mutableStateOf(current) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("语言", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("语言", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = selected == "zh_CN", onClick = { selected = "zh_CN" })
-                    Text("简体中文", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                    Text("简体中文", color = colors.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = selected == "en_US", onClick = { selected = "en_US" })
-                    Text("English", color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                    Text("English", color = colors.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
             }
         },
@@ -1295,7 +1309,7 @@ private fun LanguageDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1308,20 +1322,21 @@ private fun ExportDialog(
     healthDataManager: HealthDataManager,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var isExporting by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("数据导出", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("数据导出", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 Text(
                     "支持导出 PDF 格式的健康数据报告。\n\n导出内容包含：\n" +
                     "• 个人资料\n• 健康设置\n• 备份信息\n" +
                     "导出文件将保存至 Downloads/清渡 目录。",
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )
@@ -1369,7 +1384,7 @@ private fun ExportDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1379,10 +1394,11 @@ private fun ExportDialog(
 
 @Composable
 private fun PermissionDialog(onDismiss: () -> Unit) {
+    val colors = backgroundAwareColors()
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("权限管理", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("权限管理", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Text(
                 "清渡需要以下权限以保证正常运行：\n\n" +
@@ -1390,7 +1406,7 @@ private fun PermissionDialog(onDismiss: () -> Unit) {
                 "• 日历权限 — 同步透析日程\n" +
                 "• 位置权限 — 紧急联系人定位\n\n" +
                 "您可以在系统设置中随时管理这些权限。",
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 fontSize = 14.sp
             )
         },
@@ -1407,7 +1423,7 @@ private fun PermissionDialog(onDismiss: () -> Unit) {
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1421,6 +1437,7 @@ private fun DialysisPlanDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var selected by remember { mutableStateOf(current) }
     val plans = listOf(
         "每周一三五 · 08:00",
@@ -1430,13 +1447,13 @@ private fun DialysisPlanDialog(
     )
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("透析计划", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("透析计划", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 plans.forEach { plan ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = selected == plan, onClick = { selected = plan })
-                        Text(plan, color = LiquidGlassColors.Foreground, modifier = Modifier.padding(start = 8.dp))
+                        Text(plan, color = colors.foreground, modifier = Modifier.padding(start = 8.dp))
                     }
                 }
             }
@@ -1448,7 +1465,7 @@ private fun DialysisPlanDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1463,26 +1480,27 @@ private fun DryWeightDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("干体重目标", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("干体重目标", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 Text(
                     "请输入干体重目标值（kg）：",
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 OutlinedTextField(
                     value = value,
                     onValueChange = onValueChange,
-                    label = { Text("体重 (kg)", color = LiquidGlassColors.Text400) },
+                    label = { Text("体重 (kg)", color = colors.text400) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = LiquidGlassColors.Foreground,
-                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedTextColor = colors.foreground,
+                        unfocusedTextColor = colors.foreground,
                         focusedBorderColor = LiquidGlassColors.MedicalBlue,
                         unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
                         cursorColor = LiquidGlassColors.MedicalBlue
@@ -1498,7 +1516,7 @@ private fun DryWeightDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1515,19 +1533,20 @@ private fun EmergencyContactDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("紧急联系人", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("紧急联系人", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChange,
-                    label = { Text("姓名", color = LiquidGlassColors.Text400) },
+                    label = { Text("姓名", color = colors.text400) },
                     singleLine = true,
                     colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = LiquidGlassColors.Foreground,
-                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedTextColor = colors.foreground,
+                        unfocusedTextColor = colors.foreground,
                         focusedBorderColor = LiquidGlassColors.MedicalBlue,
                         unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
                         cursorColor = LiquidGlassColors.MedicalBlue
@@ -1537,12 +1556,12 @@ private fun EmergencyContactDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = onPhoneChange,
-                    label = { Text("电话", color = LiquidGlassColors.Text400) },
+                    label = { Text("电话", color = colors.text400) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true,
                     colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = LiquidGlassColors.Foreground,
-                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedTextColor = colors.foreground,
+                        unfocusedTextColor = colors.foreground,
                         focusedBorderColor = LiquidGlassColors.MedicalBlue,
                         unfocusedBorderColor = LiquidGlassColors.Text400.copy(alpha = 0.3f),
                         cursorColor = LiquidGlassColors.MedicalBlue
@@ -1558,7 +1577,7 @@ private fun EmergencyContactDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1568,9 +1587,10 @@ private fun EmergencyContactDialog(
 
 @Composable
 private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("用户协议与隐私政策", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("用户协议与隐私政策", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Text(
                 "感谢您使用清渡。\n\n" +
@@ -1580,7 +1600,7 @@ private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
                 "3. 数据安全：所有数据采用加密存储，保障您的隐私安全。\n\n" +
                 "4. 数据共享：未经您的明确同意，我们不会将您的数据分享给任何第三方。\n\n" +
                 "5. 免责声明：本应用提供的健康管理建议仅供参考，不能替代专业医疗诊断。",
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 fontSize = 13.sp,
                 lineHeight = 20.sp
             )
@@ -1597,6 +1617,7 @@ private fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
 
 @Composable
 private fun AboutDialog(onDismiss: () -> Unit) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -1615,14 +1636,14 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                     Text("清", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Spacer(Modifier.width(12.dp))
-                Text("关于清渡", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+                Text("关于清渡", color = colors.foreground, fontWeight = FontWeight.SemiBold)
             }
         },
         text = {
             Column {
                 Text(
                     "清渡 — 透析患者健康管理助手",
-                    color = LiquidGlassColors.Foreground,
+                    color = colors.foreground,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -1632,7 +1653,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                     "构建号：${BuildConfig.VERSION_CODE}\n\n" +
                     "清渡是一款专为透析患者设计的健康管理应用，帮助您轻松记录透析数据、管理用药、设置提醒，让健康管理更简单、更安心。\n\n" +
                     "© 2026 清渡团队",
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     fontSize = 13.sp,
                     lineHeight = 20.sp
                 )
@@ -1654,15 +1675,16 @@ private fun ClearCacheDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("清除缓存", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("清除缓存", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Text(
                 "确定要清除应用缓存数据吗？\n\n这将清除临时文件和不必要的缓存数据，不会影响您的健康记录和设置。",
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 fontSize = 14.sp
             )
         },
@@ -1686,7 +1708,7 @@ private fun ClearCacheDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1699,13 +1721,14 @@ private fun LogoutDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("退出登录", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold) },
+        title = { Text("退出登录", color = colors.foreground, fontWeight = FontWeight.SemiBold) },
         text = {
             Text(
                 "确定要退出登录吗？\n\n退出后您将返回首页，但您的健康数据仍会安全保存在本地。",
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 fontSize = 14.sp
             )
         },
@@ -1716,7 +1739,7 @@ private fun LogoutDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),
@@ -1732,17 +1755,18 @@ private fun UpdateAvailableDialog(
     onDownload: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("发现新版本", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+            Text("发现新版本", color = colors.foreground, fontWeight = FontWeight.SemiBold)
         },
         text = {
             Column {
                 Text(
                     "当前版本：$currentVersion\n最新版本：${release.versionName}\n\n" +
                     "更新内容：\n${release.body}",
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )
@@ -1755,7 +1779,7 @@ private fun UpdateAvailableDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("稍后再说", color = LiquidGlassColors.Text400)
+                Text("稍后再说", color = colors.text400)
             }
         },
         containerColor = Color(0xFF1C1C2E),

@@ -21,6 +21,7 @@ import com.cleardu.app.data.DrugInfo
 import com.cleardu.app.data.MedicationDose
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Drug detail dialog showing comprehensive drug information
@@ -36,6 +37,7 @@ fun DrugDetailDialog(
     onAdd: (MedicationDose) -> Unit = {},
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var selectedDose by remember { mutableIntStateOf(1) } // 0=0.5, 1=1, 2=2
     var recordTime by remember { mutableStateOf("08:00") }
 
@@ -71,7 +73,7 @@ fun DrugDetailDialog(
                             Text(
                                 text = drug.genericName,
                                 style = ClearDuTypography.MedDetail,
-                                color = LiquidGlassColors.Text400
+                                color = colors.text400
                             )
                         }
                         if (drug.isFromNetwork) {
@@ -84,7 +86,7 @@ fun DrugDetailDialog(
                         }
                     }
                     TextButton(onClick = onDismiss) {
-                        Text("关闭", color = LiquidGlassColors.Text400)
+                        Text("关闭", color = colors.text400)
                     }
                 }
 
@@ -238,8 +240,6 @@ private fun DrugSection(title: String, content: String) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -271,6 +271,7 @@ private fun Divider(modifier: Modifier = Modifier) {
 
 @Composable
 private fun DoseChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -281,13 +282,14 @@ private fun DoseChip(label: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             text = label,
             style = ClearDuTypography.MedDoseBtn,
-            color = if (selected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400
+            color = if (selected) LiquidGlassColors.MedicalCyan else colors.text400
         )
     }
 }
 
 @Composable
 private fun TimeChip(time: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = backgroundAwareColors()
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -298,7 +300,7 @@ private fun TimeChip(time: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             text = time,
             style = ClearDuTypography.MedDoseBtn,
-            color = if (selected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400
+            color = if (selected) LiquidGlassColors.MedicalCyan else colors.text400
         )
     }
 }

@@ -25,6 +25,7 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import com.cleardu.app.ui.theme.glassParams
 
 /**
@@ -39,6 +40,7 @@ fun MedicationSettingsEntry(
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
+    val colors = backgroundAwareColors()
     val scale by animateFloatAsState(
         targetValue = if (pressed) ClearDuMotion.CardPressScale else 1f,
         label = "settingsEntryScale"
@@ -91,7 +93,7 @@ fun MedicationSettingsEntry(
                 Text(
                     text = "用药提醒设置",
                     style = ClearDuTypography.MedSettingsText,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
             }
             MedChevronRightIcon(

@@ -20,6 +20,7 @@ import com.cleardu.app.data.AppSettings
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Contact picker dialog for emergency contact selection.
@@ -37,6 +38,7 @@ fun ContactPickerDialog(
     onSave: (AppSettings) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) } // 0=通讯录, 1=自定义
     var customName by remember { mutableStateOf("") }
@@ -85,7 +87,7 @@ fun ContactPickerDialog(
                         color = LiquidGlassColors.LightForeground
                     )
                     TextButton(onClick = onDismiss) {
-                        Text("取消", color = LiquidGlassColors.Text400)
+                        Text("取消", color = colors.text400)
                     }
                 }
 
@@ -109,8 +111,6 @@ fun ContactPickerDialog(
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp),
                         shape = RoundedCornerShape(14.dp),
-                        background = LiquidGlassColors.GlassBg,
-                        border = LiquidGlassColors.GlassBorder,
                         specularTop = LiquidGlassColors.GlassSpecularTop
                     ) {
                         BasicTextField(
@@ -158,7 +158,7 @@ fun ContactPickerDialog(
                                     Text(
                                         "暂无可用的系统通讯录数据",
                                         style = ClearDuTypography.MedDetail,
-                                        color = LiquidGlassColors.Text400
+                                        color = colors.text400
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
@@ -198,12 +198,10 @@ fun ContactPickerDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("联系人姓名", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("联系人姓名", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = customName,
@@ -227,12 +225,10 @@ fun ContactPickerDialog(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            background = LiquidGlassColors.GlassBg,
-                            border = LiquidGlassColors.GlassBorder,
                             specularTop = LiquidGlassColors.GlassSpecularTop
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("电话号码", style = ClearDuTypography.MedListTitle, color = LiquidGlassColors.Text400)
+                                Text("电话号码", style = ClearDuTypography.MedListTitle, color = colors.text400)
                                 Spacer(Modifier.height(8.dp))
                                 BasicTextField(
                                     value = customPhone,
@@ -301,6 +297,7 @@ private fun ContactItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -329,14 +326,14 @@ private fun ContactItem(
                         Text(
                             text = contact.role,
                             style = ClearDuTypography.MedCardMeta,
-                            color = LiquidGlassColors.Text400
+                            color = colors.text400
                         )
                     }
                 }
                 Text(
                     text = contact.phone,
                     style = ClearDuTypography.MedDetail,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         }

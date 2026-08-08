@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 超滤量趋势图卡片 — 健康数据页面顶部。
@@ -52,11 +53,10 @@ fun HealthUfTrendCard(
     totalDays: Int = 7,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.HealthChartCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -76,12 +76,12 @@ fun HealthUfTrendCard(
                 Text(
                     text = "超滤量趋势",
                     style = ClearDuTypography.HealthCardTitle,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
                 Text(
                     text = "最近${totalDays}天",
                     style = ClearDuTypography.HealthCardSubtitle,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
             Spacer(Modifier.height(8.dp))
@@ -107,7 +107,7 @@ fun HealthUfTrendCard(
                     Text(
                         text = "本周平均",
                         style = ClearDuTypography.HealthAvgLabel,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                     Spacer(Modifier.size(6.dp))
                     Text(
@@ -129,7 +129,7 @@ fun HealthUfTrendCard(
                     Text(
                         text = "达标率: $complianceDays/$totalDays 天",
                         style = ClearDuTypography.HealthComplianceText,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
             }
@@ -146,6 +146,7 @@ private fun UfTrendChart(
     target: Float,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val maxScale = 2500f
     val yLabels = listOf("2500", "2000", "1500", "1000")
     val xLabels = listOf("一", "二", "三", "四", "五", "六", "日")
@@ -244,7 +245,7 @@ private fun UfTrendChart(
             Text(
                 text = label,
                 style = ClearDuTypography.HealthChartAxis,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
         }

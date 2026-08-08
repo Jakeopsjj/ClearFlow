@@ -522,6 +522,7 @@ private fun UpdateLogDialog(
     logText: String,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -540,7 +541,7 @@ private fun UpdateLogDialog(
                     Text("清", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Spacer(Modifier.width(12.dp))
-                Text("$versionName 更新日志", color = LiquidGlassColors.Foreground, fontWeight = FontWeight.SemiBold)
+                Text("$versionName 更新日志", color = colors.foreground, fontWeight = FontWeight.SemiBold)
             }
         },
         text = {
@@ -552,7 +553,7 @@ private fun UpdateLogDialog(
             ) {
                 Text(
                     logText,
-                    color = LiquidGlassColors.Text400,
+                    color = colors.text400,
                     fontSize = 14.sp,
                     lineHeight = 22.sp
                 )

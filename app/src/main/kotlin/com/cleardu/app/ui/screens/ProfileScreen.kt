@@ -61,6 +61,7 @@ import com.cleardu.app.data.HealthDataManager
 import com.cleardu.app.ui.components.GlassCard
 import com.cleardu.app.ui.components.WeatherBackground
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Period
@@ -470,6 +471,7 @@ private fun PageNav(
     backLabel: String,
     onBackClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
@@ -519,7 +521,7 @@ private fun PageNav(
             text = title,
             fontSize = 17.sp,
             fontWeight = FontWeight.SemiBold,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.02).sp,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -532,6 +534,7 @@ private fun AvatarSection(
     patientId: String,
     onAvatarEditClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -600,7 +603,7 @@ private fun AvatarSection(
             text = profileName,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = LiquidGlassColors.Foreground,
+            color = colors.foreground,
             letterSpacing = (-0.03).sp
         )
 
@@ -609,18 +612,19 @@ private fun AvatarSection(
         Text(
             text = "患者ID: $patientId",
             fontSize = 14.sp,
-            color = LiquidGlassColors.Text400
+            color = colors.text400
         )
     }
 }
 
 @Composable
 private fun ProfileSectionHeader(title: String) {
+    val colors = backgroundAwareColors()
     Text(
         text = title,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
-        color = LiquidGlassColors.Text400,
+        color = colors.text400,
         letterSpacing = 0.65.sp,
         modifier = Modifier.padding(start = 12.dp, bottom = 8.dp)
     )
@@ -633,7 +637,6 @@ private fun ProfileCard(
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        background = LiquidGlassColors.GlassBg,
         border = LiquidGlassColors.GlassBorderSubtle,
         shadowColor = LiquidGlassColors.GlassShadow,
         shadowElevation = 4f,
@@ -653,6 +656,7 @@ private fun ProfileNavItem(
     highlight: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val bgAlpha by animateFloatAsState(
         targetValue = if (isPressed) 0.08f else 0f,
@@ -681,7 +685,7 @@ private fun ProfileNavItem(
         Text(
             text = label,
             fontSize = 16.sp,
-            color = if (highlight) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Foreground,
+            color = if (highlight) LiquidGlassColors.MedicalCyan else colors.foreground,
             letterSpacing = (-0.01).sp,
             modifier = Modifier.weight(1f)
         )
@@ -691,20 +695,20 @@ private fun ProfileNavItem(
                 Text(
                     text = value,
                     fontSize = 15.sp,
-                    color = if (highlight) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Foreground,
+                    color = if (highlight) LiquidGlassColors.MedicalCyan else colors.foreground,
                     letterSpacing = (-0.01).sp
                 )
                 Text(
                     text = subValue,
                     fontSize = 13.sp,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
         } else {
             Text(
                 text = value,
                 fontSize = 15.sp,
-                color = if (highlight) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text400,
+                color = if (highlight) LiquidGlassColors.MedicalCyan else colors.text400,
                 letterSpacing = (-0.01).sp,
                 modifier = Modifier.padding(end = 4.dp)
             )
@@ -716,7 +720,7 @@ private fun ProfileNavItem(
             Text(
                 text = "›",
                 fontSize = 18.sp,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
         }
     }
@@ -731,6 +735,7 @@ private fun EmergencyContactItem(
     onEditClick: (() -> Unit)? = null,
     onCallClick: (() -> Unit)? = null
 ) {
+    val colors = backgroundAwareColors()
     var isPressed by remember { mutableStateOf(false) }
     val bgAlpha by animateFloatAsState(
         targetValue = if (isPressed) 0.08f else 0f,
@@ -783,14 +788,14 @@ private fun EmergencyContactItem(
                         text = name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = LiquidGlassColors.Foreground,
+                        color = colors.foreground,
                         letterSpacing = (-0.01).sp
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = relation,
                         fontSize = 13.sp,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
                 Spacer(Modifier.height(2.dp))
@@ -888,6 +893,7 @@ private fun TextEditDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C2E),
@@ -897,7 +903,7 @@ private fun TextEditDialog(
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -914,8 +920,8 @@ private fun TextEditDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = LiquidGlassColors.Foreground,
-                        unfocusedTextColor = LiquidGlassColors.Foreground,
+                        focusedTextColor = colors.foreground,
+                        unfocusedTextColor = colors.foreground,
                         cursorColor = LiquidGlassColors.MedicalCyan,
                         focusedBorderColor = LiquidGlassColors.MedicalCyan,
                         unfocusedBorderColor = LiquidGlassColors.GlassBorder,
@@ -933,7 +939,7 @@ private fun TextEditDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -946,6 +952,7 @@ private fun GenderEditDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val options = listOf("男", "女")
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -956,7 +963,7 @@ private fun GenderEditDialog(
                 text = "选择性别",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -985,7 +992,7 @@ private fun GenderEditDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -998,7 +1005,7 @@ private fun GenderEditDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -1011,6 +1018,7 @@ private fun BloodTypeEditDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C2E),
@@ -1020,7 +1028,7 @@ private fun BloodTypeEditDialog(
                 text = "选择血型",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -1054,7 +1062,7 @@ private fun BloodTypeEditDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -1067,7 +1075,7 @@ private fun BloodTypeEditDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -1080,6 +1088,7 @@ private fun DialysisTypeEditDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF1C1C2E),
@@ -1089,7 +1098,7 @@ private fun DialysisTypeEditDialog(
                 text = "选择透析类型",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -1118,7 +1127,7 @@ private fun DialysisTypeEditDialog(
                         Text(
                             text = option,
                             fontSize = 16.sp,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                     }
                 }
@@ -1131,7 +1140,7 @@ private fun DialysisTypeEditDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )
@@ -1148,9 +1157,10 @@ private fun EmergencyContactDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = LiquidGlassColors.Foreground,
-        unfocusedTextColor = LiquidGlassColors.Foreground,
+        focusedTextColor = colors.foreground,
+        unfocusedTextColor = colors.foreground,
         cursorColor = LiquidGlassColors.MedicalCyan,
         focusedBorderColor = LiquidGlassColors.MedicalCyan,
         unfocusedBorderColor = LiquidGlassColors.GlassBorder,
@@ -1167,7 +1177,7 @@ private fun EmergencyContactDialog(
                 text = "编辑紧急联系人",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = LiquidGlassColors.Foreground
+                color = colors.foreground
             )
         },
         text = {
@@ -1181,7 +1191,7 @@ private fun EmergencyContactDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChange,
-                    label = { Text("姓名", color = LiquidGlassColors.Text400) },
+                    label = { Text("姓名", color = colors.text400) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = textFieldColors,
@@ -1190,7 +1200,7 @@ private fun EmergencyContactDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = onPhoneChange,
-                    label = { Text("电话", color = LiquidGlassColors.Text400) },
+                    label = { Text("电话", color = colors.text400) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = textFieldColors,
@@ -1199,7 +1209,7 @@ private fun EmergencyContactDialog(
                 OutlinedTextField(
                     value = relation,
                     onValueChange = onRelationChange,
-                    label = { Text("关系", color = LiquidGlassColors.Text400) },
+                    label = { Text("关系", color = colors.text400) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = textFieldColors,
@@ -1214,7 +1224,7 @@ private fun EmergencyContactDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消", color = LiquidGlassColors.Text400)
+                Text("取消", color = colors.text400)
             }
         }
     )

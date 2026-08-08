@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Shared UI pieces used across every tab of the data-record page:
@@ -67,13 +68,14 @@ fun QuickNoteChips(
     onSelected: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val chips = listOf("透析前", "透析后", "晨起", "睡前", "运动后")
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "快速备注",
             style = ClearDuTypography.MedListTitle,
-            color = LiquidGlassColors.Text400,
+            color = colors.text400,
             modifier = Modifier.padding(start = 2.dp)
         )
         Spacer(Modifier.height(ClearDuDimens.ChipsLabelBottomMargin))
@@ -102,6 +104,7 @@ private fun QuickNoteChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -129,7 +132,7 @@ private fun QuickNoteChip(
         Text(
             text = label,
             style = ClearDuTypography.ChipText,
-            color = if (isSelected) LiquidGlassColors.MedicalCyan else LiquidGlassColors.Text300,
+            color = if (isSelected) LiquidGlassColors.MedicalCyan else colors.text300,
             modifier = Modifier.padding(
                 horizontal = ClearDuDimens.ChipPaddingH,
                 vertical = ClearDuDimens.ChipPaddingV
@@ -153,6 +156,7 @@ fun NoteTextArea(
     onNoteChange: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
 
     Column(modifier = modifier.fillMaxWidth()) {
         GlassCard(
@@ -174,7 +178,7 @@ fun NoteTextArea(
                         vertical = ClearDuDimens.NoteAreaPaddingV
                     ),
                 textStyle = ClearDuTypography.NoteText.copy(
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 ),
                 cursorBrush = SolidColor(LiquidGlassColors.MedicalCyan),
                 decorationBox = { inner ->

@@ -70,8 +70,6 @@ fun VitalCard(
                 onClick = onClick
             ),
         shape = RoundedCornerShape(ClearDuDimens.VitalCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(

@@ -32,6 +32,7 @@ import com.cleardu.app.data.MedicationReminder
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * Medication reminder card.
@@ -47,6 +48,7 @@ fun MedicationReminderCard(
     onRemind: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
@@ -67,8 +69,6 @@ fun MedicationReminderCard(
                 onClick = onRemind
             ),
         shape = RoundedCornerShape(ClearDuDimens.MedReminderRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Row(
@@ -102,13 +102,13 @@ fun MedicationReminderCard(
                     Text(
                         text = reminder.title,
                         style = ClearDuTypography.MedTitle,
-                        color = LiquidGlassColors.Foreground
+                        color = colors.foreground
                     )
                     Spacer(Modifier.height(ClearDuDimens.MedTitleDetailGap))
                     Text(
                         text = reminder.detail,
                         style = ClearDuTypography.MedDetail,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                 }
             }

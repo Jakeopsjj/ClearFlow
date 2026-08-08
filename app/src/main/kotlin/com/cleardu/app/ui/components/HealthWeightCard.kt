@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 体重记录卡片 — 健康数据页面。
@@ -47,13 +48,12 @@ fun HealthWeightCard(
     targetWeight: Double = 63.0,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val weightStr = if (currentWeight > 0) "${currentWeight}" else "--"
 
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.HealthWeightRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -73,7 +73,7 @@ fun HealthWeightCard(
                 Text(
                     text = "体重记录",
                     style = ClearDuTypography.HealthCardTitle,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
                 MiniWeightChart(
                     data = weightTrend,
@@ -91,18 +91,18 @@ fun HealthWeightCard(
                     Text(
                         text = "当前体重",
                         style = ClearDuTypography.HealthWeightLabel,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             text = weightStr,
                             style = ClearDuTypography.HealthWeightValue,
-                            color = LiquidGlassColors.Foreground
+                            color = colors.foreground
                         )
                         Text(
                             text = " kg",
                             style = ClearDuTypography.HealthVitalUnit,
-                            color = LiquidGlassColors.Text400
+                            color = colors.text400
                         )
                     }
                 }
@@ -110,7 +110,7 @@ fun HealthWeightCard(
                     Text(
                         text = "目标干体重",
                         style = ClearDuTypography.HealthWeightLabel,
-                        color = LiquidGlassColors.Text400
+                        color = colors.text400
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
@@ -121,7 +121,7 @@ fun HealthWeightCard(
                         Text(
                             text = " kg",
                             style = ClearDuTypography.HealthVitalUnit,
-                            color = LiquidGlassColors.Text400
+                            color = colors.text400
                         )
                     }
                 }
@@ -141,9 +141,9 @@ fun HealthWeightCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("68 kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.Text400)
+                Text("68 kg", style = ClearDuTypography.HealthWeightScale, color = colors.text400)
                 Text("目标 ${targetWeight} kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.MedicalGreen)
-                Text("62 kg", style = ClearDuTypography.HealthWeightScale, color = LiquidGlassColors.Text400)
+                Text("62 kg", style = ClearDuTypography.HealthWeightScale, color = colors.text400)
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 电解质 2×2 网格 — 健康数据页面。
@@ -94,10 +95,10 @@ private data class ElectrolyteItem(
 
 @Composable
 private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier) {
+    val colors = backgroundAwareColors()
     GlassCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(ClearDuDimens.HealthEleCardRadius),
-        background = LiquidGlassColors.GlassBg,
         border = if (item.isWarning) LiquidGlassColors.TintOrangeBorder else LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
@@ -119,12 +120,12 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             Text(
                 text = item.name,
                 style = ClearDuTypography.HealthEleName,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(4.dp))
 
-            val valueColor = if (item.isWarning) LiquidGlassColors.MedicalOrange else LiquidGlassColors.Foreground
+            val valueColor = if (item.isWarning) LiquidGlassColors.MedicalOrange else colors.foreground
             Text(
                 text = item.value,
                 style = ClearDuTypography.HealthEleValue,
@@ -134,7 +135,7 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             Text(
                 text = item.unit,
                 style = ClearDuTypography.HealthEleUnit,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(8.dp))
@@ -151,7 +152,7 @@ private fun ElectrolyteCard(item: ElectrolyteItem, modifier: Modifier = Modifier
             Text(
                 text = "${item.rangeMin} / ${item.rangeMax}",
                 style = ClearDuTypography.HealthEleRange,
-                color = if (item.isWarning) LiquidGlassColors.MedicalOrange else LiquidGlassColors.Text400,
+                color = if (item.isWarning) LiquidGlassColors.MedicalOrange else colors.text400,
                 textAlign = TextAlign.Center
             )
         }

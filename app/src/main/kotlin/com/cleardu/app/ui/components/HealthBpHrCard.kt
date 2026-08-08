@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * 血压 & 心率双卡片 — 健康数据页面。
@@ -70,6 +71,7 @@ private fun BpSection(
     diastolic: Int,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val bpValue = if (systolic > 0) "$systolic/$diastolic" else "--/--"
     val bpStatus = when {
         systolic == 0 && diastolic == 0 -> "暂无数据"
@@ -87,8 +89,6 @@ private fun BpSection(
     GlassCard(
         modifier = modifier,
         shape = RoundedCornerShape(ClearDuDimens.HealthBpHrRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -102,7 +102,7 @@ private fun BpSection(
             Text(
                 text = "血压",
                 style = ClearDuTypography.HealthVitalLabel,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
             Spacer(Modifier.height(4.dp))
             Row(
@@ -112,12 +112,12 @@ private fun BpSection(
                 Text(
                     text = bpValue,
                     style = ClearDuTypography.HealthBpValue,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
                 Text(
                     text = "mmHg",
                     style = ClearDuTypography.HealthVitalUnit,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
             Spacer(Modifier.height(6.dp))
@@ -137,6 +137,7 @@ private fun HrSection(
     heartRate: Int,
     modifier: Modifier = Modifier
 ) {
+    val colors = backgroundAwareColors()
     val hrValue = if (heartRate > 0) "$heartRate" else "--"
     val hrStatus = when {
         heartRate == 0 -> "暂无数据"
@@ -154,8 +155,6 @@ private fun HrSection(
     GlassCard(
         modifier = modifier,
         shape = RoundedCornerShape(ClearDuDimens.HealthBpHrRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -169,7 +168,7 @@ private fun HrSection(
             Text(
                 text = "心率",
                 style = ClearDuTypography.HealthVitalLabel,
-                color = LiquidGlassColors.Text400
+                color = colors.text400
             )
             Spacer(Modifier.height(4.dp))
             Row(
@@ -179,12 +178,12 @@ private fun HrSection(
                 Text(
                     text = hrValue,
                     style = ClearDuTypography.HealthHrValue,
-                    color = LiquidGlassColors.Foreground
+                    color = colors.foreground
                 )
                 Text(
                     text = "bpm",
                     style = ClearDuTypography.HealthVitalUnit,
-                    color = LiquidGlassColors.Text400
+                    color = colors.text400
                 )
             }
             Spacer(Modifier.height(6.dp))

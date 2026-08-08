@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 import java.util.Locale
 
 /**
@@ -108,6 +109,7 @@ private data class EditableElementItem(
 
 @Composable
 private fun EditableElementCard(item: EditableElementItem, modifier: Modifier = Modifier) {
+    val colors = backgroundAwareColors()
     val formattedValue = if (item.value == item.value.toLong().toDouble() && item.value < 1000) {
         String.format(Locale.US, "%.0f", item.value)
     } else {
@@ -119,8 +121,6 @@ private fun EditableElementCard(item: EditableElementItem, modifier: Modifier = 
             .fillMaxWidth()
             .heightIn(min = ClearDuDimens.ElementCardMinHeight),
         shape = RoundedCornerShape(ClearDuDimens.ElementCardRadius),
-        background = LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Column(
@@ -142,19 +142,19 @@ private fun EditableElementCard(item: EditableElementItem, modifier: Modifier = 
             Text(
                 text = item.name,
                 style = ClearDuTypography.ElementName,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = formattedValue,
                 style = ClearDuTypography.ElementValue,
-                color = LiquidGlassColors.Foreground,
+                color = colors.foreground,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = item.unit,
                 style = ClearDuTypography.ElementUnit,
-                color = LiquidGlassColors.Text400,
+                color = colors.text400,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(ClearDuDimens.ElementRangeTopMargin))
@@ -219,7 +219,6 @@ private fun ElementAdjustButton(
             ),
         shape = CircleShape,
         background = if (pressed) LiquidGlassColors.TintCyanStrong else LiquidGlassColors.GlassBg,
-        border = LiquidGlassColors.GlassBorder,
         specularTop = LiquidGlassColors.GlassSpecularTop
     ) {
         Box(contentAlignment = Alignment.Center) {

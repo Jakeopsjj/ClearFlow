@@ -47,6 +47,7 @@ import com.cleardu.app.ui.theme.ClearDuDimens
 import com.cleardu.app.ui.theme.ClearDuMotion
 import com.cleardu.app.ui.theme.ClearDuTypography
 import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.backgroundAwareColors
 
 /**
  * A single permission card on the onboarding screen.
@@ -171,17 +172,18 @@ private fun PermissionIcon(icon: ImageVector, tone: PermissionTone) {
 
 @Composable
 private fun PermissionText(item: PermissionItem, modifier: Modifier = Modifier) {
+    val colors = backgroundAwareColors()
     Column(modifier = modifier) {
         Text(
             text = stringResource(item.nameRes),
             style = ClearDuTypography.PermissionName,
-            color = if (item.critical) LiquidGlassColors.MedicalRed else LiquidGlassColors.Foreground
+            color = if (item.critical) LiquidGlassColors.MedicalRed else colors.foreground
         )
         Spacer(Modifier.size(2.dp))
         Text(
             text = stringResource(item.descRes),
             style = ClearDuTypography.PermissionDesc,
-            color = LiquidGlassColors.Text400
+            color = colors.text400
         )
     }
 }
@@ -192,6 +194,7 @@ private fun PermissionToggleButton(
     critical: Boolean,
     onClick: () -> Unit
 ) {
+    val colors = backgroundAwareColors()
     val buttonBg by animateColorAsState(
         targetValue = when {
             granted -> LiquidGlassColors.TintGreenStrong
@@ -204,7 +207,7 @@ private fun PermissionToggleButton(
         targetValue = when {
             granted -> LiquidGlassColors.MedicalGreen
             critical -> LiquidGlassColors.MedicalOrange
-            else -> LiquidGlassColors.Text300
+            else -> colors.text300
         },
         label = "buttonFg"
     )

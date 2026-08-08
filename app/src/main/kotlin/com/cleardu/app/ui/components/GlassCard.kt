@@ -18,47 +18,49 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.dp
 import com.cleardu.app.ui.theme.ClearDuDimens
-import com.cleardu.app.ui.theme.LiquidGlassColors
+import com.cleardu.app.ui.theme.glassParams
 
 /**
- * A liquid-glass translucent surface reproducing the reference `.glass` style:
- *   background   = rgba(255,255,255,0.12)
- *   backdrop     = blur(30px) saturate(1.8)        ← approximated via translucency
- *   border       = 1px rgba(255,255,255,0.22)
- *   box-shadow   = 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.25)
+ * A liquid-glass translucent surface reproducing the reference `.glass` style.
  *
- * The specular highlight is drawn as a vertical gradient over the top half of
- * the card (mirrors `.glass::after`). All visuals are native Compose — no
- * WebView, no CSS backdrop-filter.
+ * 当未显式传入颜色参数时，自动根据天气背景亮度自适应：
+ * - 亮背景 → 浅灰磨砂卡片
+ * - 暗背景 → 浅白磨砂卡片
  *
  * @param shape corner shape (default 18dp matching `.permission-card`)
- * @param background translucent glass fill (overridable for tinted variants)
- * @param border glass border color
- * @param shadowColor optional shadow color for depth (default transparent = no shadow)
- * @param shadowElevation shadow elevation in dp (default 0 = no shadow)
- * @param specularTop specular highlight at the top of the card
+ * @param background translucent glass fill (null = 自适应玻璃色)
+ * @param border glass border color (null = 自适应边框色)
+ * @param shadowColor optional shadow color for depth
+ * @param shadowElevation shadow elevation in dp
+ * @param specularTop specular highlight at the top of the card (null = 自适应高光)
  * @param content the card content
  */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(ClearDuDimens.PermissionCardRadius),
-    background: Color = LiquidGlassColors.GlassBg,
-    border: Color = LiquidGlassColors.GlassBorder,
-    shadowColor: Color = Color.Transparent,
-    shadowElevation: Float = 0f,
-    specularTop: Color = LiquidGlassColors.GlassSpecularTop,
+    background: Color? = null,
+    border: Color? = null,
+    shadowColor: Color? = null,
+    shadowElevation: Float? = null,
+    specularTop: Color? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val params = glassParams()
+    val bg = background ?: params.background
+    val bd = border ?: params.border
+    val sc = shadowColor ?: params.shadowColor
+    val se = shadowElevation ?: params.shadowElevation
+    val st = specularTop ?: params.specularTop
     Box(
         modifier = modifier
             .clip(shape)
             .let { mod ->
-                if (shadowElevation > 0f && shadowColor != Color.Transparent) {
-                    mod.shadow(shadowElevation.dp, shape, clip = false, ambientColor = shadowColor, spotColor = shadowColor)
+                if (se > 0f && sc != Color.Transparent) {
+                    mod.shadow(se.dp, shape, clip = false, ambientColor = sc, spotColor = sc)
                 } else mod
             }
-            .border(BorderStroke(ClearDuDimens.GlassBorderWidth, border), shape),
+            .border(BorderStroke(ClearDuDimens.GlassBorderWidth, bd), shape),
         contentAlignment = Alignment.Center,
     ) {
         // 模糊背景层 — 轻微模糊使背景图与卡片不重叠
@@ -66,8 +68,8 @@ fun GlassCard(
             modifier = Modifier
                 .matchParentSize()
                 .blur(ClearDuDimens.GlassBlurRadius)
-                .drawBehindFill(background)
-                .drawSpecularOverlay(specularTop)
+                .drawBehindFill(bg)
+                .drawSpecularOverlay(st)
         )
         // 清晰内容层
         content()
